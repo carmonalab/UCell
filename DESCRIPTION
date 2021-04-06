@@ -1,0 +1,16 @@
+Package: UCell
+Type: Package
+Title: Robust single-cell signature enrichment analysis for Seurat
+Version: 0.2.0
+Authors@R: c(
+  person(given = 'Massimo', family = 'Andreatta', email = 'massimo.andreatta@unil.ch', role = c('aut','cre'), comment = c(ORCID = '0000-0002-8036-2647')),
+  person(given = 'Santiago', family = 'Carmona', email = 'santiago.carmona@unil.ch', role = c('aut'), comment = c(ORCID = '0000-0002-2495-0671'))
+  )
+Description: UCell extends Seurat package functionalities to calculate gene module/signature enrichment scores in single-cell transcriptomes using the Mann-Whitney U statistic. Normalized U statistic is equivalent to AUC (Area Under the Curve) and it depends only on the gene expression ranks of each cell. 
+Depends: R (>= 3.6.1),data.table(>= 1.13.6)
+Imports: Seurat(>= 3.2.1)
+Suggests: future.apply
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
