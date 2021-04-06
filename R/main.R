@@ -1,4 +1,4 @@
-#' Calculate module enrichment scores using Mann-Whitney U statistic from single-cell data (Seurat interface)
+#' Calculate module enrichment scores from single-cell data (Seurat interface)
 #'
 #' Given a Seurat object, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
 #' Returned scores are normalized U statistic (equivalent to AUC - Area Under the Curve).
@@ -48,9 +48,9 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
                                  ncores=ncores, force.gc=force.gc, name=name)
 
   } else {
-    meta.list <- calculate_Uscore(obj@assays[[assay]][[slot]], features=features, maxRank=maxRank, chunk.size=chunk.size, 
+    meta.list <- calculate_Uscore(GetAssayData(obj, slot, assay=assay), features=features, maxRank=maxRank, chunk.size=chunk.size, 
                                   ncores=ncores, force.gc=force.gc, storeRanks=storeRanks, name=name)
-
+    
     #store ranks matrix?
     if (storeRanks==T){
       cells_rankings.merge <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
@@ -68,7 +68,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
   return(obj)
 }
 
-#' Calculate module enrichment scores using Mann-Whitney U statistic from single-cell data
+#' Calculate module enrichment scores from single-cell data
 #'
 #' Given a gene vs. cell matrix, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
 #' Returned scores are normalized U statistic (equivalent to AUC - Area Under the Curve).
