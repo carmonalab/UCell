@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{ScoreSignatures_UCell}
 \alias{ScoreSignatures_UCell}
-\title{Calculate module enrichment scores using Mann-Whitney U statistic from single-cell data}
+\title{Calculate module enrichment scores from single-cell data}
 \usage{
 ScoreSignatures_UCell(
   matrix = NULL,
@@ -44,7 +44,8 @@ This score depends only on the gene expression ranks of individual cell, and the
 \examples{
 ## Not run:
 library(UCell)
-scores <- ScoreSignatures_UCell(expression_matrix,features=list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R")))
+my.matrix <- UCell::sample.matrix
+scores <- ScoreSignatures_UCell(my.matrix,features=list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R")))
 scores[1:5,1:5]
 ## End (Not run)
 }

@@ -36,8 +36,9 @@ function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures on the 
 \examples{
 ## Not run:
 library(UCell)
-ranks <- StoreRankings_UCell(expression_matrix)
+my.matrix <- UCell::sample.matrix
+ranks <- StoreRankings_UCell(my.matrix)
 ranks[1:5,1:5]
-scores <- ScoreSignatures_UCell(expression_matrix,features=feature.list, precalc.ranks=ranks)
+scores <- ScoreSignatures_UCell(features=feature.list, precalc.ranks=ranks)
 ## End (Not run)
 }

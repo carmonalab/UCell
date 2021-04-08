@@ -87,7 +87,8 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
 #' @examples
 #' ## Not run:
 #' library(UCell)
-#' scores <- ScoreSignatures_UCell(expression_matrix,features=list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R")))
+#' my.matrix <- UCell::sample.matrix
+#' scores <- ScoreSignatures_UCell(my.matrix,features=list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R")))
 #' scores[1:5,1:5]
 #' ## End (Not run)
 #' @export
@@ -130,9 +131,10 @@ ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, max
 #' @examples
 #' ## Not run:
 #' library(UCell)
-#' ranks <- StoreRankings_UCell(expression_matrix)
+#' my.matrix <- UCell::sample.matrix
+#' ranks <- StoreRankings_UCell(my.matrix)
 #' ranks[1:5,1:5]
-#' scores <- ScoreSignatures_UCell(expression_matrix,features=feature.list, precalc.ranks=ranks)
+#' scores <- ScoreSignatures_UCell(features=feature.list, precalc.ranks=ranks)
 #' ## End (Not run)
 #' @export
 StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1, force.gc=FALSE, seed=123) {

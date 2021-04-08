@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{AddModuleScore_UCell}
 \alias{AddModuleScore_UCell}
-\title{Calculate module enrichment scores using Mann-Whitney U statistic from single-cell data (Seurat interface)}
+\title{Calculate module enrichment scores from single-cell data (Seurat interface)}
 \usage{
 AddModuleScore_UCell(
   obj,
