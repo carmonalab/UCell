@@ -32,9 +32,14 @@ head(scores)
 
 Run UCell demos to learn about the functionalities of the package:
 
-* Signature enrichment analysis with UCell [VIGNETTE](https://carmonalab.github.io/UCell/UCell_matrix_vignette.html)
+* [Signature enrichment analysis with UCell](https://carmonalab.github.io/UCell/UCell_matrix_vignette.html)
 
-* Using UCell with Seurat objects [VIGNETTE](https://carmonalab.github.io/UCell/UCell_Seurat_vignette.html)
+* [Using UCell with Seurat objects](https://carmonalab.github.io/UCell/UCell_Seurat_vignette.html)
+
+### Documentation
+
+See a description of the functions implemented in UCell at: [UCell functions](docs/functions.md)
+
 
 ### Reference
 
