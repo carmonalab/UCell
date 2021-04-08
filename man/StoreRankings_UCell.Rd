@@ -39,6 +39,7 @@ library(UCell)
 my.matrix <- UCell::sample.matrix
 ranks <- StoreRankings_UCell(my.matrix)
 ranks[1:5,1:5]
-scores <- ScoreSignatures_UCell(features=feature.list, precalc.ranks=ranks)
+gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+scores <- ScoreSignatures_UCell(features=gene.sets, precalc.ranks=ranks)
 ## End (Not run)
 }

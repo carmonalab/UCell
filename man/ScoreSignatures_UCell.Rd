@@ -45,7 +45,8 @@ This score depends only on the gene expression ranks of individual cell, and the
 ## Not run:
 library(UCell)
 my.matrix <- UCell::sample.matrix
-scores <- ScoreSignatures_UCell(my.matrix,features=list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R")))
-scores[1:5,1:5]
+gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
+scores[1:5,]
 ## End (Not run)
 }
