@@ -29,7 +29,7 @@
 #' ## End (Not run)
 #' @export
 AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, 
-                                 assay=NULL, slot="data", ties.method="random", force.gc=FALSE, seed=123, name="_UCell") {
+                                 assay=NULL, slot="data", ties.method="average", force.gc=FALSE, seed=123, name="_UCell") {
 
   if (ncores>1) {
     require(future.apply)
@@ -98,7 +98,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
 #' ## End (Not run)
 #' @export
 ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, maxRank=1500, 
-                                  chunk.size=1000, ncores=1, ties.method="random", force.gc=FALSE, seed=123) {
+                                  chunk.size=1000, ncores=1, ties.method="average", force.gc=FALSE, seed=123) {
   
   if (ncores>1) {
     require(future.apply)
@@ -145,7 +145,7 @@ ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, max
 #' ## End (Not run)
 #' @export
 StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1, 
-                                ties.method="random", force.gc=FALSE, seed=123) {
+                                ties.method="average", force.gc=FALSE, seed=123) {
   
   if (ncores>1) {
     require(future.apply)

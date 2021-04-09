@@ -66,7 +66,7 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000, sparse=F
 }
 
 # Calculate features' ranks from expression data matrices
-data_to_ranks_data_table = function(data, ties.method="random") {
+data_to_ranks_data_table = function(data, ties.method="average") {
   dt <- as.data.table(as.matrix(data))
   rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method=ties.method,order=c(-1L)))]
   rnaDT.ranks.rownames <- rownames(data)
@@ -151,7 +151,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000,
 
 #Calculate rankings and scores for query data and given signature set
 calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, ncores=1, 
-                             ties.method="random", storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
+                             ties.method="average", storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
 
   #Make sure we have a sparse matrix
   require(Matrix)
