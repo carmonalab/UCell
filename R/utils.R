@@ -66,9 +66,9 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000, sparse=F
 }
 
 # Calculate features' ranks from expression data matrices
-data_to_ranks_data_table = function(data) {
+data_to_ranks_data_table = function(data, ties.method="random") {
   dt <- as.data.table(as.matrix(data))
-  rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method="random",order=c(-1L)))]
+  rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method=ties.method,order=c(-1L)))]
   rnaDT.ranks.rownames <- rownames(data)
   rnaDT.ranks.dt.rn <- cbind(rn=rnaDT.ranks.rownames, rnaDT.ranks.dt)
   setkey(rnaDT.ranks.dt.rn, rn, physical = F)
@@ -151,7 +151,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000,
 
 #Calculate rankings and scores for query data and given signature set
 calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, ncores=1, 
-                             storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
+                             ties.method="random", storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
 
   #Make sure we have a sparse matrix
   require(Matrix)
@@ -172,7 +172,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
       X = split.data,
       FUN = function(x) {
 
-        cells_rankings <- data_to_ranks_data_table(x)
+        cells_rankings <- data_to_ranks_data_table(x, ties.method = ties.method)
         cells_AUC <- u_stat_signature_list(features, cells_rankings, maxRank=maxRank, sparse=F)
 
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
@@ -206,7 +206,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
     meta.list <- lapply(
       X = split.data,
       FUN = function(x) {
-        cells_rankings <- data_to_ranks_data_table(x)
+        cells_rankings <- data_to_ranks_data_table(x, ties.method = ties.method)
         cells_AUC <- u_stat_signature_list(features, cells_rankings, maxRank=maxRank, sparse=F)
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
 

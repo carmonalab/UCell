@@ -13,6 +13,7 @@ AddModuleScore_UCell(
   storeRanks = F,
   assay = NULL,
   slot = "data",
+  ties.method = "random",
   force.gc = FALSE,
   seed = 123,
   name = "_UCell"
@@ -34,6 +35,8 @@ Note: this parameter is ignored if precalc.ranks are specified}
 
 \item{slot}{Pull out data from this slot of the Seurat object}
 
+\item{ties.method}{How ranking ties should be resolved (passed on to \code{\link{data.table::frank}})}
+
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
 \item{seed}{Integer seed for 'future' parallel execution}
@@ -53,7 +56,9 @@ In contrast to Seurat's AddModuleScore (based on population average gene express
 \examples{
 ## Not run:
 library(UCell)
-SeuratObject <- AddModuleScore_UCell(SeuratObject,features=list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R")))
+gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
+    Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+SeuratObject <- AddModuleScore_UCell(SeuratObject,features = gene.sets)
 SeuratObject$Tcell_signature_UCell
 head(SeuratObject@meta.data)
 ## End (Not run)

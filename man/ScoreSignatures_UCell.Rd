@@ -11,6 +11,7 @@ ScoreSignatures_UCell(
   maxRank = 1500,
   chunk.size = 1000,
   ncores = 1,
+  ties.method = "random",
   force.gc = FALSE,
   seed = 123
 )
@@ -28,6 +29,8 @@ Note: this parameter is ignored if precalc.ranks are specified}
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
 
 \item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
+
+\item{ties.method}{How ranking ties should be resolved (passed on to \code{\link{data.table::frank}})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
