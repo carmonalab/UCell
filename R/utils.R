@@ -14,8 +14,7 @@ u_stat <- function(rank_value, maxRank=1000, sparse=F){
     rank_sum = sum(rank_value)
     len_sig <- length(rank_value)
     u_value = rank_sum - (len_sig * (len_sig + 1))/2
-    auc = u_value/(len_sig * maxRank)
-    auc = 1 - auc
+    auc = 1 - u_value/(len_sig * maxRank)
     return(auc)
   }
 }
