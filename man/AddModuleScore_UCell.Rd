@@ -13,7 +13,7 @@ AddModuleScore_UCell(
   storeRanks = F,
   assay = NULL,
   slot = "data",
-  ties.method = "random",
+  ties.method = "average",
   force.gc = FALSE,
   seed = 123,
   name = "_UCell"
@@ -22,8 +22,7 @@ AddModuleScore_UCell(
 \arguments{
 \item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}}
 
-\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.
-Note: this parameter is ignored if precalc.ranks are specified}
+\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.}
 
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
 
@@ -35,13 +34,13 @@ Note: this parameter is ignored if precalc.ranks are specified}
 
 \item{slot}{Pull out data from this slot of the Seurat object}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to \code{\link{data.table::frank}})}
+\item{ties.method}{How ranking ties should be resolved (passed on to [data.table::frank()])}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for 'future' parallel execution}
+\item{seed}{Integer seed for [future.apply::future_lapply()] parallel execution}
 
-\item{name}{Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Tcell_signature_UCell)}
+\item{name}{Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)}
 
 \item{object}{Seurat object}
 }
@@ -49,15 +48,18 @@ Note: this parameter is ignored if precalc.ranks are specified}
 Returns a Seurat object with module/signature enrichment scores added to object meta data; each score is stored as the corresponding signature name provided in \code{features} followed by the tag given in \code{name} (or "_UCell" by default )
 }
 \description{
-Given a Seurat object, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
-Returned scores are normalized U statistic (equivalent to AUC - Area Under the Curve).
-In contrast to Seurat's AddModuleScore (based on population average gene expression binning) this score depend only on the gene expression ranks of individual cell, and therefore is robust across datasets.
+Given a Seurat object, calculates module/signature enrichment scores at single-cell level using the Mann-Whitney U statistic.
+UCell scores are normalized U statistics (between 0 and 1), and they mathematically related to the Area under the ROC curve (see [Mason and Graham]( https://doi.org/10.1256/003590002320603584))
+}
+\details{
+In contrast to Seurat's AddModuleScore, which is normalized by binning genes of similar expression at the population level, UCell scores depend 
+only on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
 }
 \examples{
 ## Not run:
 library(UCell)
 gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
-    Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+                Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 SeuratObject <- AddModuleScore_UCell(SeuratObject,features = gene.sets)
 SeuratObject$Tcell_signature_UCell
 head(SeuratObject@meta.data)

@@ -9,7 +9,7 @@ StoreRankings_UCell(
   maxRank = 1500,
   chunk.size = 1000,
   ncores = 1,
-  ties.method = "random",
+  ties.method = "average",
   force.gc = FALSE,
   seed = 123
 )
@@ -23,18 +23,23 @@ StoreRankings_UCell(
 
 \item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to \code{\link{data.table::frank}})}
+\item{ties.method}{How ranking ties should be resolved (passed on to [data.table::frank()]))}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for 'future' parallel execution}
+\item{seed}{Integer seed for [future.apply::future_lapply()] parallel execution}
 }
 \value{
 Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures
 }
 \description{
-Given a gene vs. cell matrix, calculates the rankings of expression for all genes in each cell. It can then be applied to the
-function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures on the gene expression ranks of individual cells.
+Given a gene vs. cell matrix, calculates the rankings of expression for all genes in each cell.
+}
+\details{
+While \code{\link{ScoreSignatures_UCell}} can be used 'on the fly' to evaluate signatures in a query dataset, it requires recalculating gene
+ranks at every execution. If you have a large dataset and plan to experiment with multiple signatures, evaluating the same dataset multiple times,
+this function allows you to store pre-calculated ranks so they do not have to be recomputed every time. Pre-calculated ranks can then be applied to the
+function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures in a significantly faster way on successive iterations.
 }
 \examples{
 ## Not run:
@@ -42,7 +47,8 @@ library(UCell)
 my.matrix <- UCell::sample.matrix
 ranks <- StoreRankings_UCell(my.matrix)
 ranks[1:5,1:5]
-gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
+                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 scores <- ScoreSignatures_UCell(features=gene.sets, precalc.ranks=ranks)
 ## End (Not run)
 }
