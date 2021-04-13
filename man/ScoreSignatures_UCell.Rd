@@ -30,18 +30,18 @@ Note: this parameter is ignored if \code{precalc.ranks} are specified}
 
 \item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to [data.table::frank()])}
+\item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for [future.apply::future_lapply()] parallel execution}
+\item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
 }
 \value{
 Returns a dataframe of signature scores for each cell
 }
 \description{
 Given a gene vs. cell matrix, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
-UCell scores are normalized U statistics (between 0 and 1), and they mathematically related to the Area under the ROC curve (see [Mason and Graham]( https://doi.org/10.1256/003590002320603584))
+UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see \href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
 }
 \details{
 These scores only depend on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.

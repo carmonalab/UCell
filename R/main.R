@@ -1,7 +1,7 @@
 #' Calculate module enrichment scores from single-cell data (Seurat interface)
 #'
 #' Given a Seurat object, calculates module/signature enrichment scores at single-cell level using the Mann-Whitney U statistic.
-#' UCell scores are normalized U statistics (between 0 and 1), and they mathematically related to the Area under the ROC curve (see [Mason and Graham]( https://doi.org/10.1256/003590002320603584))
+#' UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see [Mason and Graham](https://doi.org/10.1256/003590002320603584))
 #' 
 #' In contrast to Seurat's AddModuleScore, which is normalized by binning genes of similar expression at the population level, UCell scores depend 
 #' only on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
@@ -14,9 +14,9 @@
 #' @param storeRanks Store ranks matrix in Seurat object (@misc slot) for fast subsequent computations. This option will demand large amounts of RAM.
 #' @param assay Pull out data from this assay of the Seurat object (if NULL, use \code{DefaultAssay(obj)})
 #' @param slot Pull out data from this slot of the Seurat object
-#' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank()])
+#' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
-#' @param seed Integer seed for [future.apply::future_lapply()] parallel execution
+#' @param seed Integer seed for [future.apply::future_lapply] parallel execution
 #' @param name Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)
 #' @return Returns a Seurat object with module/signature enrichment scores added to object meta data; each score is stored as the corresponding signature name provided in \code{features} followed by the tag given in \code{name} (or "_UCell" by default )
 #' @examples
@@ -75,7 +75,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
 #' Calculate module enrichment scores from single-cell data
 #'
 #' Given a gene vs. cell matrix, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
-#' UCell scores are normalized U statistics (between 0 and 1), and they mathematically related to the Area under the ROC curve (see [Mason and Graham]( https://doi.org/10.1256/003590002320603584))
+#' UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see [Mason and Graham](https://doi.org/10.1256/003590002320603584))
 #'
 #' These scores only depend on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
 #'
@@ -86,9 +86,9 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
 #'     Note: this parameter is ignored if \code{precalc.ranks} are specified
 #' @param chunk.size Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)
 #' @param ncores Number of processors to parallelize computation. Requires package \code{future}
-#' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank()])
+#' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
-#' @param seed Integer seed for [future.apply::future_lapply()] parallel execution
+#' @param seed Integer seed for [future.apply::future_lapply] parallel execution
 #' @return Returns a dataframe of signature scores for each cell
 #' @examples
 #' ## Not run:
@@ -137,9 +137,9 @@ ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, max
 #' @param maxRank Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed
 #' @param chunk.size Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)
 #' @param ncores Number of processors to parallelize computation. Requires package \code{future}
-#' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank()]))
+#' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
-#' @param seed Integer seed for [future.apply::future_lapply()] parallel execution
+#' @param seed Integer seed for [future.apply::future_lapply] parallel execution
 #' @return Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures
 #' @examples
 #' ## Not run:

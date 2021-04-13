@@ -23,11 +23,11 @@ StoreRankings_UCell(
 
 \item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to [data.table::frank()]))}
+\item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for [future.apply::future_lapply()] parallel execution}
+\item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
 }
 \value{
 Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures

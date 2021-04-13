@@ -34,11 +34,11 @@ AddModuleScore_UCell(
 
 \item{slot}{Pull out data from this slot of the Seurat object}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to [data.table::frank()])}
+\item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for [future.apply::future_lapply()] parallel execution}
+\item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
 
 \item{name}{Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)}
 
@@ -49,10 +49,10 @@ Returns a Seurat object with module/signature enrichment scores added to object 
 }
 \description{
 Given a Seurat object, calculates module/signature enrichment scores at single-cell level using the Mann-Whitney U statistic.
-UCell scores are normalized U statistics (between 0 and 1), and they mathematically related to the Area under the ROC curve (see [Mason and Graham]( https://doi.org/10.1256/003590002320603584))
+UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see \href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
 }
 \details{
-In contrast to Seurat's AddModuleScore, which is normalized by binning genes of similar expression at the population level, UCell scores depend 
+In contrast to Seurat's AddModuleScore, which is normalized by binning genes of similar expression at the population level, UCell scores depend
 only on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
 }
 \examples{
