@@ -44,6 +44,7 @@ Run UCell demos to learn about the functionalities of the package:
 See a description of the functions implemented in UCell at: [UCell functions](docs/functions.md)
 
 
-### Reference
+### Citation
 
-Coming soon.
+UCell: robust and scalable single-cell gene signature scoring. Massimo Andreatta & Santiago J Carmona
+https://doi.org/10.1101/2021.04.13.439670
