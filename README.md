@@ -1,9 +1,10 @@
-# Robust and scalable single-cell gene signature enrichment analysis
+# UCell: Robust and scalable single-cell gene signature scoring
 
 
-`UCell` is an R package for calculating gene signatures in single-cell datasets. UCell enrichment scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands relatively less computing time and memory than other available methods, enabling the processing of large datasets (>10^5 cells). UCell can be applied to any cell vs. gene data matrix, and includes functions to directly interact with Seurat objects. 
+`UCell` is an R package for calculating gene signatures in single-cell datasets. UCell scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands relatively less computing time and memory than other available methods, enabling the processing of large datasets (>10^5 cells). UCell can be applied to any cell vs. gene data matrix, and includes functions to directly interact with Seurat objects. 
 
-![UCell_figure](https://github.com/carmonalab/UCell/blob/master/Figure1.png?raw=true)
+
+![UCell_figure](https://github.com/carmonalab/UCell/blob/master/docs/Figure1.png?raw=true)
 
 
 Find the installation instructions for the package and usage vignettes below.
@@ -34,7 +35,7 @@ head(scores)
 
 Run UCell demos to learn about the functionalities of the package:
 
-* [Signature enrichment analysis with UCell](https://carmonalab.github.io/UCell/UCell_matrix_vignette.html)
+* [Single-cell gene signature scoring with UCell](https://carmonalab.github.io/UCell/UCell_matrix_vignette.html)
 
 * [Using UCell with Seurat objects](https://carmonalab.github.io/UCell/UCell_Seurat_vignette.html)
 
@@ -43,6 +44,7 @@ Run UCell demos to learn about the functionalities of the package:
 See a description of the functions implemented in UCell at: [UCell functions](docs/functions.md)
 
 
-### Reference
+### Citation
 
-Coming soon.
+UCell: robust and scalable single-cell gene signature scoring. Massimo Andreatta & Santiago J Carmona
+https://doi.org/10.1101/2021.04.13.439670
