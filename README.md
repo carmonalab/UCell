@@ -39,6 +39,8 @@ Run UCell demos to learn about the functionalities of the package:
 
 * [Using UCell with Seurat objects](https://carmonalab.github.io/UCell/UCell_Seurat_vignette.html)
 
+* [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell/UCell_vignette_TILstates.html)
+
 ### Documentation
 
 See a description of the functions implemented in UCell at: [UCell functions](docs/functions.md)
