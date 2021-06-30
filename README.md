@@ -53,17 +53,15 @@ markers$Tcell_CD4 <- c("CD4","CD40LG")
 markers$Tcell_CD8 <- c("CD8A","CD8B")
 markers$Tcell_Treg <- c("FOXP3","IL2RA")
 ```
+If you don't specify +/- for genes, they are assumed to be all as a positive set.
 
-Genes without a + or - sign are assumed to be positive genes for that signature.
+The **UCell score** is calculated as:  U = max(0, U<sup>+</sup> - *w_neg* * U<sup>-</sup>)
+ 
+where U<sup>+</sup> and U<sup>-</sup> are respectively the U scores for the positive and negative set, and *w_neg* is a weight on the negative set.
 
-The UCell score is calculated as:
-$$
-U = max(0, U^+ - w_neg * U^-)
-$$ 
+When no negative set of genes is present, U = U<sup>+</sup>, therefore the behavior is identical to previous UCell versions.   
 
-where U^+ and U^- are respectively the U scores for the positive and negative set, and 'w_neg' is a weight on the negative set.
 
-When no negative set of genes is present, U = U^+, therefore the behavior is identical to previous UCell versions.   
 
 ### Documentation
 
