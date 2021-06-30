@@ -11,6 +11,7 @@ AddModuleScore_UCell(
   chunk.size = 1000,
   ncores = 1,
   storeRanks = F,
+  w_neg = 1,
   assay = NULL,
   slot = "data",
   ties.method = "average",
@@ -29,6 +30,8 @@ AddModuleScore_UCell(
 \item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
 
 \item{storeRanks}{Store ranks matrix in Seurat object (@misc slot) for fast subsequent computations. This option will demand large amounts of RAM.}
+
+\item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less importance to negative genes}
 
 \item{assay}{Pull out data from this assay of the Seurat object (if NULL, use \code{DefaultAssay(obj)})}
 

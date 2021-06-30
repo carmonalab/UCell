@@ -12,6 +12,7 @@
 #' @param maxRank Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.
 #' @param ncores Number of processors to parallelize computation. Requires package \code{future}
 #' @param storeRanks Store ranks matrix in Seurat object (@misc slot) for fast subsequent computations. This option will demand large amounts of RAM.
+#' @param w_neg Weight on negative genes in signature. e.g. `w_neg=1` weighs equally up- and down-regulated genes, `w_neg=0.5` gives 50% less importance to negative genes
 #' @param assay Pull out data from this assay of the Seurat object (if NULL, use \code{DefaultAssay(obj)})
 #' @param slot Pull out data from this slot of the Seurat object
 #' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
@@ -29,7 +30,7 @@
 #' head(SeuratObject@meta.data)
 #' ## End (Not run)
 #' @export
-AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, 
+AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, w_neg=1,
                                  assay=NULL, slot="data", ties.method="average", force.gc=FALSE, seed=123, name="_UCell") {
 
   if (ncores>1) {
@@ -48,11 +49,11 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
   #If rank matrix was pre-computed, evaluate the new signatures from these ranks
   #Else, calculate new ranks to score signatures (optionally storing ranks, takes up memory but become very fast to evaluate further signatures)
   if (!is.null(precomputedRanks)) {
-    meta.list <- rankings2Uscore(precomputedRanks, features=features, chunk.size=chunk.size, 
+    meta.list <- rankings2Uscore(precomputedRanks, features=features, chunk.size=chunk.size, w_neg=w_neg,
                                  ncores=ncores, force.gc=force.gc, name=name)
 
   } else {
-    meta.list <- calculate_Uscore(GetAssayData(obj, slot, assay=assay), features=features, maxRank=maxRank, chunk.size=chunk.size, 
+    meta.list <- calculate_Uscore(GetAssayData(obj, slot, assay=assay), features=features, maxRank=maxRank, chunk.size=chunk.size, w_neg=w_neg,
                                   ncores=ncores, ties.method=ties.method, force.gc=force.gc, storeRanks=storeRanks, name=name)
     
     #store ranks matrix?
@@ -85,6 +86,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
 #' @param maxRank Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.
 #'     Note: this parameter is ignored if \code{precalc.ranks} are specified
 #' @param chunk.size Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)
+#' @param w_neg Weight on negative genes in signature. e.g. `w_neg=1` weighs equally up- and down-regulated genes, `w_neg=0.5` gives 50% less importance to negative genes
 #' @param ncores Number of processors to parallelize computation. Requires package \code{future}
 #' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
@@ -100,7 +102,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
 #' scores[1:5,]
 #' ## End (Not run)
 #' @export
-ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, maxRank=1500, 
+ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, maxRank=1500, w_neg=1,
                                   chunk.size=1000, ncores=1, ties.method="average", force.gc=FALSE, seed=123) {
   
   if (ncores>1) {
@@ -111,10 +113,10 @@ ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, max
   features <- check_signature_names(features)
   
   if (!is.null(precalc.ranks)) {
-     meta.list <- rankings2Uscore(precalc.ranks, features=features, chunk.size=chunk.size, 
+     meta.list <- rankings2Uscore(precalc.ranks, features=features, chunk.size=chunk.size, w_neg=w_neg,
                                   ncores=ncores, force.gc=force.gc)
   } else {
-     meta.list <- calculate_Uscore(matrix, features=features, maxRank=maxRank, chunk.size=chunk.size, 
+     meta.list <- calculate_Uscore(matrix, features=features, maxRank=maxRank, chunk.size=chunk.size, w_neg=w_neg,
                                    ties.method=ties.method, ncores=ncores, force.gc=force.gc)
   }
   meta.merge <- lapply(meta.list,function(x) rbind(x[["cells_AUC"]]))
@@ -162,7 +164,7 @@ StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1,
   }
   
   features <- rownames(matrix)[1]  #dummy signature
-  meta.list <- calculate_Uscore(matrix, features=features, maxRank=maxRank, chunk.size=chunk.size, 
+  meta.list <- calculate_Uscore(matrix, features=features, maxRank=maxRank, chunk.size=chunk.size,
                                 ncores=ncores, ties.method=ties.method, storeRanks=T, force.gc=force.gc)
   
   ranks.all <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))

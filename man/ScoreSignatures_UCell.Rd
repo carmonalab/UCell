@@ -9,6 +9,7 @@ ScoreSignatures_UCell(
   features,
   precalc.ranks = NULL,
   maxRank = 1500,
+  w_neg = 1,
   chunk.size = 1000,
   ncores = 1,
   ties.method = "average",
@@ -25,6 +26,8 @@ ScoreSignatures_UCell(
 
 \item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.
 Note: this parameter is ignored if \code{precalc.ranks} are specified}
+
+\item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less importance to negative genes}
 
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
 

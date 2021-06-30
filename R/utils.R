@@ -22,6 +22,7 @@ u_stat <- function(rank_value, maxRank=1000, sparse=F){
 #Check if all genes in signatures are found in data matrix - otherwise add zero counts in data-matrix to complete it
 check_genes <- function(matrix, features) {
    features <- unlist(features)
+   features <- gsub("[-+]$","",features,perl=T)
    missing <- setdiff(features, rownames(matrix))
    ll <- length(missing)
    
@@ -54,11 +55,29 @@ check_signature_names <- function(features) {
 }
 
 #Calculate AUC for a list of signatures, from a ranks matrix
-u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000, sparse=F) {
+u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000, sparse=F, w_neg=1) {
 
   u_matrix <- sapply(sig_list, function(sig) {
-    as.numeric(ranks_matrix[sig, lapply(.SD, function(x) u_stat(x,maxRank = maxRank,sparse=sparse)),.SDcols=-1, on="rn"])
-    })
+     sig_neg <- grep('-$', unlist(sig), perl=T, value=T)
+     sig_pos <- setdiff(unlist(sig), sig_neg)
+     
+     if (length(sig_pos)>0) {
+        sig_pos <- gsub('\\+$','',sig_pos,perl=T)
+        u_p <- as.numeric(ranks_matrix[sig_pos, lapply(.SD, function(x) u_stat(x,maxRank = maxRank,sparse=sparse)),.SDcols=-1, on="rn"])
+     } else {
+        u_p <- rep(0, dim(ranks_matrix)[2]-1)
+     }
+     if (length(sig_neg)>0) {
+       sig_neg <- gsub('-$','',sig_neg,perl=T)
+       u_n <- as.numeric(ranks_matrix[sig_neg, lapply(.SD, function(x) u_stat(x,maxRank = maxRank,sparse=sparse)),.SDcols=-1, on="rn"])
+     } else {
+       u_n <- rep(0, dim(ranks_matrix)[2]-1)
+     }
+     
+     diff <- u_p - w_neg*u_n
+     diff[diff<0] <- 0
+     return(diff)
+  })
 
   rownames(u_matrix) <- colnames(ranks_matrix)[-1]
   return (u_matrix)
@@ -90,7 +109,7 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
 
 #Get signature scores from precomputed rank matrix
 
-rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, 
+rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
                             ncores=1, force.gc=FALSE, name="_UCell") {
 
   #Check if all genes in signatures are present in the stored signatures
@@ -111,7 +130,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000,
         dense <- as.data.table(dense, keep.rownames=TRUE)
         setkey(dense, rn, physical=F)
 
-        cells_AUC <- u_stat_signature_list(features, dense, maxRank=maxRank, sparse=T)
+        cells_AUC <- u_stat_signature_list(features, dense, maxRank=maxRank, sparse=T, w_neg=w_neg)
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
         
         if (force.gc) {
@@ -134,7 +153,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000,
         dense <- as.data.table(dense, keep.rownames=TRUE)
         setkey(dense, rn, physical=F)
 
-        cells_AUC <- u_stat_signature_list(features, dense, maxRank=maxRank, sparse=T)
+        cells_AUC <- u_stat_signature_list(features, dense, maxRank=maxRank, sparse=T, w_neg=w_neg)
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
         
         if (force.gc) {
@@ -149,7 +168,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000,
 }
 
 #Calculate rankings and scores for query data and given signature set
-calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, ncores=1, 
+calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, ncores=1, w_neg=1,
                              ties.method="average", storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
 
   #Make sure we have a sparse matrix
@@ -172,7 +191,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
       FUN = function(x) {
 
         cells_rankings <- data_to_ranks_data_table(x, ties.method = ties.method)
-        cells_AUC <- u_stat_signature_list(features, cells_rankings, maxRank=maxRank, sparse=F)
+        cells_AUC <- u_stat_signature_list(features, cells_rankings, maxRank=maxRank, sparse=F, w_neg=w_neg)
 
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
 
@@ -206,7 +225,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
       X = split.data,
       FUN = function(x) {
         cells_rankings <- data_to_ranks_data_table(x, ties.method = ties.method)
-        cells_AUC <- u_stat_signature_list(features, cells_rankings, maxRank=maxRank, sparse=F)
+        cells_AUC <- u_stat_signature_list(features, cells_rankings, maxRank=maxRank, sparse=F, w_neg=w_neg)
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
 
         if (storeRanks==T){
