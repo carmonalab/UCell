@@ -17,6 +17,12 @@ library(remotes)
 remotes::install_github("carmonalab/UCell")
 ```
 
+or, for the development version:
+```
+remotes::install_github("carmonalab/UCell", ref="dev")
+```
+
+
 ### Test the package
 
 Load sample data and test your installation:
@@ -48,5 +54,4 @@ See a description of the functions implemented in UCell at: [UCell functions](do
 
 ### Citation
 
-UCell: robust and scalable single-cell gene signature scoring. Massimo Andreatta & Santiago J Carmona
-https://doi.org/10.1101/2021.04.13.439670
+UCell: robust and scalable single-cell gene signature scoring. Massimo Andreatta & Santiago J Carmona **(2021)** *CSBJ* https://doi.org/10.1016/j.csbj.2021.06.043
