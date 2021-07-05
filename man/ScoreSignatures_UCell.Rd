@@ -20,7 +20,8 @@ ScoreSignatures_UCell(
 \arguments{
 \item{matrix}{A gene vs. cell data matrix, either in sparse or dense format. Leave empty if providing a rank matrix with \code{precalc.ranks}}
 
-\item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}}
+\item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
+You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
 
 \item{precalc.ranks}{A sparse matrix of pre-calculated ranks, obtained with \code{\link{StoreRankings_UCell}}}
 

@@ -21,7 +21,8 @@ AddModuleScore_UCell(
 )
 }
 \arguments{
-\item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}}
+\item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
+You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
 
 \item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.}
 
@@ -66,5 +67,12 @@ gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
 SeuratObject <- AddModuleScore_UCell(SeuratObject,features = gene.sets)
 SeuratObject$Tcell_signature_UCell
 head(SeuratObject@meta.data)
+
+## Using positive and negative gene sets
+markers <- list()
+markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
+markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
+SeuratObject <- AddModuleScore_UCell(SeuratObject, features = markers)
+FeaturePlot(SeuratObject, features=c("Tcell_gd_UCell","Tcell_NK_UCell"))
 ## End (Not run)
 }
