@@ -55,6 +55,7 @@ check_signature_names <- function(features) {
 }
 
 #Calculate AUC for a list of signatures, from a ranks matrix
+#' @import data.table
 u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000, sparse=F, w_neg=1) {
 
   u_matrix <- sapply(sig_list, function(sig) {
@@ -84,6 +85,7 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000, sparse=F
 }
 
 # Calculate features' ranks from expression data matrices
+#' @import data.table
 data_to_ranks_data_table = function(data, ties.method="average") {
   dt <- as.data.table(as.matrix(data))
   rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method=ties.method,order=c(-1L)))]
@@ -108,7 +110,7 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
 }
 
 #Get signature scores from precomputed rank matrix
-
+#' @import data.table
 rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
                             ncores=1, force.gc=FALSE, name="_UCell") {
 
