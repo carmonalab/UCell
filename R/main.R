@@ -37,6 +37,7 @@
 #' SeuratObject <- AddModuleScore_UCell(SeuratObject, features = markers)
 #' FeaturePlot(SeuratObject, features=c("Tcell_gd_UCell","Tcell_NK_UCell"))
 #' ## End (Not run)
+#' @import Seurat
 #' @export
 AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, w_neg=1,
                                  assay=NULL, slot="data", ties.method="average", force.gc=FALSE, seed=123, name="_UCell") {
@@ -61,7 +62,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
                                  ncores=ncores, force.gc=force.gc, name=name)
 
   } else {
-    meta.list <- calculate_Uscore(GetAssayData(obj, slot, assay=assay), features=features, maxRank=maxRank, chunk.size=chunk.size, w_neg=w_neg,
+    meta.list <- calculate_Uscore(Seurat::GetAssayData(obj, slot, assay=assay), features=features, maxRank=maxRank, chunk.size=chunk.size, w_neg=w_neg,
                                   ncores=ncores, ties.method=ties.method, force.gc=force.gc, storeRanks=storeRanks, name=name)
     
     #store ranks matrix?

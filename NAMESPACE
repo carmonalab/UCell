@@ -3,3 +3,5 @@
 export(AddModuleScore_UCell)
 export(ScoreSignatures_UCell)
 export(StoreRankings_UCell)
+import(Seurat)
+import(data.table)
