@@ -150,7 +150,6 @@ StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1,
 #' SeuratObject <- AddModuleScore_UCell(SeuratObject, features = markers)
 #' FeaturePlot(SeuratObject, features=c("Tcell_gd_UCell","Tcell_NK_UCell"))
 #' ## End (Not run)
-#' @import Seurat
 #' @export
 AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, w_neg=1,
                                  assay=NULL, slot="data", ties.method="average", force.gc=FALSE, seed=123, name="_UCell") {
