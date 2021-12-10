@@ -27,6 +27,7 @@
 #' scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
 #' scores[1:5,]
 #' ## End (Not run)
+#' @import Matrix
 #' @export
 ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL, maxRank=1500, w_neg=1,
                                   chunk.size=1000, ncores=1, ties.method="average", force.gc=FALSE, seed=123) {
