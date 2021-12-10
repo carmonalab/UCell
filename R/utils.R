@@ -128,7 +128,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
   rm(ranks_matrix)
 
   if (ncores>1) {
-    plan(future::multisession(workers=future_param_ncores))
+    future::plan(future::multisession(workers=future_param_ncores))
 
     meta.list <- future_lapply(
       X = split.data,
@@ -149,7 +149,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
       },
       future.seed = future_param_seed
     )
-    plan(strategy = "sequential")
+    future::plan(strategy = "sequential")
 
   } else {
 
@@ -180,7 +180,6 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
                              ties.method="average", storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
 
   #Make sure we have a sparse matrix
-  require(Matrix)
   if (class(matrix) != "dgCMatrix") {
     matrix <- Matrix::Matrix(as.matrix(matrix),sparse = T)
   }
@@ -192,7 +191,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
 
   #Parallelize?
   if (ncores>1) {
-    plan(future::multisession(workers=future_param_ncores))
+    future::plan(future::multisession(workers=future_param_ncores))
 
     meta.list <- future_lapply(
       X = split.data,
@@ -226,7 +225,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
       },
       future.seed = future_param_seed
     )
-    plan(strategy = "sequential")
+    future::plan(strategy = "sequential")
 
   } else {
     meta.list <- lapply(
