@@ -10,9 +10,10 @@ u_stat <- function(rank_value, maxRank=1000, sparse=F){
   if(all(insig)) {
     return(0L)
   } else {
-    rank_value[insig] <- maxRank+1
+    rank_value[insig] <- maxRank
     rank_sum = sum(rank_value)
     len_sig <- length(rank_value)
+
     u_value = rank_sum - (len_sig * (len_sig + 1))/2
     auc = 1 - u_value/(len_sig * maxRank)
     return(auc)
@@ -185,7 +186,12 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
   }
   #Check if all genes in signatures are present in the data matrix
   matrix <- check_genes(matrix, features)
-
+  
+  sign.lgt <- lapply(features, length)
+  if (any(sign.lgt > maxRank)) {
+    stop("One or more signatures contain more genes than maxRank parameter. Increase maxRank parameter or make shorter signatures")
+  }
+  
   #Split into manageable chunks
   split.data <- split_data.matrix(matrix=matrix, chunk.size=chunk.size)
 
