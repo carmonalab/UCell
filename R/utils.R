@@ -10,7 +10,7 @@ u_stat <- function(rank_value, maxRank=1000, sparse=F){
   if(all(insig)) {
     return(0L)
   } else {
-    rank_value[insig] <- maxRank
+    rank_value[insig] <- maxRank+1
     rank_sum = sum(rank_value)
     len_sig <- length(rank_value)
 
