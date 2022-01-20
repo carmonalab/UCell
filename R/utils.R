@@ -181,7 +181,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
                              ties.method="average", storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
 
   #Make sure we have a sparse matrix
-  if (class(matrix) != "dgCMatrix") {
+  if (class(matrix)[1] != "dgCMatrix") {
     matrix <- Matrix::Matrix(as.matrix(matrix),sparse = T)
   }
   #Check if all genes in signatures are present in the data matrix
