@@ -187,6 +187,12 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
   #Check if all genes in signatures are present in the data matrix
   matrix <- check_genes(matrix, features)
   
+  #Do not evaluate more genes than there are
+  if (maxRank > nrow(matrix)) {
+     maxRank <- nrow(matrix)
+  }
+  
+  #Signatures cannot be larger than maxRank parameter
   sign.lgt <- lapply(features, length)
   if (any(sign.lgt > maxRank)) {
     stop("One or more signatures contain more genes than maxRank parameter. Increase maxRank parameter or make shorter signatures")
