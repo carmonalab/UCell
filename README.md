@@ -4,7 +4,7 @@
 `UCell` is an R package for calculating gene signatures in single-cell datasets. UCell scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands relatively less computing time and memory than other available methods, enabling the processing of large datasets (>10^5 cells). UCell can be applied to any cell vs. gene data matrix, and includes functions to directly interact with Seurat objects. 
 
 
-![UCell_figure](https://github.com/carmonalab/UCell/blob/master/docs/Figure1.png?raw=true)
+![UCell_figure](https://github.com/carmonalab/UCell_demo/blob/master/docs/Figure1.png?raw=true)
 
 
 Find the installation instructions for the package and usage vignettes below.
@@ -41,11 +41,11 @@ head(scores)
 
 Run UCell demos to learn about the functionalities of the package:
 
-* [Single-cell gene signature scoring with UCell](https://carmonalab.github.io/UCell/UCell_matrix_vignette.html)
+* [Single-cell gene signature scoring with UCell](https://carmonalab.github.io/UCell_demo/UCell_matrix_vignette.html)
 
-* [Using UCell with Seurat objects](https://carmonalab.github.io/UCell/UCell_Seurat_vignette.html)
+* [Using UCell with Seurat objects](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
 
-* [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell/UCell_vignette_TILstates.html)
+* [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell_demo/UCell_vignette_TILstates.html)
 
 ### New in version 1.1.0
 
