@@ -7,7 +7,8 @@ Authors@R: c(
   person(given = 'Santiago', family = 'Carmona', email = 'santiago.carmona@unil.ch', role = c('aut'), comment = c(ORCID = '0000-0002-2495-0671'))
   )
 Description: UCell extends Seurat package functionalities to calculate gene module/signature enrichment scores in single-cell transcriptomes using the Mann-Whitney U statistic. The normalized U statistic is mathematically related to the area under the ROC curve and it depends only on the gene expression ranks of each cell. 
-Depends: R(>= 3.6.1) 
+Depends: R(>= 3.6.1)
+biocViews: 
 Imports: data.table(>= 1.13.6), 
          Matrix,
          BiocParallel
