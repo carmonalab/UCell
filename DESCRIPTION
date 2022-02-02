@@ -10,8 +10,7 @@ Description: UCell extends Seurat package functionalities to calculate gene modu
 Depends: R(>= 3.6.1) 
 Imports: data.table(>= 1.13.6), 
          Matrix,
-         future,
-         future.apply        
+         BiocParallel
 Suggests: SingleCellExperiment, Seurat
 License: GPL-3
 Encoding: UTF-8
