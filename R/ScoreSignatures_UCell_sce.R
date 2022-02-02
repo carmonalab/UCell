@@ -11,6 +11,7 @@
 #' @examples
 #' ## Not run:
 #' library(UCell)
+#' library(SingleCellExperiment)
 #' my.matrix <- UCell::sample.matrix
 #' my.sce <- SingleCellExperiment(list(counts=my.matrix))
 #' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
@@ -24,7 +25,7 @@ ScoreSignatures_UCell_sce <- function(sce, assay="counts", features, ...) {
   if (class(sce) != "SingleCellExperiment") {
     stop("Provided object is not of class SingleCellExperiment.")
   }
-  if (!requireNamespace("Seurat", quietly = TRUE)) {
+  if (!requireNamespace("SingleCellExperiment", quietly = TRUE)) {
     stop("Function 'ScoreSignatures_UCell_sce' requires the SingleCellExperiment package. Please install it.", call. = FALSE)
   }  
   

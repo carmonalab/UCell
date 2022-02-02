@@ -25,6 +25,7 @@ A wrapper for the function \code{\link{ScoreSignatures_UCell}} that interacts di
 \examples{
 ## Not run:
 library(UCell)
+library(SingleCellExperiment)
 my.matrix <- UCell::sample.matrix
 my.sce <- SingleCellExperiment(list(counts=my.matrix))
 gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),

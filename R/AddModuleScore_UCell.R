@@ -24,6 +24,7 @@
 #' @examples
 #' ## Not run:
 #' library(UCell)
+#' library(Seurat)
 #' gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
 #'                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 #' SeuratObject <- AddModuleScore_UCell(SeuratObject,features = gene.sets)
