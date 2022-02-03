@@ -19,6 +19,8 @@
 #' my.sce <- ScoreSignatures_UCell_sce(my.sce, features=gene.sets)
 #' head(t(assay(altExp(my.sce,"UCell"))))
 #' ## End (Not run)
+#' @import SingleCellExperiment
+#' @importFrom SummarizedExperiment assay SummarizedExperiment
 #' @export
 ScoreSignatures_UCell_sce <- function(sce, assay="counts", features, ...) {
   
@@ -29,14 +31,14 @@ ScoreSignatures_UCell_sce <- function(sce, assay="counts", features, ...) {
     stop("Function 'ScoreSignatures_UCell_sce' requires the SingleCellExperiment package. Please install it.", call. = FALSE)
   }  
   
-  if (!assay %in% names(assays(sce))) {
+  if (!assay %in% names(sce@assays)) {
     stop(sprintf("Assay %s not found in sce object.", assay))
   }
   
   #Calculate UCell scores
-  uscores <- ScoreSignatures_UCell(assay(sce, assay), features = features, ...)
+  uscores <- ScoreSignatures_UCell(SummarizedExperiment::assay(sce, assay), features = features, ...)
   #Add scores to sce object
-  altExp(sce, "UCell") <- SummarizedExperiment(assays = list("UCell" = t(uscores)))
+  SingleCellExperiment::altExp(sce, "UCell") <- SummarizedExperiment(assays = list("UCell" = t(uscores)))
   
   return(sce)
 }

@@ -173,7 +173,7 @@ sce <- runUMAP(sce, dimred="PCA")
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.wide=TRUE}
+```{r fig.width=16, fig.height=8}
 pll <- lapply(names(signatures), function(x) {
     plotUMAP(sce, colour_by = x, by_exprs_values = "UCell")
 })

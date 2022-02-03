@@ -6,7 +6,7 @@
 #' In contrast to Seurat's AddModuleScore, which is normalized by binning genes of similar expression at the population level, UCell scores depend 
 #' only on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
 #'
-#' @param object Seurat object
+#' @param obj Seurat object
 #' @param features A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 #'     You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below
 #' @param chunk.size Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)
@@ -27,16 +27,18 @@
 #' library(Seurat)
 #' gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
 #'                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-#' SeuratObject <- AddModuleScore_UCell(SeuratObject,features = gene.sets)
-#' SeuratObject$Tcell_signature_UCell
-#' head(SeuratObject@meta.data)
+#' my.matrix <- UCell::sample.matrix
+#' obj <- CreateSeuratObject(my.matrix)                
+#' 
+#' obj <- AddModuleScore_UCell(obj,features = gene.sets)
+#' head(obj@@meta.data)
 #' 
 #' ## Using positive and negative gene sets
-#' markers <- list()
-#' markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
-#' markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
-#' SeuratObject <- AddModuleScore_UCell(SeuratObject, features = markers)
-#' FeaturePlot(SeuratObject, features=c("Tcell_gd_UCell","Tcell_NK_UCell"))
+#' gene.sets <- list()
+#' gene.sets$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
+#' gene.sets$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
+#' obj <- AddModuleScore_UCell(obj, features = gene.sets, name=NULL)
+#' head(obj$Tcell_NK)
 #' ## End (Not run)
 #' @export
 AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, w_neg=1,

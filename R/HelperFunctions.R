@@ -181,7 +181,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
         
         dense <- as.matrix(x)
         dense <- as.data.table(dense, keep.rownames=TRUE)
-        setkey(dense, rn, physical=F)
+        setkey(dense, "rn", physical=F)
         
         cells_AUC <- u_stat_signature_list(features, dense, maxRank=maxRank, sparse=T, w_neg=w_neg)
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
@@ -253,7 +253,7 @@ data_to_ranks_data_table = function(data, ties.method="average") {
   rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method=ties.method,order=c(-1L)))]
   rnaDT.ranks.rownames <- rownames(data)
   rnaDT.ranks.dt.rn <- cbind(rn=rnaDT.ranks.rownames, rnaDT.ranks.dt)
-  setkey(rnaDT.ranks.dt.rn, rn, physical = F)
+  setkey(rnaDT.ranks.dt.rn, "rn", physical = F)
   return(rnaDT.ranks.dt.rn)
 }
 
@@ -282,3 +282,9 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
   return(split.data)
 }
 
+#' Sample dataset to test UCell installation
+#'
+#' A sparse matrix (class "dgCMatrix") of single-cell transcriptomes for 600 cells and 20729 genes.
+#' It can be used for quick tests of UCell functionalities
+#' @format A sparse matrix of 600 cells and 20729 genes.
+"sample.matrix"

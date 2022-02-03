@@ -21,6 +21,8 @@ AddModuleScore_UCell(
 )
 }
 \arguments{
+\item{obj}{Seurat object}
+
 \item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
 
@@ -45,8 +47,6 @@ You can also specify positive and negative gene sets by adding a + or - sign to 
 \item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
 
 \item{name}{Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)}
-
-\item{object}{Seurat object}
 }
 \value{
 Returns a Seurat object with module/signature enrichment scores added to object meta data; each score is stored as the corresponding signature name provided in \code{features} followed by the tag given in \code{name} (or "_UCell" by default )
@@ -65,15 +65,17 @@ library(UCell)
 library(Seurat)
 gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-SeuratObject <- AddModuleScore_UCell(SeuratObject,features = gene.sets)
-SeuratObject$Tcell_signature_UCell
-head(SeuratObject@meta.data)
+my.matrix <- UCell::sample.matrix
+obj <- CreateSeuratObject(my.matrix)                
+
+obj <- AddModuleScore_UCell(obj,features = gene.sets)
+head(obj@meta.data)
 
 ## Using positive and negative gene sets
-markers <- list()
-markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
-markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
-SeuratObject <- AddModuleScore_UCell(SeuratObject, features = markers)
-FeaturePlot(SeuratObject, features=c("Tcell_gd_UCell","Tcell_NK_UCell"))
+gene.sets <- list()
+gene.sets$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
+gene.sets$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
+obj <- AddModuleScore_UCell(obj, features = gene.sets, name=NULL)
+head(obj$Tcell_NK)
 ## End (Not run)
 }

@@ -21,15 +21,15 @@ URL: https://github.com/carmonalab/UCell
 Depends: R(>= 3.6.1)
 Imports: data.table(>= 1.13.6),
     Matrix,
-    ggplot2,
-    BiocManager,
-    BiocParallel
-Suggests: SingleCellExperiment,
-    Seurat,
+    BiocParallel,
+    SingleCellExperiment,
+    SummarizedExperiment
+Suggests: Seurat,
     scater,
     scRNAseq,
     reshape2,
     patchwork,
+    ggplot2,
     BiocStyle,
     knitr,
     rmarkdown
@@ -40,7 +40,7 @@ biocViews: SingleCell,
     GeneExpression,
     CellBasedAssays
 VignetteBuilder: knitr
-License: GPL-3
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
 Roxygen: list(markdown = TRUE)
