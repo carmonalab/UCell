@@ -16,11 +16,11 @@ u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
     return(0L)
   } else {
     rank_value[insig] <- maxRank+1
-    rank_sum = sum(rank_value)
+    rank_sum <- sum(rank_value)
     len_sig <- length(rank_value)
 
-    u_value = rank_sum - (len_sig * (len_sig + 1))/2
-    auc = 1 - u_value/(len_sig * maxRank)
+    u_value <- rank_sum - (len_sig * (len_sig + 1))/2
+    auc <- 1 - u_value/(len_sig * maxRank)
     return(auc)
   }
 }
@@ -97,7 +97,7 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000, n
   }
   
   #Weight on neg signatures must be >=0
-  if (is.null(w_neg)) {w_neg=1}
+  if (is.null(w_neg)) {w_neg <- 1}
   if (w_neg<0) {stop("Weight on negative signatures (w_neg) must be >=0")}
   
   #Signatures cannot be larger than maxRank parameter
@@ -165,7 +165,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
   ranks_matrix <- check_genes(ranks_matrix, features)
   
   #Weight on neg signatures must be >=0
-  if (is.null(w_neg)) {w_neg=1}
+  if (is.null(w_neg)) {w_neg <- 1}
   if (w_neg<0) {stop("Weight on negative signatures (w_neg) must be >=0")}
   
   maxRank <- max(ranks_matrix)
@@ -250,7 +250,7 @@ check_signature_names <- function(features) {
 #' 
 #' @return                  A data.table of ranks 
 #' @import data.table
-data_to_ranks_data_table = function(data, ties.method="average") {
+data_to_ranks_data_table <- function(data, ties.method="average") {
   dt <- as.data.table(as.matrix(data))
   rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method=ties.method,order=c(-1L)))]
   rnaDT.ranks.rownames <- rownames(data)
