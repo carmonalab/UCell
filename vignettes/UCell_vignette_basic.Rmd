@@ -25,7 +25,7 @@ UCell is an R package for evaluating gene signatures in single-cell datasets. UC
 # Installation
 
 Install UCell through BiocManager:
-```{r eval=F}
+```{r eval=FALSE}
 BiocManager::install("UCell")
 ```
 
@@ -36,11 +36,11 @@ To test your installation, load a small sample dataset and run UCell:
 ```{r}
 library(UCell)
 
-my.matrix <- UCell::sample.matrix
+data(sample.matrix)
 gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
-			Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+    Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 
-scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
+scores <- ScoreSignatures_UCell(sample.matrix, features=gene.sets)
 head(scores)
 ```
 
@@ -58,7 +58,7 @@ immune <- lung$Used & lung$used_in_NSCLC_immune
 lung <- lung[,immune]
 lung <- lung[,1:5000]
 
-exp.mat <- Matrix::Matrix(counts(lung),sparse = T)
+exp.mat <- Matrix::Matrix(counts(lung),sparse = TRUE)
 ```
 
 # Define gene signatures
@@ -165,7 +165,7 @@ library(scater)
 library(patchwork)
 #PCA
 sce <- logNormCounts(sce)
-sce <- runPCA(sce, scale=T, ncomponents=20)
+sce <- runPCA(sce, scale=TRUE, ncomponents=20)
 
 #UMAP
 set.seed(1234)
@@ -173,9 +173,9 @@ sce <- runUMAP(sce, dimred="PCA")
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.width=16, fig.height=8}
+```{r fig.wide=TRUE}
 pll <- lapply(names(signatures), function(x) {
-    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell")
+    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell", point_size=0.2)
 })
 wrap_plots(pll)
 ```
@@ -204,7 +204,7 @@ seurat.object <- RunUMAP(seurat.object, reduction = "pca", dims = 1:20, seed.use
 
 Visualize UCell scores on low-dimensional representation (UMAP)
 ```{r fig.wide=TRUE}
-FeaturePlot(seurat.object, reduction = "umap", features = names(signatures), ncol=3, order=T)
+FeaturePlot(seurat.object, reduction = "umap", features = names(signatures), ncol=3, order=TRUE)
 ```
 
 

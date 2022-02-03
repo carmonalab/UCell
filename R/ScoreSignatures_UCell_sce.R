@@ -10,26 +10,23 @@
 #' @return Returns the SingleCellExperiment with UCell scores added to altExp field
 #' @examples
 #' ## Not run:
-#' library(UCell)
 #' library(SingleCellExperiment)
-#' my.matrix <- UCell::sample.matrix
-#' my.sce <- SingleCellExperiment(list(counts=my.matrix))
+#' data(sample.matrix)
+#' my.sce <- SingleCellExperiment(list(counts=sample.matrix))
 #' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
 #'                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 #' my.sce <- ScoreSignatures_UCell_sce(my.sce, features=gene.sets)
 #' head(t(assay(altExp(my.sce,"UCell"))))
 #' ## End (Not run)
+#' @importFrom methods is 
 #' @import SingleCellExperiment
 #' @importFrom SummarizedExperiment assay SummarizedExperiment
 #' @export
 ScoreSignatures_UCell_sce <- function(sce, assay="counts", features, ...) {
   
-  if (class(sce) != "SingleCellExperiment") {
+  if (!methods::is(sce, "SingleCellExperiment")) {
     stop("Provided object is not of class SingleCellExperiment.")
   }
-  if (!requireNamespace("SingleCellExperiment", quietly = TRUE)) {
-    stop("Function 'ScoreSignatures_UCell_sce' requires the SingleCellExperiment package. Please install it.", call. = FALSE)
-  }  
   
   if (!assay %in% names(sce@assays)) {
     stop(sprintf("Assay %s not found in sce object.", assay))

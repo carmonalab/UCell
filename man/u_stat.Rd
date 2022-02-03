@@ -4,7 +4,7 @@
 \alias{u_stat}
 \title{Calculate Mann Whitney U from a vector of ranks}
 \usage{
-u_stat(rank_value, maxRank = 1000, sparse = F)
+u_stat(rank_value, maxRank = 1000, sparse = FALSE)
 }
 \arguments{
 \item{rank_value}{A vector of ranks}

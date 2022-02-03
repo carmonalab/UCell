@@ -8,7 +8,7 @@ u_stat_signature_list(
   sig_list,
   ranks_matrix,
   maxRank = 1000,
-  sparse = F,
+  sparse = FALSE,
   w_neg = 1
 )
 }

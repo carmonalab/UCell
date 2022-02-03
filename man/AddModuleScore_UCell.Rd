@@ -10,7 +10,7 @@ AddModuleScore_UCell(
   maxRank = 1500,
   chunk.size = 1000,
   ncores = 1,
-  storeRanks = F,
+  storeRanks = FALSE,
   w_neg = 1,
   assay = NULL,
   slot = "data",
@@ -44,7 +44,7 @@ You can also specify positive and negative gene sets by adding a + or - sign to 
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
+\item{seed}{Integer seed}
 
 \item{name}{Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)}
 }
@@ -61,12 +61,10 @@ only on the gene expression ranks of individual cell, and therefore they are rob
 }
 \examples{
 ## Not run:
-library(UCell)
-library(Seurat)
 gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-my.matrix <- UCell::sample.matrix
-obj <- CreateSeuratObject(my.matrix)                
+data(sample.matrix)
+obj <- Seurat::CreateSeuratObject(sample.matrix)                
 
 obj <- AddModuleScore_UCell(obj,features = gene.sets)
 head(obj@meta.data)

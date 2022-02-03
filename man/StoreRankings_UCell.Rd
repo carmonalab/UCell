@@ -43,9 +43,8 @@ function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures in a si
 }
 \examples{
 ## Not run:
-library(UCell)
-my.matrix <- UCell::sample.matrix
-ranks <- StoreRankings_UCell(my.matrix)
+data(sample.matrix)
+ranks <- StoreRankings_UCell(sample.matrix)
 ranks[1:5,1:5]
 gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))

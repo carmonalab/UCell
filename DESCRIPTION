@@ -18,8 +18,9 @@ Description: UCell is a package for evaluating gene signatures in single-cell da
     on machines with limited computing power. UCell can be applied to any single-cell data matrix, and includes functions to directly
     interact with SingleCellExperiment and Seurat objects.
 URL: https://github.com/carmonalab/UCell
-Depends: R(>= 3.6.1)
-Imports: data.table(>= 1.13.6),
+Depends: R(>= 4.1.0)
+Imports: methods,
+    data.table(>= 1.13.6),
     Matrix,
     BiocParallel,
     SingleCellExperiment,
@@ -36,12 +37,11 @@ Suggests: Seurat,
 biocViews: SingleCell,
     GeneSetEnrichment,
     Transcriptomics,
-    SingleCellWorkflow,
     GeneExpression,
     CellBasedAssays
 VignetteBuilder: knitr
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
-LazyData: TRUE
+LazyData: FALSE
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2

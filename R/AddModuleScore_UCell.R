@@ -18,17 +18,15 @@
 #' @param slot Pull out data from this slot of the Seurat object
 #' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
-#' @param seed Integer seed for [future.apply::future_lapply] parallel execution
+#' @param seed Integer seed
 #' @param name Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)
 #' @return Returns a Seurat object with module/signature enrichment scores added to object meta data; each score is stored as the corresponding signature name provided in \code{features} followed by the tag given in \code{name} (or "_UCell" by default )
 #' @examples
 #' ## Not run:
-#' library(UCell)
-#' library(Seurat)
 #' gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
 #'                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-#' my.matrix <- UCell::sample.matrix
-#' obj <- CreateSeuratObject(my.matrix)                
+#' data(sample.matrix)
+#' obj <- Seurat::CreateSeuratObject(sample.matrix)                
 #' 
 #' obj <- AddModuleScore_UCell(obj,features = gene.sets)
 #' head(obj@@meta.data)
@@ -41,7 +39,7 @@
 #' head(obj$Tcell_NK)
 #' ## End (Not run)
 #' @export
-AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=F, w_neg=1,
+AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=FALSE, w_neg=1,
                                  assay=NULL, slot="data", ties.method="average", force.gc=FALSE, seed=123, name="_UCell") {
   
   if (!requireNamespace("Seurat", quietly = TRUE)) {
@@ -66,7 +64,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, n
                                   ncores=ncores, ties.method=ties.method, force.gc=force.gc, storeRanks=storeRanks, name=name)
     
     #store ranks matrix?
-    if (storeRanks==T){
+    if (storeRanks==TRUE){
       cells_rankings.merge <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
       cells_rankings.merge <- Reduce(cbind, cells_rankings.merge)
       

@@ -21,11 +21,10 @@
 #' @return Returns a dataframe of signature scores for each cell
 #' @examples
 #' ## Not run:
-#' library(UCell)
-#' my.matrix <- UCell::sample.matrix
+#' data(sample.matrix)
 #' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
 #'                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-#' scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
+#' scores <- ScoreSignatures_UCell(sample.matrix, features=gene.sets)
 #' scores[1:5,]
 #' ## End (Not run)
 #' @import Matrix

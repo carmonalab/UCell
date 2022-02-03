@@ -17,9 +17,8 @@
 #' @return Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures
 #' @examples
 #' ## Not run:
-#' library(UCell)
-#' my.matrix <- UCell::sample.matrix
-#' ranks <- StoreRankings_UCell(my.matrix)
+#' data(sample.matrix)
+#' ranks <- StoreRankings_UCell(sample.matrix)
 #' ranks[1:5,1:5]
 #' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
 #'                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
@@ -32,7 +31,7 @@ StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1,
   
   features <- rownames(matrix)[1]  #dummy signature
   meta.list <- calculate_Uscore(matrix, features=features, maxRank=maxRank, chunk.size=chunk.size,
-                                ncores=ncores, ties.method=ties.method, storeRanks=T, force.gc=force.gc)
+                                ncores=ncores, ties.method=ties.method, storeRanks=TRUE, force.gc=force.gc)
   
   ranks.all <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
   ranks.all <- Reduce(cbind, ranks.all)
