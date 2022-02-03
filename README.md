@@ -29,11 +29,11 @@ Load sample data and test your installation:
 ```
 library(UCell)
 
-my.matrix <- UCell::sample.matrix
+data(sample.matrix)
 gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
 			Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 
-scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
+scores <- ScoreSignatures_UCell(sample.matrix, features=gene.sets)
 head(scores)
 ```
 
