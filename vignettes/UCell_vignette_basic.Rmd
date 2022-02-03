@@ -44,52 +44,43 @@ scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
 head(scores)
 ```
 
+# Get some testing data
 
-# A more interesting UCell example
-
-In this demo, we will apply UCell to evaluate gene signatures in single-cell dataset from 31 tumor biopsies of melanoma patients, sequenced using the Smart-seq2 protocol [Jerby-Arnon et al. (2018) Cell](https://pubmed.ncbi.nlm.nih.gov/30388455/).
-
-First, download the gene expression matrix for this study from Gene Expression Omnibus - [GSE115978](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE115978) using GEOquery.
+For this demo, we will download a single-cell dataset of lung cancer ([Zilionis et al. (2019) Immunity](https://pubmed.ncbi.nlm.nih.gov/30979687/)) through the [scRNA-seq](https://bioconductor.org/packages/3.15/data/experiment/html/scRNAseq.html) package. This dataset contains >170,000 single cells; for the sake of simplicity, in this demo will we focus on immune cells, according to the annotations by the authors, and downsample to 5000 cells.
 
 ```{r message=F, warning=F, results=F}
-library(GEOquery)
-cached.object <- "demodata.rds"
+library(scRNAseq)
 
-if (!file.exists(cached.object)) {
-  geo_acc <- "GSE115978"
-  options(timeout = max(1000, getOption("timeout")))
-  
-  gse <- getGEO(geo_acc)
-  getGEOSuppFiles(geo_acc)
-  
-  exp.mat <- read.csv(sprintf("%s/GSE115978_counts.csv.gz", geo_acc), 
-                      header=T, row.names=1, sep=",")
-  saveRDS(exp.mat, cached.object)
-} else {
-  exp.mat <- readRDS(cached.object)
-}
+#For this demo, limit the analysis to 5000 immune cells
+lung <- ZilionisLungData()
+
+immune <- lung$Used & lung$used_in_NSCLC_immune
+lung <- lung[,immune]
+lung <- lung[,1:5000]
+
+exp.mat <- Matrix::Matrix(counts(lung),sparse = T)
 ```
 
-## Define gene signatures
+# Define gene signatures
 
 Here we define some simple gene sets based on the "Human Cell Landscape" signatures [Han et al. (2020) Nature](https://www.nature.com/articles/s41586-020-2157-4). You may edit existing signatures, or add new one as elements in a list.
 ```{r}
 signatures <- list(
     Immune = c("PTPRC"),
-    Macrophage = c("CTSB","C1QB","LAPTM5","TYROBP","PSAP","C1QA","HLA-DRA","CTSD","NPC2","FCER1G"),
-    Tcell = c("CD3D","CD3E","CD3G","CD2"),
+    Tcell = c("CD3D","CD3E","CD3G","CD2","TRAC"),
     Bcell = c("MS4A1","CD79A","CD79B","CD19","BANK1"),
-    Myeloid_cell = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
-    Stromal = c("MMP2","COL1A1","COL1A2","COL3A1","LUM","DCN")
+    Myeloid = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
+    NK = c("KLRD1","NCAM1","NKG7","CD3D-","CD3E-"),
+    Plasma_cell = c("IGKC","IGHG3","IGHG1","IGHA1","CD19-")
     )
 ```
 
-## Run UCell
+# Run UCell
 
 Run `ScoreSignatures_UCell` and get directly signature scores for all cells
 ```{r}
 u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures)
-u.scores[1:10,1:2]
+u.scores[1:10,1:3]
 ```
 
 Show the distribution of predicted scores
@@ -103,7 +94,7 @@ p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Sign
 p
 ```
 
-## Pre-calculating gene rankings
+# Pre-calculating gene rankings
 
 The time- and memory-demanding step in UCell is the calculation of gene rankings for each individual cell. If we plan to experiment with signatures, editing them or adding new cell subtypes, it is possible to pre-calculate the gene rankings once and for all and then apply new signatures over these pre-calculated ranks. Run the `StoreRankings_UCell` function to pre-calculate gene rankings over a dataset:
 ```{r}
@@ -126,8 +117,8 @@ p
 
 ```{r fig.small=TRUE}
 
-new.signatures <- list(Mast.cell = c("TPSAB1","TPSB2","CPA3","SRGN","RGS2","RGS1","NFKBIA","GLUL","VIM","ANXA1"),
-                       Erythroid.cell = c("HBA2","HBG2","HBA1","HBB","HBG1","AHSP","ALAS2","SLC25A37","HBM"))
+new.signatures <- list(Mast.cell = c("TPSAB1","TPSB2","CPA3","MS4A2"),
+                       Lymphoid = c("LCK"))
 
 u.scores.3 <- ScoreSignatures_UCell(features=new.signatures, precalc.ranks = ranks)
 melted <- reshape2::melt(u.scores.3)
@@ -184,7 +175,7 @@ sce <- runUMAP(sce, dimred="PCA")
 Visualize UCell scores on low-dimensional representation (UMAP)
 ```{r fig.wide=TRUE}
 pll <- lapply(names(signatures), function(x) {
-    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell", text_size=10)
+    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell")
 })
 wrap_plots(pll)
 ```
@@ -194,7 +185,7 @@ wrap_plots(pll)
 The function `AddModuleScore_UCell()` allows operating directly on Seurat objects. UCell scores are returned as metadata columns in the Seurat object. To see how this function differs from Seurat's own `AddModuleScore()` (not based on per-cell ranks) see [this vignette](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
 ```{r message=F, warning=F}
 library(Seurat)
-seurat.object <- CreateSeuratObject(counts = exp.mat, project = "JerbyArnon")
+seurat.object <- CreateSeuratObject(counts = exp.mat, project = "Zilionis_immune")
 seurat.object <- AddModuleScore_UCell(seurat.object, 
                                       features=signatures, name=NULL, ncores=4)
 head(seurat.object@meta.data)
@@ -224,7 +215,7 @@ Please report any issues with UCell at its [GitHub repository](https://github.co
 # References
 
 * Andreatta, M., Carmona, S. J. (2021) *UCell: Robust and scalable single-cell gene signature scoring* Computational and Structural Biotechnology Journal
-* Jerby-Arnon, L., Shah, P., ..., Regev, A. (2018) *A Cancer Cell Program Promotes T Cell Exclusion and Resistance to Checkpoint Blockade* Cell
+* Zilionis, R., Engblom, C., ..., Klein, A. M. (2019) *Single-Cell Transcriptomics of Human and Mouse Lung Cancers Reveals Conserved Myeloid Populations across Individuals and Species* Immunity
 
 # Session Info
 

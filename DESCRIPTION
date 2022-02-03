@@ -3,8 +3,14 @@ Type: Package
 Title: Rank-based signature enrichment analysis for single-cell data
 Version: 1.3.2
 Authors@R: c(
-  person(given = 'Massimo', family = 'Andreatta', email = 'massimo.andreatta@unil.ch', role = c('aut','cre'), comment = c(ORCID = '0000-0002-8036-2647')),
-  person(given = 'Santiago', family = 'Carmona', email = 'santiago.carmona@unil.ch', role = c('aut'), comment = c(ORCID = '0000-0002-2495-0671'))
+  person('Massimo', 'Andreatta', 
+     email = 'massimo.andreatta@unil.ch',
+     role = c('aut','cre'),
+     comment = c(ORCID = '0000-0002-8036-2647')),
+  person('Santiago', 'Carmona', 
+     email = 'santiago.carmona@unil.ch',
+     role = c('aut'),
+     comment = c(ORCID = '0000-0002-2495-0671'))
   )
 Description: UCell is a package for evaluating gene signatures in single-cell datasets. 
     UCell signature scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation
@@ -21,7 +27,7 @@ Imports: data.table(>= 1.13.6),
 Suggests: SingleCellExperiment,
     Seurat,
     scater,
-    GEOquery,
+    scRNAseq,
     reshape2,
     patchwork,
     BiocStyle,
