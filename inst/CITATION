@@ -1,0 +1,12 @@
+bibentry(
+    bibtype = "article",
+    author = c(
+        person("Massimo", "Andreatta"),
+        person(c("Santiago", "J."), "Carmona")
+    title="UCell: Robust and scalable single-cell gene signature scoring",
+    journal=" Comput Struct Biotechnol J.",
+    year="2021",
+    volume="19",
+    pages="3796-3798",
+    doi = "10.1016/j.csbj.2021.06.043"
+)

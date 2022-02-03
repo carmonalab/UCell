@@ -1,0 +1,233 @@
+---
+title: "Gene signature scoring with UCell"
+author:
+- name: Massimo Andreatta
+  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+- name: Santiago J. Carmona
+  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: UCell
+vignette: |
+  %\VignetteIndexEntry{Gene signature scoring with UCell}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+In single-cell RNA-seq analysis, gene signature (or “module”) scoring constitutes a simple yet powerful approach to evaluate the strength of biological signals, typically associated to a specific cell type or biological process, in a transcriptome.
+
+UCell is an R package for evaluating gene signatures in single-cell datasets. UCell signature scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands less computing time and memory than other available methods, enabling the processing of large datasets in a few minutes even on machines with limited computing power. UCell can be applied to any single-cell data matrix, and includes functions to directly interact with Seurat objects. 
+
+# Installation
+
+Install UCell through BiocManager:
+```{r eval=F}
+BiocManager::install("UCell")
+```
+
+# Quick start
+
+To test your installation, load a small sample dataset and run UCell:
+
+```{r}
+library(UCell)
+
+my.matrix <- UCell::sample.matrix
+gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
+			Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+
+scores <- ScoreSignatures_UCell(my.matrix, features=gene.sets)
+head(scores)
+```
+
+
+# A more interesting UCell example
+
+In this demo, we will apply UCell to evaluate gene signatures in single-cell dataset from 31 tumor biopsies of melanoma patients, sequenced using the Smart-seq2 protocol [Jerby-Arnon et al. (2018) Cell](https://pubmed.ncbi.nlm.nih.gov/30388455/).
+
+First, download the gene expression matrix for this study from Gene Expression Omnibus - [GSE115978](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE115978) using GEOquery.
+
+```{r message=F, warning=F, results=F}
+library(GEOquery)
+cached.object <- "demodata.rds"
+
+if (!file.exists(cached.object)) {
+  geo_acc <- "GSE115978"
+  options(timeout = max(1000, getOption("timeout")))
+  
+  gse <- getGEO(geo_acc)
+  getGEOSuppFiles(geo_acc)
+  
+  exp.mat <- read.csv(sprintf("%s/GSE115978_counts.csv.gz", geo_acc), 
+                      header=T, row.names=1, sep=",")
+  saveRDS(exp.mat, cached.object)
+} else {
+  exp.mat <- readRDS(cached.object)
+}
+```
+
+## Define gene signatures
+
+Here we define some simple gene sets based on the "Human Cell Landscape" signatures [Han et al. (2020) Nature](https://www.nature.com/articles/s41586-020-2157-4). You may edit existing signatures, or add new one as elements in a list.
+```{r}
+signatures <- list(
+    Immune = c("PTPRC"),
+    Macrophage = c("CTSB","C1QB","LAPTM5","TYROBP","PSAP","C1QA","HLA-DRA","CTSD","NPC2","FCER1G"),
+    Tcell = c("CD3D","CD3E","CD3G","CD2"),
+    Bcell = c("MS4A1","CD79A","CD79B","CD19","BANK1"),
+    Myeloid_cell = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
+    Stromal = c("MMP2","COL1A1","COL1A2","COL3A1","LUM","DCN")
+    )
+```
+
+## Run UCell
+
+Run `ScoreSignatures_UCell` and get directly signature scores for all cells
+```{r}
+u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures)
+u.scores[1:10,1:2]
+```
+
+Show the distribution of predicted scores
+```{r}
+library(reshape2)
+library(ggplot2)
+melted <- reshape2::melt(u.scores)
+colnames(melted) <- c("Cell","Signature","UCell_score")
+p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Signature), scale = "width") +
+       geom_boxplot(width=0.1, outlier.size=0) + theme_bw() + theme(axis.text.x=element_blank())
+p
+```
+
+## Pre-calculating gene rankings
+
+The time- and memory-demanding step in UCell is the calculation of gene rankings for each individual cell. If we plan to experiment with signatures, editing them or adding new cell subtypes, it is possible to pre-calculate the gene rankings once and for all and then apply new signatures over these pre-calculated ranks. Run the `StoreRankings_UCell` function to pre-calculate gene rankings over a dataset:
+```{r}
+set.seed(123)
+ranks <- StoreRankings_UCell(exp.mat)
+ranks[1:5,1:5]
+```
+
+Then, we can apply our signature set, or any other new signature to the pre-calculated ranks. The calculations will be considerably faster.
+```{r}
+set.seed(123)
+u.scores.2 <- ScoreSignatures_UCell(features=signatures, precalc.ranks = ranks)
+
+melted <- reshape2::melt(u.scores.2)
+colnames(melted) <- c("Cell","Signature","UCell_score")
+p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Signature), scale = "width") +
+       geom_boxplot(width=0.1, outlier.size = 0) + theme_bw() + theme(axis.text.x=element_blank())
+p
+```
+
+```{r fig.small=TRUE}
+
+new.signatures <- list(Mast.cell = c("TPSAB1","TPSB2","CPA3","SRGN","RGS2","RGS1","NFKBIA","GLUL","VIM","ANXA1"),
+                       Erythroid.cell = c("HBA2","HBG2","HBA1","HBB","HBG1","AHSP","ALAS2","SLC25A37","HBM"))
+
+u.scores.3 <- ScoreSignatures_UCell(features=new.signatures, precalc.ranks = ranks)
+melted <- reshape2::melt(u.scores.3)
+colnames(melted) <- c("Cell","Signature","UCell_score")
+p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Signature), scale = "width") +
+       geom_boxplot(width=0.1, outlier.size=0) + theme_bw() + theme(axis.text.x=element_blank())
+p
+
+```
+
+# Multi-core processing
+
+If your machine has multi-core capabilities and enough RAM, running UCell in parallel can speed up considerably your analysis. In this example we will use 4 parallel cores:
+
+```{r}
+u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures, ncores=4)
+
+melted <- reshape2::melt(u.scores)
+colnames(melted) <- c("Cell","Signature","Uscore")
+p <- ggplot(melted, aes(x=Signature, y=Uscore)) + geom_violin(aes(fill=Signature), scale = "width") +
+       geom_boxplot(width=0.1, outlier.size=0) + theme_bw() + theme(axis.text.x=element_blank())
+p
+```
+
+# Interacting with SingleCellExperiment or Seurat
+
+[SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) and [Seurat](https://github.com/satijalab/seurat) are popular environments for single-cell analysis. The UCell package implements functions to interact directly with these pipelines, as described below.
+
+## UCell + SingleCellExperiment
+
+The function `ScoreSignatures_UCell_sce()` allows operating directly on `sce` objects. UCell scores are returned in a altExp object (`altExp(sce, 'UCell'`))
+```{r message=F, warning=F}
+library(SingleCellExperiment)
+
+sce <- SingleCellExperiment(list(counts=exp.mat))
+sce <- ScoreSignatures_UCell_sce(sce, features=signatures, 
+                                 assay = 'counts', name=NULL, ncores=4)
+altExp(sce, 'UCell')
+```
+
+Dimensionality reduction and visualization
+```{r message=F, warning=F}
+library(scater)
+library(patchwork)
+#PCA
+sce <- logNormCounts(sce)
+sce <- runPCA(sce, scale=T, ncomponents=20)
+
+#UMAP
+set.seed(1234)
+sce <- runUMAP(sce, dimred="PCA")
+```
+
+Visualize UCell scores on low-dimensional representation (UMAP)
+```{r fig.wide=TRUE}
+pll <- lapply(names(signatures), function(x) {
+    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell", text_size=10)
+})
+wrap_plots(pll)
+```
+
+## UCell + Seurat
+
+The function `AddModuleScore_UCell()` allows operating directly on Seurat objects. UCell scores are returned as metadata columns in the Seurat object. To see how this function differs from Seurat's own `AddModuleScore()` (not based on per-cell ranks) see [this vignette](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
+```{r message=F, warning=F}
+library(Seurat)
+seurat.object <- CreateSeuratObject(counts = exp.mat, project = "JerbyArnon")
+seurat.object <- AddModuleScore_UCell(seurat.object, 
+                                      features=signatures, name=NULL, ncores=4)
+head(seurat.object@meta.data)
+```
+
+Generate PCA and UMAP embeddings
+```{r message=F, warning=F}
+seurat.object <- NormalizeData(seurat.object)
+seurat.object <- FindVariableFeatures(seurat.object, selection.method = "vst", nfeatures = 500)
+  
+seurat.object <- ScaleData(seurat.object)
+seurat.object <- RunPCA(seurat.object, npcs = 20, 
+                        features=seurat.object@assays$RNA@var.features) 
+seurat.object <- RunUMAP(seurat.object, reduction = "pca", dims = 1:20, seed.use=123)
+```
+
+Visualize UCell scores on low-dimensional representation (UMAP)
+```{r fig.wide=TRUE}
+FeaturePlot(seurat.object, reduction = "umap", features = names(signatures), ncol=3, order=T)
+```
+
+
+# Resources
+
+Please report any issues with UCell at its [GitHub repository](https://github.com/carmonalab/UCell). More demos available at [UCell demo repository](https://github.com/carmonalab/UCell_demo)
+
+# References
+
+* Andreatta, M., Carmona, S. J. (2021) *UCell: Robust and scalable single-cell gene signature scoring* Computational and Structural Biotechnology Journal
+* Jerby-Arnon, L., Shah, P., ..., Regev, A. (2018) *A Cancer Cell Program Promotes T Cell Exclusion and Resistance to Checkpoint Blockade* Cell
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
