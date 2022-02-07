@@ -2,7 +2,6 @@
 
 export(AddModuleScore_UCell)
 export(ScoreSignatures_UCell)
-export(ScoreSignatures_UCell_sce)
 export(StoreRankings_UCell)
 import(BiocParallel)
 import(Matrix)

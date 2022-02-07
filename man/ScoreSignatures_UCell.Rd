@@ -11,6 +11,7 @@ ScoreSignatures_UCell(
   maxRank = 1500,
   w_neg = 1,
   name = "_UCell",
+  assay = "counts",
   chunk.size = 1000,
   ncores = 1,
   ties.method = "average",
@@ -19,7 +20,7 @@ ScoreSignatures_UCell(
 )
 }
 \arguments{
-\item{matrix}{A gene vs. cell data matrix, either in sparse or dense format. Leave empty if providing a rank matrix with \code{precalc.ranks}}
+\item{matrix}{Input matrix, either stored in a \code{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
 
 \item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
@@ -33,6 +34,8 @@ Note: this parameter is ignored if \code{precalc.ranks} are specified}
 
 \item{name}{Name suffix appended to signature names}
 
+\item{assay}{The sce object assay where the data is to be found}
+
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
 
 \item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
@@ -44,7 +47,7 @@ Note: this parameter is ignored if \code{precalc.ranks} are specified}
 \item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
 }
 \value{
-Returns a dataframe of signature scores for each cell
+Returns input SingleCellExperiment object with UCell scores added to altExp
 }
 \description{
 Given a gene vs. cell matrix, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
@@ -55,10 +58,20 @@ These scores only depend on the gene expression ranks of individual cell, and th
 }
 \examples{
 ## Not run:
+# Using sparse matrix
 data(sample.matrix)
 gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 scores <- ScoreSignatures_UCell(sample.matrix, features=gene.sets)
-scores[1:5,]
+head(scores)
+
+# Using sce object
+library(SingleCellExperiment)
+data(sample.matrix)
+my.sce <- SingleCellExperiment(list(counts=sample.matrix))
+gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
+                 Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+my.sce <- ScoreSignatures_UCell(my.sce, features=gene.sets)
+altExp(my.sce, 'UCell')
 ## End (Not run)
 }
