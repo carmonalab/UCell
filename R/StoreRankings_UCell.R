@@ -7,14 +7,14 @@
 #' this function allows you to store pre-calculated ranks so they do not have to be recomputed every time. Pre-calculated ranks can then be applied to the
 #' function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures in a significantly faster way on successive iterations.
 #'
-#' @param matrix Input matrix, either stored in a \code{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.
+#' @param matrix Input matrix, either stored in a [SingleCellExperiment] object or as a raw matrix. \code{dgCMatrix} format supported.
 #' @param maxRank Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed
 #' @param assay Assay where the data is to be found (for input in 'sce' format)
 #' @param chunk.size Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)
-#' @param ncores Number of processors to parallelize computation. Requires package \code{future}
+#' @param ncores Number of processors to parallelize computation
 #' @param ties.method How ranking ties should be resolved (passed on to [data.table::frank])
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
-#' @param seed Integer seed for [future.apply::future_lapply] parallel execution
+#' @param seed Integer seed
 #' @return Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures
 #' @examples
 #' ## Not run:
@@ -39,7 +39,9 @@ StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1,
       stop(sprintf("Assay %s not found in sce object.", assay))
     }
     m <- SummarizedExperiment::assay(matrix, assay)
-  } else if (methods::is(matrix, "matrix") | methods::is(matrix, "dgCMatrix")) { #matrix
+  } else if (methods::is(matrix, "matrix") | #matrix or DF
+             methods::is(matrix, "dgCMatrix") |
+             methods::is(matrix, "data.frame")) { 
     m <- matrix
   } else {
     stop("Unrecognized input format.")

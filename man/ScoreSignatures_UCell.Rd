@@ -20,12 +20,12 @@ ScoreSignatures_UCell(
 )
 }
 \arguments{
-\item{matrix}{Input matrix, either stored in a \code{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
+\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
 
 \item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
 
-\item{precalc.ranks}{A sparse matrix of pre-calculated ranks, obtained with \code{\link{StoreRankings_UCell}}}
+\item{precalc.ranks}{If you have pre-calculated ranks using \code{\link{StoreRankings_UCell}}, you can specify the pre-calculated ranks instead of the gene vs. cell matrix.}
 
 \item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.
 Note: this parameter is ignored if \code{precalc.ranks} are specified}
@@ -38,13 +38,13 @@ Note: this parameter is ignored if \code{precalc.ranks} are specified}
 
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
 
-\item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
+\item{ncores}{Number of processors to parallelize computation.}
 
 \item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
+\item{seed}{Integer seed}
 }
 \value{
 Returns input SingleCellExperiment object with UCell scores added to altExp
@@ -52,8 +52,6 @@ Returns input SingleCellExperiment object with UCell scores added to altExp
 \description{
 Given a gene vs. cell matrix, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
 UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see \href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
-}
-\details{
 These scores only depend on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
 }
 \examples{

@@ -16,13 +16,13 @@ StoreRankings_UCell(
 )
 }
 \arguments{
-\item{matrix}{Input matrix, either stored in a \code{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
+\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
 
 \item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed}
 
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
 
-\item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
+\item{ncores}{Number of processors to parallelize computation}
 
 \item{assay}{Assay where the data is to be found (for input in 'sce' format)}
 
@@ -30,7 +30,7 @@ StoreRankings_UCell(
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed for \link[future.apply:future_lapply]{future.apply::future_lapply} parallel execution}
+\item{seed}{Integer seed}
 }
 \value{
 Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures

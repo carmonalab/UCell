@@ -89,8 +89,10 @@ library(reshape2)
 library(ggplot2)
 melted <- reshape2::melt(u.scores)
 colnames(melted) <- c("Cell","Signature","UCell_score")
-p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Signature), scale = "width") +
-       geom_boxplot(width=0.1, outlier.size=0) + theme_bw() + theme(axis.text.x=element_blank())
+p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + 
+    geom_violin(aes(fill=Signature), scale = "width") +
+    geom_boxplot(width=0.1, outlier.size=0) +
+    theme_bw() + theme(axis.text.x=element_blank())
 p
 ```
 
@@ -110,8 +112,10 @@ u.scores.2 <- ScoreSignatures_UCell(features=signatures, precalc.ranks = ranks)
 
 melted <- reshape2::melt(u.scores.2)
 colnames(melted) <- c("Cell","Signature","UCell_score")
-p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Signature), scale = "width") +
-       geom_boxplot(width=0.1, outlier.size = 0) + theme_bw() + theme(axis.text.x=element_blank())
+p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + 
+    geom_violin(aes(fill=Signature), scale = "width") +
+    geom_boxplot(width=0.1, outlier.size = 0) + 
+    theme_bw() + theme(axis.text.x=element_blank())
 p
 ```
 
@@ -123,8 +127,10 @@ new.signatures <- list(Mast.cell = c("TPSAB1","TPSB2","CPA3","MS4A2"),
 u.scores.3 <- ScoreSignatures_UCell(features=new.signatures, precalc.ranks = ranks)
 melted <- reshape2::melt(u.scores.3)
 colnames(melted) <- c("Cell","Signature","UCell_score")
-p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + geom_violin(aes(fill=Signature), scale = "width") +
-       geom_boxplot(width=0.1, outlier.size=0) + theme_bw() + theme(axis.text.x=element_blank())
+p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + 
+    geom_violin(aes(fill=Signature), scale = "width") +
+    geom_boxplot(width=0.1, outlier.size=0) + 
+    theme_bw() + theme(axis.text.x=element_blank())
 p
 
 ```
@@ -138,8 +144,10 @@ u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures, ncores=4)
 
 melted <- reshape2::melt(u.scores)
 colnames(melted) <- c("Cell","Signature","Uscore")
-p <- ggplot(melted, aes(x=Signature, y=Uscore)) + geom_violin(aes(fill=Signature), scale = "width") +
-       geom_boxplot(width=0.1, outlier.size=0) + theme_bw() + theme(axis.text.x=element_blank())
+p <- ggplot(melted, aes(x=Signature, y=Uscore)) + 
+    geom_violin(aes(fill=Signature), scale = "width") +
+    geom_boxplot(width=0.1, outlier.size=0) + 
+    theme_bw() + theme(axis.text.x=element_blank())
 p
 ```
 
@@ -185,7 +193,8 @@ wrap_plots(pll)
 The function `AddModuleScore_UCell()` allows operating directly on Seurat objects. UCell scores are returned as metadata columns in the Seurat object. To see how this function differs from Seurat's own `AddModuleScore()` (not based on per-cell ranks) see [this vignette](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
 ```{r message=F, warning=F}
 library(Seurat)
-seurat.object <- CreateSeuratObject(counts = exp.mat, project = "Zilionis_immune")
+seurat.object <- CreateSeuratObject(counts = exp.mat, 
+                                    project = "Zilionis_immune")
 seurat.object <- AddModuleScore_UCell(seurat.object, 
                                       features=signatures, name=NULL, ncores=4)
 head(seurat.object@meta.data)
@@ -194,17 +203,20 @@ head(seurat.object@meta.data)
 Generate PCA and UMAP embeddings
 ```{r message=F, warning=F}
 seurat.object <- NormalizeData(seurat.object)
-seurat.object <- FindVariableFeatures(seurat.object, selection.method = "vst", nfeatures = 500)
+seurat.object <- FindVariableFeatures(seurat.object, 
+                                      selection.method = "vst", nfeatures = 500)
   
 seurat.object <- ScaleData(seurat.object)
 seurat.object <- RunPCA(seurat.object, npcs = 20, 
                         features=seurat.object@assays$RNA@var.features) 
-seurat.object <- RunUMAP(seurat.object, reduction = "pca", dims = 1:20, seed.use=123)
+seurat.object <- RunUMAP(seurat.object, reduction = "pca", 
+                         dims = 1:20, seed.use=123)
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
 ```{r fig.wide=TRUE}
-FeaturePlot(seurat.object, reduction = "umap", features = names(signatures), ncol=3, order=TRUE)
+FeaturePlot(seurat.object, reduction = "umap", 
+            features = names(signatures), ncol=3, order=TRUE)
 ```
 
 
