@@ -18,7 +18,7 @@ Description: UCell is a package for evaluating gene signatures in single-cell da
     on machines with limited computing power. UCell can be applied to any single-cell data matrix, and includes functions to directly
     interact with SingleCellExperiment and Seurat objects.
 URL: https://github.com/carmonalab/UCell
-Depends: R(>= 4.1.0)
+Depends: R(>= 4.2.0)
 Imports: methods,
     data.table(>= 1.13.6),
     Matrix,
