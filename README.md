@@ -14,13 +14,9 @@ Find the installation instructions for the package and usage vignettes below.
 To install `UCell` directly from its GitHub repository, run the following code from within R or RStudio:
 ```
 library(remotes)
-remotes::install_github("carmonalab/UCell")
+remotes::install_github("carmonalab/UCell", ref="v1.3")
 ```
-
-or, for the development version:
-```
-remotes::install_github("carmonalab/UCell", ref="dev")
-```
+For previous releases, specify the relevant tag with the 'ref' option.
 
 
 ### Test the package
