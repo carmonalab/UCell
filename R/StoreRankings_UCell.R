@@ -30,30 +30,33 @@
 #' @importFrom SummarizedExperiment assay
 #' @import Matrix
 #' @export
-StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000, ncores=1, assay='counts',
-                                ties.method="average", force.gc=FALSE, seed=123) {
-  
-  #Check type of input
-  if (methods::is(matrix, "SingleCellExperiment")) { # sce object
-    if (!assay %in% names(matrix@assays)) {
-      stop(sprintf("Assay %s not found in sce object.", assay))
+StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000,
+                                ncores=1, assay='counts', ties.method="average",
+                                force.gc=FALSE, seed=123) {
+    
+    #Check type of input
+    if (methods::is(matrix, "SingleCellExperiment")) { # sce object
+        if (!assay %in% names(matrix@assays)) {
+            stop(sprintf("Assay %s not found in sce object.", assay))
+        }
+        m <- SummarizedExperiment::assay(matrix, assay)
+    } else if (methods::is(matrix, "matrix") | #matrix or DF
+               methods::is(matrix, "dgCMatrix") |
+               methods::is(matrix, "data.frame")) { 
+        m <- matrix
+    } else {
+        stop("Unrecognized input format.")
     }
-    m <- SummarizedExperiment::assay(matrix, assay)
-  } else if (methods::is(matrix, "matrix") | #matrix or DF
-             methods::is(matrix, "dgCMatrix") |
-             methods::is(matrix, "data.frame")) { 
-    m <- matrix
-  } else {
-    stop("Unrecognized input format.")
-  }
-  
-  features <- rownames(m)[1]  #placeholder signature
-  meta.list <- calculate_Uscore(m, features=features, maxRank=maxRank, chunk.size=chunk.size,
-                                ncores=ncores, ties.method=ties.method, storeRanks=TRUE, force.gc=force.gc)
-  
-  ranks.all <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
-  ranks.all <- Reduce(cbind, ranks.all)
-  
-  return(ranks.all)
-
+    
+    features <- rownames(m)[1]  #placeholder signature
+    meta.list <- calculate_Uscore(m, features=features, maxRank=maxRank,
+                                  chunk.size=chunk.size, ncores=ncores,
+                                  ties.method=ties.method, storeRanks=TRUE,
+                                  force.gc=force.gc)
+    
+    ranks.all <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
+    ranks.all <- Reduce(cbind, ranks.all)
+    
+    return(ranks.all)
+    
 }
