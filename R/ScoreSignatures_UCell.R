@@ -46,42 +46,43 @@ ScoreSignatures_UCell <- function(matrix=NULL, features, precalc.ranks=NULL,
                                   maxRank=1500, w_neg=1, name="_UCell",
                                   assay="counts", chunk.size=1000, ncores=1, 
                                   ties.method="average", force.gc=FALSE, seed=123) {
-  
-  features <- check_signature_names(features)
-  
-  #Check type of input
-  if (methods::is(matrix, "SingleCellExperiment")) { # sce object
-    if (!assay %in% names(matrix@assays)) {
-      stop(sprintf("Assay %s not found in sce object.", assay))
+    
+    features <- check_signature_names(features)
+    
+    #Check type of input
+    if (methods::is(matrix, "SingleCellExperiment")) { # sce object
+        if (!assay %in% names(matrix@assays)) {
+            stop(sprintf("Assay %s not found in sce object.", assay))
+        }
+        m <- SummarizedExperiment::assay(matrix, assay) 
+    } else if (methods::is(matrix, "matrix") | #matrix or DF
+               methods::is(matrix, "dgCMatrix") |
+               methods::is(matrix, "data.frame")) { 
+        m <- matrix
+    } else {
+        m <- NULL
     }
-    m <- SummarizedExperiment::assay(matrix, assay) 
-  } else if (methods::is(matrix, "matrix") | #matrix or DF
-             methods::is(matrix, "dgCMatrix") |
-             methods::is(matrix, "data.frame")) { 
-    m <- matrix
-  } else {
-    m <- NULL
-  }
-  
-  if (is.null(m) & is.null(precalc.ranks)) {
-    stop("Unrecognized input format.")
-  }
-  
-  #Run on pre-calculated ranks ('m' can be NULL)
-  if (!is.null(precalc.ranks)) {
-     u.list <- rankings2Uscore(precalc.ranks, features=features, chunk.size=chunk.size, w_neg=w_neg,
-                                  ncores=ncores, force.gc=force.gc, name=name)
-  } else {
-     u.list <- calculate_Uscore(m, features=features, maxRank=maxRank, chunk.size=chunk.size, w_neg=w_neg,
-                                   ties.method=ties.method, ncores=ncores, force.gc=force.gc, name=name)
-  }
-  u.merge <- lapply(u.list,function(x) rbind(x[["cells_AUC"]]))
-  u.merge <- Reduce(rbind, u.merge)
-  
-  if (methods::is(matrix, "SingleCellExperiment")) {
-     SingleCellExperiment::altExp(matrix, "UCell") <- SummarizedExperiment(assays = list("UCell" = t(u.merge)))
-     return(matrix)
-  } else {
-     return(u.merge)
-  }
+    
+    if (is.null(m) & is.null(precalc.ranks)) {
+        stop("Unrecognized input format.")
+    }
+    
+    #Run on pre-calculated ranks ('m' can be NULL)
+    if (!is.null(precalc.ranks)) {
+        u.list <- rankings2Uscore(precalc.ranks, features=features, chunk.size=chunk.size,
+                                  w_neg=w_neg, ncores=ncores, force.gc=force.gc, name=name)
+    } else {
+        u.list <- calculate_Uscore(m, features=features, maxRank=maxRank, chunk.size=chunk.size,
+                                   w_neg=w_neg, ties.method=ties.method, ncores=ncores,
+                                   force.gc=force.gc, name=name)
+    }
+    u.merge <- lapply(u.list,function(x) rbind(x[["cells_AUC"]]))
+    u.merge <- Reduce(rbind, u.merge)
+    
+    if (methods::is(matrix, "SingleCellExperiment")) {
+        SingleCellExperiment::altExp(matrix, "UCell") <- SummarizedExperiment(assays = list("UCell" = t(u.merge)))
+        return(matrix)
+    } else {
+        return(u.merge)
+    }
 }

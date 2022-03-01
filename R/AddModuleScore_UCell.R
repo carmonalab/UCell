@@ -39,43 +39,50 @@
 #' head(obj$Tcell_NK)
 #' ## End (Not run)
 #' @export
-AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000, ncores=1, storeRanks=FALSE, w_neg=1,
-                                 assay=NULL, slot="data", ties.method="average", force.gc=FALSE, seed=123, name="_UCell") {
-  
-  if (!requireNamespace("Seurat", quietly = TRUE)) {
-    stop("Function 'AddModuleScore_UCell' requires the Seurat package. Please install it.", call. = FALSE)
-  }  
-  
-  features <- check_signature_names(features)
-  
-  if (is.null(assay)) {
-    assay <- Seurat::DefaultAssay(obj)
-  }
-  precomputedRanks <- obj@misc[["UCell"]][[assay]][["cells_rankings"]]
-  
-  #If rank matrix was pre-computed, evaluate the new signatures from these ranks
-  #Else, calculate new ranks to score signatures (optionally storing ranks, takes up memory but become very fast to evaluate further signatures)
-  if (!is.null(precomputedRanks)) {
-    meta.list <- rankings2Uscore(precomputedRanks, features=features, chunk.size=chunk.size, w_neg=w_neg,
-                                 ncores=ncores, force.gc=force.gc, name=name)
+AddModuleScore_UCell <- function(obj, features, maxRank=1500, chunk.size=1000,
+                                 ncores=1, storeRanks=FALSE, w_neg=1,
+                                 assay=NULL, slot="data", ties.method="average",
+                                 force.gc=FALSE, seed=123, name="_UCell") {
     
-  } else {
-    meta.list <- calculate_Uscore(Seurat::GetAssayData(obj, slot, assay=assay), features=features, maxRank=maxRank, chunk.size=chunk.size, w_neg=w_neg,
-                                  ncores=ncores, ties.method=ties.method, force.gc=force.gc, storeRanks=storeRanks, name=name)
+    if (!requireNamespace("Seurat", quietly = TRUE)) {
+        stop("Function 'AddModuleScore_UCell' requires the Seurat package. Please install it.", call. = FALSE)
+    }  
     
-    #store ranks matrix?
-    if (storeRanks==TRUE){
-      cells_rankings.merge <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
-      cells_rankings.merge <- Reduce(cbind, cells_rankings.merge)
-      
-      obj@misc[["UCell"]][[assay]] <- list(cells_rankings=cells_rankings.merge)
+    features <- check_signature_names(features)
+    
+    if (is.null(assay)) {
+        assay <- Seurat::DefaultAssay(obj)
     }
-  }
-  
-  meta.merge <- lapply(meta.list,function(x) rbind(x[["cells_AUC"]]))
-  meta.merge <- Reduce(rbind, meta.merge)
-  
-  obj <- Seurat::AddMetaData(obj, as.data.frame(meta.merge))
-  
-  return(obj)
+    precomputedRanks <- obj@misc[["UCell"]][[assay]][["cells_rankings"]]
+    
+    #If rank matrix was pre-computed, evaluate the new signatures from these ranks
+    #Else, calculate new ranks to score signatures (optionally storing ranks, 
+    #takes up more memory but become very fast to evaluate further signatures)
+    if (!is.null(precomputedRanks)) {
+        meta.list <- rankings2Uscore(precomputedRanks, features=features,
+                                     chunk.size=chunk.size, w_neg=w_neg,
+                                     ncores=ncores, force.gc=force.gc, name=name)
+        
+    } else {
+        meta.list <- calculate_Uscore(Seurat::GetAssayData(obj, slot, assay=assay),
+                                      features=features, maxRank=maxRank,
+                                      chunk.size=chunk.size, w_neg=w_neg,
+                                      ncores=ncores, ties.method=ties.method,
+                                      force.gc=force.gc, storeRanks=storeRanks, name=name)
+        
+        #store ranks matrix?
+        if (storeRanks==TRUE){
+            cells_rankings.merge <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
+            cells_rankings.merge <- Reduce(cbind, cells_rankings.merge)
+            
+            obj@misc[["UCell"]][[assay]] <- list(cells_rankings=cells_rankings.merge)
+        }
+    }
+    
+    meta.merge <- lapply(meta.list,function(x) rbind(x[["cells_AUC"]]))
+    meta.merge <- Reduce(rbind, meta.merge)
+    
+    obj <- Seurat::AddMetaData(obj, as.data.frame(meta.merge))
+    
+    return(obj)
 }
