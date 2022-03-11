@@ -8,49 +8,60 @@ StoreRankings_UCell(
   matrix,
   maxRank = 1500,
   chunk.size = 1000,
+  BPPARAM = NULL,
   ncores = 1,
   assay = "counts",
   ties.method = "average",
-  force.gc = FALSE,
-  seed = 123
+  force.gc = FALSE
 )
 }
 \arguments{
-\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
+\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object
+or as a raw matrix. \code{dgCMatrix} format supported.}
 
-\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed}
+\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a
+given gene is considered as not expressed}
 
-\item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
+\item{chunk.size}{Number of cells to be processed simultaneously (lower size
+requires slightly more computation but reduces memory demands)}
+
+\item{BPPARAM}{A BiocParallel::bpparam() object that tells UCell how to
+parallelise.}
 
 \item{ncores}{Number of processors to parallelize computation}
 
 \item{assay}{Assay where the data is to be found (for input in 'sce' format)}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
+\item{ties.method}{How ranking ties should be resolved (passed on to
+\link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
-
-\item{seed}{Integer seed}
 }
 \value{
-Returns a sparse matrix of pre-calculated ranks that can be used multiple times to evaluate different signatures
+Returns a sparse matrix of pre-calculated ranks that can be used
+multiple times to evaluate different signatures
 }
 \description{
-Given a gene vs. cell matrix, calculates the rankings of expression for all genes in each cell.
+Given a gene vs. cell matrix, calculates the rankings of expression for all
+genes in each cell.
 }
 \details{
-While \code{\link{ScoreSignatures_UCell}} can be used 'on the fly' to evaluate signatures in a query dataset, it requires recalculating gene
-ranks at every execution. If you have a large dataset and plan to experiment with multiple signatures, evaluating the same dataset multiple times,
-this function allows you to store pre-calculated ranks so they do not have to be recomputed every time. Pre-calculated ranks can then be applied to the
-function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures in a significantly faster way on successive iterations.
+While \code{\link{ScoreSignatures_UCell}} can be used 'on the fly' to
+evaluate signatures in a query dataset, it requires recalculating gene
+ranks at every execution. If you have a large dataset and plan to experiment
+with multiple signatures, evaluating the same dataset multiple times,
+this function allows you to store pre-calculated ranks so they do not have to
+be recomputed every time. Pre-calculated ranks can then be applied to the
+function \code{\link{ScoreSignatures_UCell}} to evaluate gene signatures in a
+significantly faster way on successive iterations.
 }
 \examples{
-## Not run:
+library(UCell)
 data(sample.matrix)
 ranks <- StoreRankings_UCell(sample.matrix)
 ranks[1:5,1:5]
 gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 scores <- ScoreSignatures_UCell(features=gene.sets, precalc.ranks=ranks)
-## End (Not run)
+head(scores)
 }

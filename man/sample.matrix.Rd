@@ -7,11 +7,16 @@
 \format{
 A sparse matrix of 600 cells and 20729 genes.
 }
+\source{
+\url{https://doi.org/10.1016/j.cell.2021.04.048}
+}
 \usage{
 sample.matrix
 }
 \description{
-A sparse matrix (class "dgCMatrix") of single-cell transcriptomes for 600 cells and 20729 genes.
-It can be used for quick tests of UCell functionalities
+A sparse matrix (class "dgCMatrix") of single-cell transcriptomes
+for 600 cells and 20729 genes. This a subsample of T cells from the
+PBMC dataset
+by \href{https://doi.org/10.1016/j.cell.2021.04.048}{Hao et al.}
 }
 \keyword{datasets}

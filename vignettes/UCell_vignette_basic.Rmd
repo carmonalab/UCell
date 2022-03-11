@@ -26,6 +26,8 @@ UCell is an R package for evaluating gene signatures in single-cell datasets. UC
 
 Install UCell through BiocManager:
 ```{r eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
 BiocManager::install("UCell")
 ```
 
@@ -38,7 +40,7 @@ library(UCell)
 
 data(sample.matrix)
 gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
-    Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 
 scores <- ScoreSignatures_UCell(sample.matrix, features=gene.sets)
 head(scores)
@@ -72,7 +74,7 @@ signatures <- list(
     Myeloid = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
     NK = c("KLRD1","NCAM1","NKG7","CD3D-","CD3E-"),
     Plasma_cell = c("IGKC","IGHG3","IGHG1","IGHA1","CD19-")
-    )
+)
 ```
 
 # Run UCell
@@ -108,7 +110,8 @@ ranks[1:5,1:5]
 Then, we can apply our signature set, or any other new signature to the pre-calculated ranks. The calculations will be considerably faster.
 ```{r}
 set.seed(123)
-u.scores.2 <- ScoreSignatures_UCell(features=signatures, precalc.ranks = ranks)
+u.scores.2 <- ScoreSignatures_UCell(features=signatures,
+                                    precalc.ranks = ranks)
 
 melted <- reshape2::melt(u.scores.2)
 colnames(melted) <- c("Cell","Signature","UCell_score")
@@ -120,11 +123,11 @@ p
 ```
 
 ```{r fig.small=TRUE}
-
 new.signatures <- list(Mast.cell = c("TPSAB1","TPSB2","CPA3","MS4A2"),
                        Lymphoid = c("LCK"))
 
-u.scores.3 <- ScoreSignatures_UCell(features=new.signatures, precalc.ranks = ranks)
+u.scores.3 <- ScoreSignatures_UCell(features=new.signatures,
+                                    precalc.ranks = ranks)
 melted <- reshape2::melt(u.scores.3)
 colnames(melted) <- c("Cell","Signature","UCell_score")
 p <- ggplot(melted, aes(x=Signature, y=UCell_score)) + 
@@ -132,23 +135,16 @@ p <- ggplot(melted, aes(x=Signature, y=UCell_score)) +
     geom_boxplot(width=0.1, outlier.size=0) + 
     theme_bw() + theme(axis.text.x=element_blank())
 p
-
 ```
 
 # Multi-core processing
 
-If your machine has multi-core capabilities and enough RAM, running UCell in parallel can speed up considerably your analysis. In this example we will use 4 parallel cores:
+If your machine has multi-core capabilities and enough RAM, running UCell in parallel can speed up considerably your analysis. For example, to run UCell on 4 cores:
 
-```{r}
-u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures, ncores=4)
-
-melted <- reshape2::melt(u.scores)
-colnames(melted) <- c("Cell","Signature","Uscore")
-p <- ggplot(melted, aes(x=Signature, y=Uscore)) + 
-    geom_violin(aes(fill=Signature), scale = "width") +
-    geom_boxplot(width=0.1, outlier.size=0) + 
-    theme_bw() + theme(axis.text.x=element_blank())
-p
+```{r eval=FALSE}
+BPPARAM <- BiocParallel::MulticoreParam(workers=4)
+u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures,
+                                  BPPARAM=BPPARAM)
 ```
 
 # Interacting with SingleCellExperiment or Seurat
@@ -163,7 +159,7 @@ library(SingleCellExperiment)
 
 sce <- SingleCellExperiment(list(counts=exp.mat))
 sce <- ScoreSignatures_UCell(sce, features=signatures, 
-                                 assay = 'counts', name=NULL, ncores=4)
+                                 assay = 'counts', name=NULL)
 altExp(sce, 'UCell')
 ```
 
@@ -183,7 +179,8 @@ sce <- runUMAP(sce, dimred="PCA")
 Visualize UCell scores on low-dimensional representation (UMAP)
 ```{r fig.wide=TRUE}
 pll <- lapply(names(signatures), function(x) {
-    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell", point_size=0.2)
+    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell",
+             point_size=0.2)
 })
 wrap_plots(pll)
 ```
@@ -196,19 +193,19 @@ library(Seurat)
 seurat.object <- CreateSeuratObject(counts = exp.mat, 
                                     project = "Zilionis_immune")
 seurat.object <- AddModuleScore_UCell(seurat.object, 
-                                      features=signatures, name=NULL, ncores=4)
-head(seurat.object@meta.data)
+                                      features=signatures, name=NULL)
+head(seurat.object[[]])
 ```
 
 Generate PCA and UMAP embeddings
 ```{r message=F, warning=F}
 seurat.object <- NormalizeData(seurat.object)
 seurat.object <- FindVariableFeatures(seurat.object, 
-                                      selection.method = "vst", nfeatures = 500)
+                     selection.method = "vst", nfeatures = 500)
   
 seurat.object <- ScaleData(seurat.object)
 seurat.object <- RunPCA(seurat.object, npcs = 20, 
-                        features=seurat.object@assays$RNA@var.features) 
+                        features=VariableFeatures(seurat.object)) 
 seurat.object <- RunUMAP(seurat.object, reduction = "pca", 
                          dims = 1:20, seed.use=123)
 ```

@@ -9,6 +9,7 @@ AddModuleScore_UCell(
   features,
   maxRank = 1500,
   chunk.size = 1000,
+  BPPARAM = NULL,
   ncores = 1,
   storeRanks = FALSE,
   w_neg = 1,
@@ -16,64 +17,87 @@ AddModuleScore_UCell(
   slot = "data",
   ties.method = "average",
   force.gc = FALSE,
-  seed = 123,
   name = "_UCell"
 )
 }
 \arguments{
 \item{obj}{Seurat object}
 
-\item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
-You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
+\item{features}{A list of signatures, for example:
+\code{list( Tcell_signature = c("CD2","CD3E","CD3D"),
+    Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
+You can also specify positive and negative gene sets by adding a + or -
+sign to genes in the signature; see an example below}
 
-\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.}
+\item{maxRank}{Maximum number of genes to rank per cell; above this rank,
+a given gene is considered as not expressed.}
 
-\item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
+\item{chunk.size}{Number of cells to be processed simultaneously (lower
+size requires slightly more computation but reduces memory demands)}
 
-\item{ncores}{Number of processors to parallelize computation. Requires package \code{future}}
+\item{BPPARAM}{A BiocParallel::bpparam() object that tells UCell how to
+parallelise.}
 
-\item{storeRanks}{Store ranks matrix in Seurat object (@misc slot) for fast subsequent computations. This option will demand large amounts of RAM.}
+\item{ncores}{Number of processors to parallelize computation.}
 
-\item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less importance to negative genes}
+\item{storeRanks}{Store ranks matrix in Seurat object ('UCellRanks' assay)
+for fast subsequent computations. This option may demand large
+amounts of RAM.}
 
-\item{assay}{Pull out data from this assay of the Seurat object (if NULL, use \code{DefaultAssay(obj)})}
+\item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs
+equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less
+importance to negative genes}
+
+\item{assay}{Pull out data from this assay of the Seurat object
+(if NULL, use \code{DefaultAssay(obj)})}
 
 \item{slot}{Pull out data from this slot of the Seurat object}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
+\item{ties.method}{How ranking ties should be resolved
+passed on to \link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 
-\item{seed}{Integer seed}
-
-\item{name}{Name tag that will be appended at the end of each signature name, "_UCell" by default (e.g. signature score in meta data will be named: Myeloid_signature_UCell)}
+\item{name}{Name tag that will be appended at the end of each signature
+name, "_UCell" by default (e.g. signature score in meta data will be
+named: Myeloid_signature_UCell)}
 }
 \value{
-Returns a Seurat object with module/signature enrichment scores added to object meta data; each score is stored as the corresponding signature name provided in \code{features} followed by the tag given in \code{name} (or "_UCell" by default )
+Returns a Seurat object with module/signature enrichment scores
+added to object meta data; each score is stored as the corresponding
+signature name provided in \code{features} followed by the tag given
+in \code{name} (or "_UCell" by default )
 }
 \description{
-Given a Seurat object, calculates module/signature enrichment scores at single-cell level using the Mann-Whitney U statistic.
-UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see \href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
+Given a Seurat object, calculates module/signature enrichment scores at
+single-cell level using the Mann-Whitney U statistic.
+UCell scores are normalized U statistics (between 0 and 1), and they are
+mathematically related to the Area under the ROC curve
+(see \href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
 }
 \details{
-In contrast to Seurat's AddModuleScore, which is normalized by binning genes of similar expression at the population level, UCell scores depend
-only on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
+In contrast to Seurat's AddModuleScore, which is normalized by binning genes
+of similar expression at the population level, UCell scores depend
+only on the gene expression ranks of individual cell, and therefore they are
+robust across datasets regardless of dataset composition.
 }
 \examples{
-## Not run:
-gene.sets <- list(Tcell_signature = c("CD2","CD3E","CD3D"),
-                Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+library(UCell)
+gene.sets <- list(Tcell = c("CD2","CD3E","CD3D"),
+                Myeloid = c("SPI1","FCER1G","CSF1R"))
 data(sample.matrix)
 obj <- Seurat::CreateSeuratObject(sample.matrix)                
 
 obj <- AddModuleScore_UCell(obj,features = gene.sets)
-head(obj@meta.data)
+head(obj[[]])
 
 ## Using positive and negative gene sets
 gene.sets <- list()
-gene.sets$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
-gene.sets$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
+gene.sets$Tcell_gd <- c("TRDC+","TRGC1+","TRGC2+","TRDV1+",
+    "TRAC-","TRBC1-","TRBC2-")
+gene.sets$NKcell <- c("FGFBP2+", "SPON2+", "KLRF1+",
+    "FCGR3A+", "CD3E-","CD3G-")
 obj <- AddModuleScore_UCell(obj, features = gene.sets, name=NULL)
-head(obj$Tcell_NK)
-## End (Not run)
+head(obj$NKcell)
+
 }

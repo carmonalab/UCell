@@ -13,49 +13,65 @@ ScoreSignatures_UCell(
   name = "_UCell",
   assay = "counts",
   chunk.size = 1000,
+  BPPARAM = NULL,
   ncores = 1,
   ties.method = "average",
-  force.gc = FALSE,
-  seed = 123
+  force.gc = FALSE
 )
 }
 \arguments{
-\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object or as a raw matrix. \code{dgCMatrix} format supported.}
+\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object
+or as a raw matrix. \code{dgCMatrix} format supported.}
 
-\item{features}{A list of signatures, for example: \code{list( Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
-You can also specify positive and negative gene sets by adding a + or - sign to genes in the signature; see an example below}
+\item{features}{A list of signatures, for example:
+\code{list(Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
+You can also specify positive and negative gene sets by adding a + or -
+sign to genes in the signature; see an example below}
 
-\item{precalc.ranks}{If you have pre-calculated ranks using \code{\link{StoreRankings_UCell}}, you can specify the pre-calculated ranks instead of the gene vs. cell matrix.}
+\item{precalc.ranks}{If you have pre-calculated ranks using \code{\link{StoreRankings_UCell}},
+you can specify the pre-calculated ranks instead of the gene vs. cell matrix.}
 
-\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a given gene is considered as not expressed.
-Note: this parameter is ignored if \code{precalc.ranks} are specified}
+\item{maxRank}{Maximum number of genes to rank per cell; above this rank, a
+given gene is considered as not expressed. Note: this parameter is ignored if
+\code{precalc.ranks} are specified}
 
-\item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less importance to negative genes}
+\item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs
+equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less
+importance to negative genes}
 
 \item{name}{Name suffix appended to signature names}
 
 \item{assay}{The sce object assay where the data is to be found}
 
-\item{chunk.size}{Number of cells to be processed simultaneously (lower size requires slightly more computation but reduces memory demands)}
+\item{chunk.size}{Number of cells to be processed simultaneously (lower size
+requires slightly more computation but reduces memory demands)}
 
-\item{ncores}{Number of processors to parallelize computation.}
+\item{BPPARAM}{A BiocParallel::bpparam() object that tells UCell how to
+parallelise.}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to \link[data.table:frank]{data.table::frank})}
+\item{ncores}{Number of processors to parallelize computation}
+
+\item{ties.method}{How ranking ties should be resolved (passed on to
+\link[data.table:frank]{data.table::frank})}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
-
-\item{seed}{Integer seed}
 }
 \value{
-Returns input SingleCellExperiment object with UCell scores added to altExp
+Returns input SingleCellExperiment object with UCell scores
+added to altExp
 }
 \description{
-Given a gene vs. cell matrix, calculates module/signature enrichment scores on single-cell level using Mann-Whitney U statistic.
-UCell scores are normalized U statistics (between 0 and 1), and they are mathematically related to the Area under the ROC curve (see \href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
-These scores only depend on the gene expression ranks of individual cell, and therefore they are robust across datasets regardless of dataset composition.
+Given a gene vs. cell matrix, calculates module/signature enrichment scores
+on single-cell level using Mann-Whitney U statistic.
+UCell scores are normalized U statistics (between 0 and 1), and they are
+mathematically related to the Area under the ROC curve (see
+\href{https://doi.org/10.1256/003590002320603584}{Mason and Graham})
+These scores only depend on the gene expression ranks of individual cell,
+and therefore they are robust across datasets regardless of dataset
+composition.
 }
 \examples{
-## Not run:
+library(UCell)
 # Using sparse matrix
 data(sample.matrix)
 gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
@@ -71,5 +87,5 @@ gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
                  Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
 my.sce <- ScoreSignatures_UCell(my.sce, features=gene.sets)
 altExp(my.sce, 'UCell')
-## End (Not run)
+
 }

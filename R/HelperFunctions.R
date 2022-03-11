@@ -29,7 +29,8 @@ u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
 #' 
 #' @param   sig_list      A list of signatures
 #' @param   ranks_matrix  Matrix of pre-computed ranks
-#' @param   maxRank       Max number of features to include in ranking, for u_stat function
+#' @param   maxRank       Max number of features to include in ranking,
+#'     for u_stat function
 #' @param   sparse        Whether the vector of ranks is in sparse format
 #' @param   w_neg         Weight on negative signatures
 #' 
@@ -46,17 +47,21 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
     
         if (length(sig_pos)>0) {
             sig_pos <- gsub('\\+$','',sig_pos,perl=TRUE)
-            u_p <- as.numeric(ranks_matrix[sig_pos,
-                                           lapply(.SD, function(x) u_stat(x,maxRank = maxRank,sparse=sparse)),
-                                           .SDcols=-1, on="rn"])
+            u_p <- as.numeric(ranks_matrix[
+                sig_pos,
+                lapply(.SD, function(x)
+                    u_stat(x,maxRank = maxRank,sparse=sparse)),
+                .SDcols=-1, on="rn"])
         } else {
             u_p <- rep(0, dim(ranks_matrix)[2]-1)
         }
         if (length(sig_neg)>0) {
             sig_neg <- gsub('-$','',sig_neg,perl=TRUE)
-            u_n <- as.numeric(ranks_matrix[sig_neg,
-                                           lapply(.SD, function(x) u_stat(x,maxRank = maxRank,sparse=sparse)),
-                                           .SDcols=-1, on="rn"])
+            u_n <- as.numeric(ranks_matrix[
+                sig_neg,
+                lapply(.SD, function(x)
+                    u_stat(x,maxRank = maxRank,sparse=sparse)),
+                .SDcols=-1, on="rn"])
         } else {
             u_n <- rep(0, dim(ranks_matrix)[2]-1)
         }
@@ -75,10 +80,13 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 #' @param   matrix        Input data matrix 
 #' @param   features      List of signatures
 #' @param   maxRank       Rank cutoff (1500) 
-#' @param   chunk.size    Cells per sub-matrix (1000) 
-#' @param   ncores        Number of cores to use for parallelization (1) 
+#' @param   chunk.size    Cells per sub-matrix (1000)
+#' @param   BPPARAM       A BioParallel object to instruct UCell how to
+#'    parallelize  
+#' @param   ncores        Number of cores to use for parallelization
 #' @param   w_neg         Weight on negative signatures
-#' @param   ties.method   How to break ties, for data.table::frankv method ("average")
+#' @param   ties.method   How to break ties, for data.table::frankv
+#'     method ("average")
 #' @param   storeRanks    Store ranks? (FALSE) 
 #' @param   force.gc      Force garbage collection? (FALSE) 
 #' @param   name          Suffix for metadata columns ("_UCell") 
@@ -87,9 +95,10 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 #' @importFrom methods is 
 #' @import  Matrix
 #' @import  BiocParallel
-calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000,
-                             ncores=1, w_neg=1, ties.method="average", 
-                             storeRanks=FALSE, force.gc=FALSE, name="_UCell") {
+calculate_Uscore <- function(
+    matrix, features,  maxRank=1500, chunk.size=1000,
+    BPPARAM = NULL, ncores=1, w_neg=1, ties.method="average",
+    storeRanks=FALSE, force.gc=FALSE, name="_UCell"){
   
     #Make sure we have a sparse matrix
     if (!methods::is(matrix, "dgCMatrix")) {
@@ -100,6 +109,9 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000,
     matrix <- check_genes(matrix, features)
     
     #Do not evaluate more genes than there are
+    if (!is.numeric(maxRank)) {
+        stop("Rank cutoff (maxRank) must be a number")
+    }
     if (maxRank > nrow(matrix)) {
         maxRank <- nrow(matrix)
     }
@@ -111,27 +123,31 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000,
     #Signatures cannot be larger than maxRank parameter
     sign.lgt <- lapply(features, length)
     if (any(sign.lgt > maxRank)) {
-        stop("One or more signatures contain more genes than maxRank parameter. Increase maxRank parameter or make shorter signatures")
+        stop("One or more signatures contain more genes than maxRank parameter.
+            Increase maxRank parameter or make shorter signatures")
     }
     
     #Split into manageable chunks
     split.data <- split_data.matrix(matrix=matrix, chunk.size=chunk.size)
-  
-    #Parallelize?
-    param <- BiocParallel::MulticoreParam(workers=ncores)
+    
+    #Either take a BPPARAM object, or make one on the spot using 'ncores'
+    if (is.null(BPPARAM)) {
+        BPPARAM <- BiocParallel::MulticoreParam(workers=ncores)
+    }
     meta.list <- BiocParallel::bplapply(
     X = split.data, 
-    BPPARAM =  param,
+    BPPARAM =  BPPARAM,
     FUN = function(x) {
-        cells_rankings <- data_to_ranks_data_table(x, ties.method = ties.method)
+        cells_rankings <- data_to_ranks_data_table(x, ties.method=ties.method)
         cells_AUC <- u_stat_signature_list(features, cells_rankings, 
-                                           maxRank=maxRank, sparse=FALSE, w_neg=w_neg)
+                        maxRank=maxRank, sparse=FALSE, w_neg=w_neg)
         colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
         if (storeRanks==TRUE){
             gene.names <- as.character(as.matrix(cells_rankings[,1]))
             #make sparse
             cells_rankings[cells_rankings>maxRank] <- 0
-            ranks.sparse <- Matrix::Matrix(as.matrix(cells_rankings[,-1]),sparse = TRUE)
+            ranks.sparse <- Matrix::Matrix(as.matrix(
+                            cells_rankings[,-1]),sparse = TRUE)
             dimnames(ranks.sparse)[[1]] <- gene.names
             if (force.gc) {
                 cells_rankings <- NULL
@@ -152,43 +168,48 @@ calculate_Uscore <- function(matrix, features,  maxRank=1500, chunk.size=1000,
 
 #' Get signature scores from pre-computed rank matrix
 #' 
-#' @param     ranks_matrix    A rank matrix
-#' @param     features        List of signatures
-#' @param     chunk.size      How many cells per matrix chunk
-#' @param     w_neg           Weight on negative signatures
-#' @param     ncores          How many cores to use for parallelization
-#' @param     force.gc        Force garbage collection to recover RAM? (FALSE)
-#' @param     name            Name suffix for metadata columns ("_UCell")
+#' @param ranks_matrix  A rank matrix
+#' @param features      List of signatures
+#' @param chunk.size    How many cells per matrix chunk
+#' @param w_neg         Weight on negative signatures
+#' @param BPPARAM       A BioParallel object to instruct UCell how to
+#'     parallelize  
+#' @param ncores        How many cores to use for parallelization?
+#' @param force.gc      Force garbage collection to recover RAM? (FALSE)
+#' @param name          Name suffix for metadata columns ("_UCell")
 #' 
 #' @return                    A list of signature scores
 #' @import    data.table
 rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
-                            ncores=1, force.gc=FALSE, name="_UCell") {
+                            BPPARAM = NULL,ncores=1, force.gc=FALSE, name="_UCell") {
     
     #Check if all genes in signatures are present in the stored signatures
     ranks_matrix <- check_genes(ranks_matrix, features)
     
     #Weight on neg signatures must be >=0
     if (is.null(w_neg)) {w_neg <- 1}
-    if (w_neg<0) {stop("Weight on negative signatures (w_neg) must be >=0")}
+    if (!is.numeric(w_neg) | w_neg<0) {
+        stop("Weight on negative signatures (w_neg) must be >=0")}
     
     maxRank <- max(ranks_matrix)
     split.data <- split_data.matrix(matrix=ranks_matrix, chunk.size=chunk.size)
     rm(ranks_matrix)
     
-    #Parallelize?
-    param <- BiocParallel::MulticoreParam(workers=ncores)
-    
+    #Either take a BPPARAM object, or make one on the spot using 'ncores'
+    if (is.null(BPPARAM)) {
+        BPPARAM <- BiocParallel::MulticoreParam(workers=ncores)
+    }
     meta.list <- BiocParallel::bplapply(
         X = split.data, 
-        BPPARAM =  param,
+        BPPARAM =  BPPARAM,
         FUN = function(x) {
             
             dense <- as.matrix(x)
             dense <- as.data.table(dense, keep.rownames=TRUE)
             setkey(dense, "rn", physical=FALSE)
             
-            cells_AUC <- u_stat_signature_list(features, dense, maxRank=maxRank, sparse=TRUE, w_neg=w_neg)
+            cells_AUC <- u_stat_signature_list(features, dense,
+                            maxRank=maxRank, sparse=TRUE, w_neg=w_neg)
             colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
             
             if (force.gc) {
@@ -201,10 +222,12 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
     return(meta.list)
 }
 
-#' Check if all genes in signatures are found in data matrix - otherwise add zero counts in data-matrix to complete it
+#' Check if all genes in signatures are found in data matrix - otherwise
+#' add zero counts in data-matrix to complete it
 #' 
 #' @param matrix Input data matrix
-#' @param features List of genes that must be present (otherwise they are added)
+#' @param features List of genes that must be present
+#'     (otherwise they are added)
 #' 
 #' @return Same input matrix, extended to comprise any missing genes
 check_genes <- function(matrix, features) {
@@ -214,7 +237,8 @@ check_genes <- function(matrix, features) {
     ll <- length(missing)
     
     if (ll/length(features) > 0.5) {
-        warning(sprintf("Over half of genes (%s%%) in specified signatures are missing from data. Check the integrity of your dataset\n", 
+        warning(sprintf("Over half of genes (%s%%) in specified signatures 
+                    are missing from data. Check the integrity of your dataset\n", 
                         round(100*ll/length(features))))
     }
     
@@ -224,7 +248,8 @@ check_genes <- function(matrix, features) {
         matrix <- rbind(matrix, add.mat)
         
         missing.concatenate <- paste(missing, collapse=",")
-        warning(sprintf("The following genes were not found and will be imputed to exp=0:\n* %s",missing.concatenate))
+        warning(sprintf("The following genes were not found and will be
+                        imputed to exp=0:\n* %s",missing.concatenate))
     }
     return(matrix)
 }
@@ -233,7 +258,8 @@ check_genes <- function(matrix, features) {
 #' 
 #' @param features List of signatures for scoring
 #' 
-#' @return The input list of signatures, with standard names if provided un-named
+#' @return The input list of signatures, with standard names if
+#'     provided un-named
 
 check_signature_names <- function(features) {
     defaultSigName <- paste0(rep("signature_",length(features)),seq_along(features))
@@ -256,7 +282,8 @@ check_signature_names <- function(features) {
 #' @import data.table
 data_to_ranks_data_table <- function(data, ties.method="average") {
     dt <- as.data.table(as.matrix(data))
-    rnaDT.ranks.dt <- dt[, lapply(.SD, function(x) frankv(x,ties.method=ties.method,order=c(-1L)))]
+    rnaDT.ranks.dt <- dt[, lapply(.SD, function(x)
+        frankv(x,ties.method=ties.method,order=c(-1L)))]
     rnaDT.ranks.rownames <- rownames(data)
     rnaDT.ranks.dt.rn <- cbind(rn=rnaDT.ranks.rownames, rnaDT.ranks.dt)
     setkey(rnaDT.ranks.dt.rn, "rn", physical = FALSE)
@@ -290,8 +317,13 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
 
 #' Sample dataset to test UCell installation
 #'
-#' A sparse matrix (class "dgCMatrix") of single-cell transcriptomes for 600 cells and 20729 genes.
-#' It can be used for quick tests of UCell functionalities
+#' A sparse matrix (class "dgCMatrix") of single-cell transcriptomes
+#' for 600 cells and 20729 genes. This a subsample of T cells from the
+#' PBMC dataset
+#' by \href{https://doi.org/10.1016/j.cell.2021.04.048}{Hao et al.}
+#' 
+
 #' @format A sparse matrix of 600 cells and 20729 genes.
+#' @source \url{https://doi.org/10.1016/j.cell.2021.04.048}
 "sample.matrix"
 

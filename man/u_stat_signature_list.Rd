@@ -17,7 +17,8 @@ u_stat_signature_list(
 
 \item{ranks_matrix}{Matrix of pre-computed ranks}
 
-\item{maxRank}{Max number of features to include in ranking, for u_stat function}
+\item{maxRank}{Max number of features to include in ranking,
+for u_stat function}
 
 \item{sparse}{Whether the vector of ranks is in sparse format}
 

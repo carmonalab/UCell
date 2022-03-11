@@ -9,6 +9,7 @@ rankings2Uscore(
   features,
   chunk.size = 1000,
   w_neg = 1,
+  BPPARAM = NULL,
   ncores = 1,
   force.gc = FALSE,
   name = "_UCell"
@@ -23,7 +24,10 @@ rankings2Uscore(
 
 \item{w_neg}{Weight on negative signatures}
 
-\item{ncores}{How many cores to use for parallelization}
+\item{BPPARAM}{A BioParallel object to instruct UCell how to
+parallelize}
+
+\item{ncores}{How many cores to use for parallelization?}
 
 \item{force.gc}{Force garbage collection to recover RAM? (FALSE)}
 

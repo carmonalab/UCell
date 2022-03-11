@@ -11,12 +11,18 @@ Find the installation instructions for the package and usage vignettes below.
 
 ### Package Installation
 
-To install `UCell` directly from its GitHub repository, run the following code from within R or RStudio:
+`UCell` is coming to Bioconductor! To install the package from BioC run:
+```
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("UCell")
+```
+
+For previous releases of `UCell`, you may download a tagged version from GitHub:
 ```
 library(remotes)
 remotes::install_github("carmonalab/UCell", ref="v1.3")
 ```
-For previous releases, specify the relevant tag with the 'ref' option.
 
 
 ### Test the package
@@ -43,7 +49,7 @@ Run UCell demos to learn about the functionalities of the package:
 
 * [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell_demo/UCell_vignette_TILstates.html)
 
-### New in version 1.1.0
+### New in version > 1.1.0
 
 You can now specify positive and negative (up- or down-regulated) genes in signatures. For example, build signatures as:
 
@@ -62,13 +68,6 @@ The **UCell score** is calculated as:  U = max(0, U<sup>+</sup> - *w_neg* * U<su
 where U<sup>+</sup> and U<sup>-</sup> are respectively the U scores for the positive and negative set, and *w_neg* is a weight on the negative set.
 
 When no negative set of genes is present, U = U<sup>+</sup>, therefore the behavior is identical to previous UCell versions.   
-
-
-
-### Documentation
-
-See a description of the functions implemented in UCell at: [UCell functions](docs/functions.md)
-
 
 ### Citation
 
