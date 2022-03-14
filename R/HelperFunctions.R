@@ -6,11 +6,11 @@
 #' 
 #' @return Normalized AUC (as U statistic) for the vector
 u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
-
+    
     if (sparse==TRUE){
         rank_value[rank_value==0] <- maxRank+1
     }
-
+    
     insig <- rank_value > maxRank
     if (all(insig)) {
         return(0L)
@@ -18,7 +18,7 @@ u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
         rank_value[insig] <- maxRank+1
         rank_sum <- sum(rank_value)
         len_sig <- length(rank_value)
-
+        
         u_value <- rank_sum - (len_sig * (len_sig + 1))/2
         auc <- 1 - u_value/(len_sig * maxRank)
         return(auc)
@@ -38,13 +38,13 @@ u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
 #' @import data.table
 #' 
 u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
-                                  sparse=FALSE, w_neg=1) {
+    sparse=FALSE, w_neg=1) {
     
     dim <- ncol(ranks_matrix)-1
     u_matrix <- vapply(sig_list, FUN.VALUE = numeric(dim), FUN=function(sig) {
         sig_neg <- grep('-$', unlist(sig), perl=TRUE, value=TRUE)
         sig_pos <- setdiff(unlist(sig), sig_neg)
-    
+        
         if (length(sig_pos)>0) {
             sig_pos <- gsub('\\+$','',sig_pos,perl=TRUE)
             u_p <- as.numeric(ranks_matrix[
@@ -65,12 +65,12 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
         } else {
             u_n <- rep(0, dim(ranks_matrix)[2]-1)
         }
-    
+        
         diff <- u_p - w_neg*u_n   #Subtract negative sets, if any
         diff[diff<0] <- 0
         return(diff)
     })
-  
+    
     rownames(u_matrix) <- colnames(ranks_matrix)[-1]
     return (u_matrix)
 }
@@ -96,15 +96,15 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 #' @import  Matrix
 #' @import  BiocParallel
 calculate_Uscore <- function(
-    matrix, features,  maxRank=1500, chunk.size=1000,
-    BPPARAM = NULL, ncores=1, w_neg=1, ties.method="average",
-    storeRanks=FALSE, force.gc=FALSE, name="_UCell"){
-  
+        matrix, features,  maxRank=1500, chunk.size=1000,
+        BPPARAM = NULL, ncores=1, w_neg=1, ties.method="average",
+        storeRanks=FALSE, force.gc=FALSE, name="_UCell"){
+    
     #Make sure we have a sparse matrix
     if (!methods::is(matrix, "dgCMatrix")) {
         matrix <- Matrix::Matrix(as.matrix(matrix),sparse = TRUE)
     }
-  
+    
     #Check if all genes in signatures are present in the data matrix
     matrix <- check_genes(matrix, features)
     
@@ -135,34 +135,36 @@ calculate_Uscore <- function(
         BPPARAM <- BiocParallel::MulticoreParam(workers=ncores)
     }
     meta.list <- BiocParallel::bplapply(
-    X = split.data, 
-    BPPARAM =  BPPARAM,
-    FUN = function(x) {
-        cells_rankings <- data_to_ranks_data_table(x, ties.method=ties.method)
-        cells_AUC <- u_stat_signature_list(features, cells_rankings, 
-                        maxRank=maxRank, sparse=FALSE, w_neg=w_neg)
-        colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
-        if (storeRanks==TRUE){
-            gene.names <- as.character(as.matrix(cells_rankings[,1]))
-            #make sparse
-            cells_rankings[cells_rankings>maxRank] <- 0
-            ranks.sparse <- Matrix::Matrix(as.matrix(
-                            cells_rankings[,-1]),sparse = TRUE)
-            dimnames(ranks.sparse)[[1]] <- gene.names
-            if (force.gc) {
-                cells_rankings <- NULL
-                gc()
+        X = split.data, 
+        BPPARAM =  BPPARAM,
+        FUN = function(x) {
+            cells_rankings <- data_to_ranks_data_table(x,
+                ties.method=ties.method)
+            cells_AUC <- u_stat_signature_list(features, cells_rankings, 
+                maxRank=maxRank, sparse=FALSE,
+                w_neg=w_neg)
+            colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
+            if (storeRanks==TRUE){
+                gene.names <- as.character(as.matrix(cells_rankings[,1]))
+                #make sparse
+                cells_rankings[cells_rankings>maxRank] <- 0
+                ranks.sparse <- Matrix::Matrix(as.matrix(
+                    cells_rankings[,-1]),sparse = TRUE)
+                dimnames(ranks.sparse)[[1]] <- gene.names
+                if (force.gc) {
+                    cells_rankings <- NULL
+                    gc()
+                }
+                return(list(cells_rankings=ranks.sparse, cells_AUC=cells_AUC))
+            } else {
+                if (force.gc) {
+                    cells_rankings <- NULL
+                    gc()
+                }
+                return(list(cells_AUC=cells_AUC))
             }
-            return(list(cells_rankings=ranks.sparse, cells_AUC=cells_AUC))
-        } else {
-            if (force.gc) {
-                cells_rankings <- NULL
-                gc()
-            }
-        return(list(cells_AUC=cells_AUC))
-        }
-    
-    })
+            
+        })
     return(meta.list)
 }
 
@@ -181,7 +183,8 @@ calculate_Uscore <- function(
 #' @return                    A list of signature scores
 #' @import    data.table
 rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
-                            BPPARAM = NULL,ncores=1, force.gc=FALSE, name="_UCell") {
+                            BPPARAM = NULL,ncores=1, force.gc=FALSE,
+                            name="_UCell") {
     
     #Check if all genes in signatures are present in the stored signatures
     ranks_matrix <- check_genes(ranks_matrix, features)
@@ -209,7 +212,8 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
             setkey(dense, "rn", physical=FALSE)
             
             cells_AUC <- u_stat_signature_list(features, dense,
-                            maxRank=maxRank, sparse=TRUE, w_neg=w_neg)
+                maxRank=maxRank, sparse=TRUE,
+                w_neg=w_neg)
             colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
             
             if (force.gc) {
@@ -238,7 +242,7 @@ check_genes <- function(matrix, features) {
     
     if (ll/length(features) > 0.5) {
         warning(sprintf("Over half of genes (%s%%) in specified signatures 
-                    are missing from data. Check the integrity of your dataset\n", 
+            are missing from data. Check the integrity of your dataset\n", 
                         round(100*ll/length(features))))
     }
     
@@ -262,7 +266,8 @@ check_genes <- function(matrix, features) {
 #'     provided un-named
 
 check_signature_names <- function(features) {
-    defaultSigName <- paste0(rep("signature_",length(features)),seq_along(features))
+    defaultSigName <- paste0(rep("signature_",length(features)),
+        seq_along(features))
     if(is.null(names(features))){
         names(features) <- defaultSigName
     } else {

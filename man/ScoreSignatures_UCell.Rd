@@ -24,16 +24,18 @@ ScoreSignatures_UCell(
 or as a raw matrix. \code{dgCMatrix} format supported.}
 
 \item{features}{A list of signatures, for example:
-\code{list(Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
+\code{list(Tcell_signature = c("CD2","CD3E","CD3D"),
+    Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 You can also specify positive and negative gene sets by adding a + or -
 sign to genes in the signature; see an example below}
 
-\item{precalc.ranks}{If you have pre-calculated ranks using \code{\link{StoreRankings_UCell}},
-you can specify the pre-calculated ranks instead of the gene vs. cell matrix.}
+\item{precalc.ranks}{If you have pre-calculated ranks using
+\code{\link{StoreRankings_UCell}}, you can specify the pre-calculated
+ranks instead of the gene vs. cell matrix.}
 
 \item{maxRank}{Maximum number of genes to rank per cell; above this rank, a
-given gene is considered as not expressed. Note: this parameter is ignored if
-\code{precalc.ranks} are specified}
+given gene is considered as not expressed. Note: this parameter is
+ignored if \code{precalc.ranks} are specified}
 
 \item{w_neg}{Weight on negative genes in signature. e.g. \code{w_neg=1} weighs
 equally up- and down-regulated genes, \code{w_neg=0.5} gives 50\% less

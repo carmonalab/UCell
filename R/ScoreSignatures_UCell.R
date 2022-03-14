@@ -12,14 +12,16 @@
 #' @param matrix Input matrix, either stored in a [SingleCellExperiment] object
 #'     or as a raw matrix. \code{dgCMatrix} format supported.
 #' @param features A list of signatures, for example:
-#'     \code{list(Tcell_signature = c("CD2","CD3E","CD3D"), Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
+#'     \code{list(Tcell_signature = c("CD2","CD3E","CD3D"),
+#'     Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 #'     You can also specify positive and negative gene sets by adding a + or - 
 #'     sign to genes in the signature; see an example below
-#' @param precalc.ranks If you have pre-calculated ranks using \code{\link{StoreRankings_UCell}}, 
-#'     you can specify the pre-calculated ranks instead of the gene vs. cell matrix.
-#' @param maxRank Maximum number of genes to rank per cell; above this rank, a 
-#'     given gene is considered as not expressed. Note: this parameter is ignored if
-#'     \code{precalc.ranks} are specified
+#' @param precalc.ranks If you have pre-calculated ranks using
+#'     \code{\link{StoreRankings_UCell}}, you can specify the pre-calculated
+#'     ranks instead of the gene vs. cell matrix.
+#' @param maxRank Maximum number of genes to rank per cell; above this rank, a
+#'     given gene is considered as not expressed. Note: this parameter is 
+#'     ignored if \code{precalc.ranks} are specified
 #' @param assay The sce object assay where the data is to be found
 #' @param chunk.size Number of cells to be processed simultaneously (lower size
 #'     requires slightly more computation but reduces memory demands)
@@ -74,9 +76,9 @@ ScoreSignatures_UCell <- function(
         }
         m <- SummarizedExperiment::assay(matrix, assay) 
     } else if (methods::is(matrix, "matrix") | #matrix or DF
-               methods::is(matrix, "dgCMatrix") |
-               methods::is(matrix, "data.frame")) { 
-        m <- matrix
+        methods::is(matrix, "dgCMatrix") |
+        methods::is(matrix, "data.frame")) { 
+            m <- matrix
     } else {
         m <- NULL
     }
@@ -88,13 +90,14 @@ ScoreSignatures_UCell <- function(
     #Run on pre-calculated ranks ('m' can be NULL)
     if (!is.null(precalc.ranks)) {
         u.list <- rankings2Uscore(precalc.ranks, features=features,
-                        chunk.size=chunk.size,w_neg=w_neg, ncores=ncores,
-                        BPPARAM=BPPARAM, force.gc=force.gc, name=name)
+            chunk.size=chunk.size,w_neg=w_neg,
+            ncores=ncores, BPPARAM=BPPARAM,
+            force.gc=force.gc, name=name)
     } else {
         u.list <- calculate_Uscore(m, features=features, maxRank=maxRank,
-                        chunk.size=chunk.size, w_neg=w_neg,
-                        ties.method=ties.method, ncores=ncores,
-                        BPPARAM=BPPARAM, force.gc=force.gc, name=name)
+            chunk.size=chunk.size, w_neg=w_neg,
+            ties.method=ties.method, ncores=ncores,
+            BPPARAM=BPPARAM, force.gc=force.gc, name=name)
     }
     u.merge <- lapply(u.list,function(x) rbind(x[["cells_AUC"]]))
     u.merge <- Reduce(rbind, u.merge)

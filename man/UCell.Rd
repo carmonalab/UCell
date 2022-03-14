@@ -9,9 +9,9 @@ UCell is an R package for scoring gene signatures in single-cell datasets.
 UCell scores, based on the Mann-Whitney U statistic, are robust to dataset
 size and heterogeneity, and their calculation demands relatively less
 computing time and memory than most other methods, enabling the processing
-of large datasets (> \eqn{10^5} cells). UCell can be applied to any cell vs. gene
-data matrix, and includes functions to directly interact with Seurat and
-SingleCellExperiment objects.
+of large datasets (> \eqn{10^5} cells). UCell can be applied to any cell
+vs. gene data matrix, and includes functions to directly interact with
+Seurat and SingleCellExperiment objects.
 }
 \section{UCell functions}{
 
@@ -30,27 +30,29 @@ and returns them into the meta.data of the input Seurat object.
 for a single-cell dataset. Given a gene vs. cell matrix and a set of
 signatures, it calculates the rankings of expression for all genes in
 each cell. It can then be applied to the function ScoreSignatures_UCell
-to evaluate gene signatures on the gene expression ranks of individual cells.
+to evaluate gene signatures on the gene expression ranks of individual
+cells.
 }
 }
 
 \section{Gene signatures}{
 
-You may specify positive and negative (up- or down-regulated) genes in
-signatures. See the examples below:\preformatted{markers <- list()
+UCell evaluates the strength of gene signatures (or gene sets) in individual
+cells of your dataset. You may specify positive and negative
+(up- or down-regulated) genes in signatures. See the examples below:\preformatted{markers <- list()
+markers$Tcell_CD4 <- c("CD4","CD40LG")
+markers$Tcell_CD8 <- c("CD8A","CD8B")
+markers$Tcell_Treg <- c("FOXP3","IL2RA")
 markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", 
     "TRDV1+","TRAC-","TRBC1-","TRBC2-")
 markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+",
     "FCGR3A+", "CD3E-","CD3G-")
-markers$Tcell_CD4 <- c("CD4","CD40LG")
-markers$Tcell_CD8 <- c("CD8A","CD8B")
-markers$Tcell_Treg <- c("FOXP3","IL2RA")
 }
 
 If you don't specify +/- for genes, they are assumed to be all as a positive
-set. The UCell score is calculated as: \eqn{U = max(0, U^+ - w_neg * U^-)}
-where U+ and U- are respectively the UCell scores for the positive and negative
-set, and w_neg is a weight on the negative set.
+set. The UCell score is calculated as: \deqn{U = max(0, U^+ - w_neg * U^-)}
+where \eqn{U^+} and \eqn{U^-} are respectively the UCell scores for the
+positive and negative set, and \eqn{w_neg} is a weight on the negative set.
 When no negative set of genes is present, \eqn{U = U^+}
 }
 

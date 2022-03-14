@@ -41,8 +41,7 @@
 #' @importFrom SummarizedExperiment assay
 #' @import Matrix
 #' @export
-StoreRankings_UCell <- function(
-        matrix, maxRank=1500, chunk.size=1000,
+StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000,
         BPPARAM=NULL, ncores=1, assay='counts',
         ties.method="average", force.gc=FALSE) {
     
@@ -53,18 +52,18 @@ StoreRankings_UCell <- function(
         }
         m <- SummarizedExperiment::assay(matrix, assay)
     } else if (methods::is(matrix, "matrix") |
-            methods::is(matrix, "dgCMatrix") |
-            methods::is(matrix, "data.frame")) { 
-                m <- matrix
+        methods::is(matrix, "dgCMatrix") |
+        methods::is(matrix, "data.frame")) { 
+            m <- matrix
     } else {
         stop("Unrecognized input format.")
     }
     
     features <- rownames(m)[1]  #placeholder signature
     meta.list <- calculate_Uscore(m, features=features, maxRank=maxRank,
-                        chunk.size=chunk.size, ncores=ncores, BPPARAM=BPPARAM,
-                        ties.method=ties.method, storeRanks=TRUE,
-                        force.gc=force.gc)
+        chunk.size=chunk.size, ncores=ncores, BPPARAM=BPPARAM,
+        ties.method=ties.method, storeRanks=TRUE,
+        force.gc=force.gc)
     
     ranks.all <- lapply(meta.list,function(x) rbind(x[["cells_rankings"]]))
     ranks.all <- Reduce(cbind, ranks.all)

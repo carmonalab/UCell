@@ -63,12 +63,10 @@
 #' head(obj$NKcell)
 #'
 #' @export
-AddModuleScore_UCell <- function(
-        obj, features, maxRank=1500, chunk.size=1000,
-        BPPARAM=NULL, ncores=1, storeRanks=FALSE,
-        w_neg=1, assay=NULL, slot="data",
-        ties.method="average", force.gc=FALSE,
-        name="_UCell") {
+AddModuleScore_UCell <- function(obj, features, maxRank=1500,
+        chunk.size=1000, BPPARAM=NULL, ncores=1, storeRanks=FALSE,
+        w_neg=1, assay=NULL, slot="data", ties.method="average",
+        force.gc=FALSE, name="_UCell") {
     
     if (!requireNamespace("Seurat", quietly = TRUE)) {
         stop("Function 'AddModuleScore_UCell' requires the Seurat package.
@@ -81,7 +79,7 @@ AddModuleScore_UCell <- function(
         assay <- Seurat::DefaultAssay(obj)
     }
     
-        
+    
     # If rank matrix was pre-computed, evaluate the new signatures
     # from these ranks. Else, calculate new ranks to score signatures
     # (optionally storing ranks, takes up more memory but become very
