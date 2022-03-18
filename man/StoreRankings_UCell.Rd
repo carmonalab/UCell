@@ -25,15 +25,17 @@ given gene is considered as not expressed}
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size
 requires slightly more computation but reduces memory demands)}
 
-\item{BPPARAM}{A BiocParallel::bpparam() object that tells UCell how to
-parallelise.}
+\item{BPPARAM}{A \code{\link[BiocParallel:register]{BiocParallel::bpparam()}} object that tells UCell
+how to parallelize. If provided, it overrides the \code{ncores} parameter.}
 
-\item{ncores}{Number of processors to parallelize computation}
+\item{ncores}{Number of processors to parallelize computation. If
+\code{BPPARAM = NULL}, the function uses
+\code{BiocParallel::bpparam(workers=ncores)}}
 
 \item{assay}{Assay where the data is to be found (for input in 'sce' format)}
 
-\item{ties.method}{How ranking ties should be resolved (passed on to
-\link[data.table:frank]{data.table::frank})}
+\item{ties.method}{How ranking ties should be resolved - passed on to
+\link[data.table:frank]{data.table::frank}}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 }

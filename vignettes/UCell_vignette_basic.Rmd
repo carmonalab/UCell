@@ -139,10 +139,10 @@ p
 
 # Multi-core processing
 
-If your machine has multi-core capabilities and enough RAM, running UCell in parallel can speed up considerably your analysis. For example, to run UCell on 4 cores:
+If your machine has multi-core capabilities and enough RAM, running UCell in parallel can speed up considerably your analysis. The example below runs on a single core - you may modify this behavior by setting e.g. `workers=4` to parallelize to 4 cores:
 
-```{r eval=FALSE}
-BPPARAM <- BiocParallel::MulticoreParam(workers=4)
+```{r}
+BPPARAM <- BiocParallel::MulticoreParam(workers=1)
 u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures,
                                   BPPARAM=BPPARAM)
 ```

@@ -319,16 +319,3 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
     }
     return(split.data)
 }
-
-#' Sample dataset to test UCell installation
-#'
-#' A sparse matrix (class "dgCMatrix") of single-cell transcriptomes
-#' for 600 cells and 20729 genes. This a subsample of T cells from the
-#' PBMC dataset
-#' by \href{https://doi.org/10.1016/j.cell.2021.04.048}{Hao et al.}
-#' 
-
-#' @format A sparse matrix of 600 cells and 20729 genes.
-#' @source \url{https://doi.org/10.1016/j.cell.2021.04.048}
-"sample.matrix"
-

@@ -28,11 +28,13 @@
 #' @param w_neg Weight on negative genes in signature. e.g. `w_neg=1` weighs
 #'     equally up- and down-regulated genes, `w_neg=0.5` gives 50% less
 #'     importance to negative genes
-#' @param BPPARAM A BiocParallel::bpparam() object that tells UCell how to
-#'     parallelise.      
-#' @param ncores Number of processors to parallelize computation
-#' @param ties.method How ranking ties should be resolved (passed on to
-#'     [data.table::frank])
+#' @param BPPARAM A [BiocParallel::bpparam()] object that tells UCell
+#'     how to parallelize. If provided, it overrides the `ncores` parameter.     
+#' @param ncores Number of processors to parallelize computation. If
+#'     \code{BPPARAM = NULL}, the function uses
+#'     \code{BiocParallel::bpparam(workers=ncores)}
+#' @param ties.method How ranking ties should be resolved - passed on to
+#'     [data.table::frank]
 #' @param name Name suffix appended to signature names
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
 #' @return Returns input SingleCellExperiment object with UCell scores

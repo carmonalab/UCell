@@ -19,11 +19,13 @@
 #' @param assay Assay where the data is to be found (for input in 'sce' format)
 #' @param chunk.size Number of cells to be processed simultaneously (lower size
 #'     requires slightly more computation but reduces memory demands)
-#' @param BPPARAM A BiocParallel::bpparam() object that tells UCell how to
-#'     parallelise.   
-#' @param ncores Number of processors to parallelize computation
-#' @param ties.method How ranking ties should be resolved (passed on to
-#'     [data.table::frank])
+#' @param BPPARAM A [BiocParallel::bpparam()] object that tells UCell
+#'     how to parallelize. If provided, it overrides the `ncores` parameter.     
+#' @param ncores Number of processors to parallelize computation. If
+#'     \code{BPPARAM = NULL}, the function uses
+#'     \code{BiocParallel::bpparam(workers=ncores)}
+#' @param ties.method How ranking ties should be resolved - passed on to
+#'     [data.table::frank]
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
 #' @return Returns a sparse matrix of pre-calculated ranks that can be used
 #'     multiple times to evaluate different signatures

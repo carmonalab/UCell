@@ -17,13 +17,8 @@
 #'     Myeloid_signature = c("SPI1","FCER1G","CSF1R"))}
 #'     You can also specify positive and negative gene sets by adding a + or -
 #'     sign to genes in the signature; see an example below
-#' @param chunk.size Number of cells to be processed simultaneously (lower
-#'     size requires slightly more computation but reduces memory demands)
 #' @param maxRank Maximum number of genes to rank per cell; above this rank,
 #'     a given gene is considered as not expressed.
-#' @param BPPARAM A BiocParallel::bpparam() object that tells UCell how to
-#'     parallelise.
-#' @param ncores Number of processors to parallelize computation.
 #' @param storeRanks Store ranks matrix in Seurat object ('UCellRanks' assay)
 #'     for fast subsequent computations. This option may demand large
 #'     amounts of RAM.
@@ -33,8 +28,15 @@
 #' @param assay Pull out data from this assay of the Seurat object
 #'     (if NULL, use \code{DefaultAssay(obj)})
 #' @param slot Pull out data from this slot of the Seurat object
-#' @param ties.method How ranking ties should be resolved 
-#'      passed on to [data.table::frank])
+#' @param chunk.size Number of cells to be processed simultaneously (lower
+#'     size requires slightly more computation but reduces memory demands)
+#' @param BPPARAM A [BiocParallel::bpparam()] object that tells UCell
+#'     how to parallelize. If provided, it overrides the `ncores` parameter.     
+#' @param ncores Number of processors to parallelize computation. If
+#'     \code{BPPARAM = NULL}, the function uses
+#'     \code{BiocParallel::bpparam(workers=ncores)}
+#' @param ties.method How ranking ties should be resolved -
+#'      passed on to [data.table::frank]
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
 #' @param name Name tag that will be appended at the end of each signature
 #'    name, "_UCell" by default (e.g. signature score in meta data will be
