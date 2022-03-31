@@ -244,7 +244,7 @@ check_genes <- function(matrix, features) {
         mess <- sprintf("Over half of genes (%s%%) in specified signatures 
             are missing from data. Check the integrity of your dataset\n", 
                         round(100*ll/length(features)))
-        warning(mess, immediate. = TRUE)
+        warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
     }
     
     if (ll>0) {
@@ -259,7 +259,7 @@ check_genes <- function(matrix, features) {
         missing.concatenate <- paste(missing, collapse=",")
         mess <- sprintf("The following genes were not found and will be
                         imputed to exp=0:\n* %s",missing.concatenate)
-        warning(mess, immediate. = TRUE)
+        warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
     }
     return(matrix)
 }
