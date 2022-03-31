@@ -258,7 +258,7 @@ check_genes <- function(matrix, features) {
         
         missing.concatenate <- paste(missing, collapse=",")
         mess <- sprintf("The following genes were not found and will be
-                        imputed to exp=0:\n* %s",missing.concatenate))
+                        imputed to exp=0:\n* %s",missing.concatenate)
         warning(mess, immediate. = TRUE)
     }
     return(matrix)
