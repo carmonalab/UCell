@@ -241,19 +241,25 @@ check_genes <- function(matrix, features) {
     ll <- length(missing)
     
     if (ll/length(features) > 0.5) {
-        warning(sprintf("Over half of genes (%s%%) in specified signatures 
+        mess <- sprintf("Over half of genes (%s%%) in specified signatures 
             are missing from data. Check the integrity of your dataset\n", 
-                        round(100*ll/length(features))))
+                        round(100*ll/length(features)))
+        warning(mess, immediate. = TRUE)
     }
     
     if (ll>0) {
-        add.mat <- Matrix::sparseMatrix(length(missing), ncol(matrix))
+        dim1 <- length(missing)
+        dim2 <- ncol(matrix)
+        add.mat <-  Matrix::Matrix(data=min(matrix),
+            nrow=dim1, ncol=dim2, sparse = TRUE)
+
         rownames(add.mat) <- missing
         matrix <- rbind(matrix, add.mat)
         
         missing.concatenate <- paste(missing, collapse=",")
-        warning(sprintf("The following genes were not found and will be
+        mess <- sprintf("The following genes were not found and will be
                         imputed to exp=0:\n* %s",missing.concatenate))
+        warning(mess, immediate. = TRUE)
     }
     return(matrix)
 }
