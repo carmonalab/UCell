@@ -11,7 +11,7 @@ Find the installation instructions for the package and usage vignettes below.
 
 ### Package Installation
 
-**UCell is coming to Bioconductor!** To install the package from BioC run:
+**[UCell is on Bioconductor!](https://bioconductor.org/packages/release/bioc/html/UCell.html)** To install the package from Bioc run:
 ```
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
