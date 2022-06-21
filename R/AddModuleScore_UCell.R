@@ -86,7 +86,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
     # from these ranks. Else, calculate new ranks to score signatures
     # (optionally storing ranks, takes up more memory but become very
     # fast to evaluate further signatures)
-    if ("UCell_ranks" %in% Seurat::Assays(obj)) {
+    if ("UCellRanks" %in% Seurat::Assays(obj)) {
         meta.list <- rankings2Uscore(
             Seurat::GetAssayData(obj, "counts", assay="UCellRanks"),
             features=features, chunk.size=chunk.size, w_neg=w_neg,
