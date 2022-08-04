@@ -15,25 +15,48 @@
 #' @param k Number of neighbors for kNN smoothing
 #' @param BNPARAM A [BiocNeighborParam] object specifying the algorithm to use
 #'     for kNN calculation.
-#' @param suffix The suffix to append to metadata columns for the new
-#'     knn-smoothed scores  
+#' @param suffix For Seurat objects only - Suffix to append to metadata columns
+#'     for the new knn-smoothed scores  
 #' @param sce.expname For sce objects only - which experiment stores the
-#'    signature       
+#'    signatures to be smoothed
+#' @param sce.expname.smoothed For sce objects only - which experiment will
+#'    store the smoothed signature
+#' @return An augmented \code{obj} with the smoothed signatures. If \code{obj}
+#'    is a Seurat object, smoothed signatures are added to metadata; if 
+#'    \code{obj} is a SingleCellExperiment object, smoothed signatures are 
+#'    returned in a new altExp assay     
 #' @examples
-#' # Run UCell
+#' #### Using Seurat ####
 #' library(Seurat)
 #' gene.sets <- list(Tcell = c("CD2","CD3E","CD3D"),
 #'                 Myeloid = c("SPI1","FCER1G","CSF1R"))
 #' data(sample.matrix)
 #' obj <- Seurat::CreateSeuratObject(sample.matrix)                
-#' 
+#' # Calculate UCell scores
 #' obj <- AddModuleScore_UCell(obj,features = gene.sets, name=NULL)
 #' # Run PCA
 #' obj <- FindVariableFeatures(obj) |> ScaleData() |> RunPCA()
 #' # Smooth signatures
 #' obj <- SmoothKNN(obj, reduction="pca", signature.names=names(gene.sets))
 #' head(obj[[]])
-#'
+#' 
+#' #### Using SingleCellExperiment ####
+#' library(SingleCellExperiment)
+#' library(scater)
+#' data(sample.matrix)
+#' sce <- SingleCellExperiment(list(counts=sample.matrix))
+#' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
+#'                   Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
+#' #Calculate UCell scores
+#' sce <- ScoreSignatures_UCell(sce, features=gene.sets, name=NULL)
+#' altExp(sce, 'UCell')
+#' # Run PCA
+#' sce <- logNormCounts(sce)
+#' sce <- runPCA(sce, scale=TRUE, ncomponents=20)
+#' # Smooth signatures
+#' sce <- SmoothKNN(sce, reduction="PCA", signature.names=names(gene.sets))
+#' altExp(sce, 'UCell_kNN')
+#' 
 #' @importFrom methods setMethod setGeneric is
 #' @import BiocNeighbors
 #' @export SmoothKNN
@@ -44,19 +67,9 @@ SmoothKNN <- function(
     k=10,
     BNPARAM=AnnoyParam(),
     suffix="_kNN",
-    sce.expname="UCell") {
-  
-  if (methods::is(obj, "SingleCellExperiment")) {
-    SmoothKNN_sce(obj=obj, signature.names = signature.names,
-                  reduction=reduction, k=k, BNPARAM=BNPARAM,
-                  suffix=suffix, sce.expname=sce.expname)
-  }
-  else if (methods::is(obj, "Seurat")) {
-    SmoothKNN_Seurat(obj=obj, signature.names = signature.names,
-                  reduction=reduction, k=k, BNPARAM=BNPARAM,
-                  suffix=suffix)
-  } else {
-    stop("Unsupported format. Please provide a 'sce' or 'Seurat' object")
-  }
+    sce.expname="UCell",
+    sce.expname.smoothed="UCell_kNN")
+{
+    UseMethod("SmoothKNN")
 }
 

@@ -363,42 +363,10 @@ knn_smooth_scores <- function(
   as.data.frame(w.df)
 }  
 
-
-#' Smooth signature scores by kNN (Seurat)
-#'
-#' This function performs smoothing of single-cell scores by weighted
-#' average of the k-nearest neighbors. It can be useful to 'impute' scores by
-#' neighboring cells and partially correct data sparsity. While this function
-#' has been designed to smooth UCell scores, it can be applied to any numerical
-#' metadata contained in Seurat objects
-#'
-#' @param obj Input Seurat object.
-#' @param signature.names The names of the signatures (or any numeric metadata
-#'     column) for which to calculate kNN-smoothed scores
-#' @param reduction Which dimensionality reduction to use for kNN smoothing.
-#'     It must be already present in the input object.
-#' @param k Number of neighbors for kNN smoothing
-#' @param BNPARAM A [BiocNeighborParam] object specifying the algorithm to use
-#'     for kNN calculation.
-#' @param suffix The suffix to append to metadata columns for the new
-#'     knn-smoothed scores  
-#' @examples
-#' # Run UCell
-#' library(Seurat)
-#' gene.sets <- list(Tcell = c("CD2","CD3E","CD3D"),
-#'                 Myeloid = c("SPI1","FCER1G","CSF1R"))
-#' data(sample.matrix)
-#' obj <- Seurat::CreateSeuratObject(sample.matrix)                
-#' 
-#' obj <- AddModuleScore_UCell(obj,features = gene.sets, name=NULL)
-#' # Run PCA
-#' obj <- FindVariableFeatures(obj) |> ScaleData() |> RunPCA()
-#' # Smooth signatures
-#' obj <- SmoothKNN(obj, reduction="pca", signature.names=names(gene.sets))
-#' head(obj[[]])
-#'
-#' @import BiocNeighbors
-SmoothKNN_Seurat <- function(
+#' @rdname SmoothKNN
+#' @method SmoothKNN Seurat
+#' @export
+SmoothKNN.Seurat <- function(
     obj=NULL,
     signature.names=NULL,
     reduction="pca",
@@ -445,54 +413,19 @@ SmoothKNN_Seurat <- function(
   return(obj)
 }
 
-#' Smooth signature scores by kNN (SingleCellExperiment)
-#'
-#' This function performs smoothing of single-cell scores by weighted
-#' average of the k-nearest neighbors. It can be useful to 'impute' scores by
-#' neighboring cells and partially correct data sparsity. While this function
-#' has been designed to smooth UCell scores, it can be applied to any numerical
-#' metadata contained in a SingleCellExperiment object
-#'
-#' @param obj Input object stored in [SingleCellExperiment]
-#' @param signature.names The names of the signatures (or any numeric metadata
-#'     column) for which to calculate kNN-smoothed scores
-#' @param reduction Which dimensionality reduction to use for kNN smoothing.
-#'     It must be already present in the input object.
-#' @param k Number of neighbors for kNN smoothing
-#' @param BNPARAM A [BiocNeighborParam] object specifying the algorithm to use
-#'     for kNN calculation.
-#' @param suffix The suffix to append to metadata columns for the new
-#'     knn-smoothed scores  
-#' @param sce.expname For sce objects only - which experiment stores the
-#'    signature       
-#' @examples
-#' # Run UCell
-#' library(SingleCellExperiment)
-#' library(scater)
-#' data(sample.matrix)
-#' sce <- SingleCellExperiment(list(counts=sample.matrix))
-#' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
-#'                   Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-#' sce <- ScoreSignatures_UCell(sce, features=gene.sets, name=NULL)
-#' altExp(sce, 'UCell')
-#' # Run PCA
-#' sce <- logNormCounts(sce)
-#' sce <- runPCA(sce, scale=TRUE, ncomponents=20)
-#' # Smooth signatures
-#' sce <- SmoothKNN(sce, reduction="PCA", signature.names=names(gene.sets))
-#' altExp(sce, 'UCell_kNN')
-#' 
-#' @import BiocNeighbors
+#' @rdname SmoothKNN
+#' @method SmoothKNN SingleCellExperiment
 #' @import SingleCellExperiment
 #' @importFrom SummarizedExperiment assay assays SummarizedExperiment
-SmoothKNN_sce <- function(
+#' @export
+SmoothKNN.SingleCellExperiment <- function(
     obj=NULL,
     signature.names=NULL,
     reduction="PCA",
     k=10,
     BNPARAM=AnnoyParam(),
-    suffix="_kNN",
-    sce.expname="UCell"
+    sce.expname="UCell",
+    sce.expname.smoothed="UCell_kNN"
 ) {
   
   if (! reduction %in% reducedDimNames(obj)) {
@@ -531,10 +464,10 @@ SmoothKNN_sce <- function(
   # Do smoothing
   smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
   
-  new.altExp <- paste0(sce.expname, suffix)
+  l <- list(t(smooth.df))
+  names(l) <- sce.expname.smoothed
   
-  altExp(obj, new.altExp) <-
-    SummarizedExperiment(assays = list(new.altExp = t(smooth.df)))
+  altExp(obj, sce.expname.smoothed) <- SummarizedExperiment(assays = l)
   
   return(obj)
 }
