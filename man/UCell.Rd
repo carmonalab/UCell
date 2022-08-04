@@ -39,7 +39,9 @@ cells.
 
 UCell evaluates the strength of gene signatures (or gene sets) in individual
 cells of your dataset. You may specify positive and negative
-(up- or down-regulated) genes in signatures. See the examples below:\preformatted{markers <- list()
+(up- or down-regulated) genes in signatures. See the examples below:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{markers <- list()
 markers$Tcell_CD4 <- c("CD4","CD40LG")
 markers$Tcell_CD8 <- c("CD8A","CD8B")
 markers$Tcell_Treg <- c("FOXP3","IL2RA")
@@ -47,7 +49,7 @@ markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+",
     "TRDV1+","TRAC-","TRBC1-","TRBC2-")
 markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+",
     "FCGR3A+", "CD3E-","CD3G-")
-}
+}\if{html}{\out{</div>}}
 
 If you don't specify +/- for genes, they are assumed to be all as a positive
 set. The UCell score is calculated as: \deqn{U = max(0, U^+ - w_neg * U^-)}

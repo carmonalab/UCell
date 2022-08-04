@@ -34,8 +34,8 @@ parallelize}
 \item{name}{Name suffix for metadata columns ("_UCell")}
 }
 \value{
-\preformatted{               A list of signature scores
-}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{               A list of signature scores
+}\if{html}{\out{</div>}}
 }
 \description{
 Get signature scores from pre-computed rank matrix

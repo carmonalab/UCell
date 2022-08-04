@@ -2,8 +2,7 @@
 % Please edit documentation in R/HelperFunctions.R
 \name{check_genes}
 \alias{check_genes}
-\title{Check if all genes in signatures are found in data matrix - otherwise
-add zero counts in data-matrix to complete it}
+\title{Check genes}
 \usage{
 check_genes(matrix, features)
 }

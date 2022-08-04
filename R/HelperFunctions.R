@@ -226,6 +226,8 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
     return(meta.list)
 }
 
+#' Check genes
+#'
 #' Check if all genes in signatures are found in data matrix - otherwise
 #' add zero counts in data-matrix to complete it
 #' 
@@ -241,9 +243,10 @@ check_genes <- function(matrix, features) {
     ll <- length(missing)
     
     if (ll/length(features) > 0.5) {
-        mess <- sprintf("Over half of genes (%s%%) in specified signatures 
-            are missing from data. Check the integrity of your dataset\n", 
-                        round(100*ll/length(features)))
+        n <- round(100*ll/length(features))
+        mess <- sprintf("Over half of genes (%s%%)", n)
+        mess <- paste(mess, "in specified signatures are missing from data.",
+            "Check the integrity of your dataset.") 
         warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
     }
     
@@ -324,4 +327,105 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
         min <- max+1    #for next chunk
     }
     return(split.data)
+}
+
+#' Smoothing scores by KNN
+#'
+#' @param   matrix  Input data matrix 
+#' @param   nn      A nearest neighbor object returned by
+#'   [BiocNeighbors::findKNN]
+#' 
+#' @return  A dataframe of knn-smoothed scores
+knn_smooth_scores <- function(
+    matrix=NULL,
+    nn=NULL
+) {
+  
+  sig.cols <- colnames(matrix)
+  w.df <- vapply(sig.cols, FUN.VALUE=numeric(nrow(matrix)), FUN=function(s) {
+    
+    ss.scores <- matrix[,s]
+    weighted.scores <- vapply(X = 1:nrow(nn$index),
+                              FUN.VALUE = numeric(1),
+                              FUN = function(x) {
+                                r <- nn$index[x,]
+                                r <- c(x,r)
+                                
+                                d <- nn$distance[x,]
+                                d <- c(d[1],d)
+                                
+                                w <- 1/(0.01+d)
+                                
+                                sum(w * ss.scores[r])/sum(w)
+                              })
+  })
+  rownames(w.df) <- rownames(matrix)
+  as.data.frame(w.df)
+}  
+
+#Unsupported object class
+SmoothKNN_unsupported <- function(obj) {
+  stop("Unsupported object type. Please provide either a Seurat or",
+       "SingleCellExperiment object.")
+}
+
+# SmoothKNN for Seurat objects
+#' @import BiocNeighbors
+#' @importFrom Seurat Embeddings Reductions AddMetaData
+SmoothKNN_Seurat <- function(
+    obj=NULL,
+    reduction="pca",
+    k=10,
+    BNPARAM=AnnoyParam(),
+    signature.names=NULL,
+    suffix="_KNN"
+) {
+  
+  if (!reduction %in% Reductions(obj)) {
+    stop(sprintf("Could not find reduction %s in this object", reduction))
+  }
+  
+  if (is.null(signature.names)) {
+    stop("Please provide the metadata column names that you want to smooth")
+  }
+  found <- intersect(signature.names, colnames(obj[[]]))
+  notfound <- setdiff(signature.names, found)
+  
+  if (length(found)==0) {
+    stop("Could not find any of the given signatures in this object")
+  }
+  if (length(notfound)>0) {
+    nf <- paste(notfound, collapse=",")
+    mess <- sprintf("The following signature were found in metadata:\n* %s",nf)
+    warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
+  }
+  
+  m <- obj[[found]]
+  
+  # Find kNNs
+  space <- Embeddings(obj, reduction=reduction)
+  nn <- findKNN(space, k=k, BNPARAM=BNPARAM)
+  
+  # Do smoothing
+  smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
+  
+  colnames(smooth.df) <- paste0(colnames(smooth.df), suffix)
+  obj <- AddMetaData(obj, metadata = smooth.df)
+  return(obj)
+}
+
+# SmoothKNN for SingleCellExperiment objects
+#' @import BiocNeighbors
+#' @importFrom SummarizedExperiment assay assays SummarizedExperiment
+SmoothKNN_sce <- function(
+    obj=NULL,
+    reduction="pca",
+    k=10,
+    BNPARAM=AnnoyParam(),
+    signature.names=NULL,
+    suffix="_KNN"
+) {
+  
+  ## TO DO
+  return(obj)
 }

@@ -34,7 +34,7 @@
 #'     how to parallelize. If provided, it overrides the `ncores` parameter.     
 #' @param ncores Number of processors to parallelize computation. If
 #'     \code{BPPARAM = NULL}, the function uses
-#'     \code{BiocParallel::bpparam(workers=ncores)}
+#'     \code{BiocParallel::MulticoreParam(workers=ncores)}
 #' @param ties.method How ranking ties should be resolved -
 #'      passed on to [data.table::frank]
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint

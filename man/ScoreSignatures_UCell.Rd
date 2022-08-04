@@ -53,7 +53,7 @@ how to parallelize. If provided, it overrides the \code{ncores} parameter.}
 
 \item{ncores}{Number of processors to parallelize computation. If
 \code{BPPARAM = NULL}, the function uses
-\code{BiocParallel::bpparam(workers=ncores)}}
+\code{BiocParallel::MulticoreParam(workers=ncores)}}
 
 \item{ties.method}{How ranking ties should be resolved - passed on to
 \link[data.table:frank]{data.table::frank}}
