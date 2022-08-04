@@ -378,7 +378,7 @@ SmoothKNN_Seurat <- function(
     k=10,
     BNPARAM=AnnoyParam(),
     signature.names=NULL,
-    suffix="_KNN"
+    suffix="_kNN"
 ) {
   
   if (!reduction %in% Reductions(obj)) {
@@ -423,7 +423,7 @@ SmoothKNN_sce <- function(
     k=10,
     BNPARAM=AnnoyParam(),
     signature.names=NULL,
-    suffix="_KNN"
+    suffix="_kNN"
 ) {
   
   ## TO DO

@@ -10,7 +10,7 @@ SmoothKNN(
   k = 10,
   BNPARAM = AnnoyParam(),
   signature.names = NULL,
-  suffix = "_KNN"
+  suffix = "_kNN"
 )
 }
 \arguments{
@@ -40,6 +40,7 @@ metadata contained in SingleCellExperiment or Seurat objects
 }
 \examples{
 # Run UCell
+library(Seurat)
 gene.sets <- list(Tcell = c("CD2","CD3E","CD3D"),
                 Myeloid = c("SPI1","FCER1G","CSF1R"))
 data(sample.matrix)
@@ -47,7 +48,7 @@ obj <- Seurat::CreateSeuratObject(sample.matrix)
 
 obj <- AddModuleScore_UCell(obj,features = gene.sets, name=NULL)
 # Run PCA
-obj <- RunPCA(obj)
+obj <- FindVariableFeatures(obj) |> ScaleData() |> RunPCA()
 # Smooth signatures
 obj <- SmoothKNN(obj, reduction="pca", signature.names=names(gene.sets))
 head(obj[[]])
