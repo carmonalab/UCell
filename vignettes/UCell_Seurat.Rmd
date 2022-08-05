@@ -75,15 +75,11 @@ seurat.object <- RunUMAP(seurat.object, reduction = "pca",
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.wide=TRUE, dpi=60}
+```{r fig.width=9, fig.height=7, dpi=60}
 library(ggplot2)
 library(patchwork)
 
-pll <- lapply(names(signatures), function(x) {
-  FeaturePlot(seurat.object, reduction = "umap", features = x) +
-       theme(aspect.ratio = 1)
-})
-wrap_plots(pll)
+FeaturePlot(seurat.object, reduction = "umap", features = names(signatures))
 ```
 
 # Signature smoothing
@@ -98,6 +94,23 @@ seurat.object <- SmoothKNN(seurat.object,
 
 ```{r fig.wide=TRUE, dpi=60}
 FeaturePlot(seurat.object, reduction = "umap", features = c("NK","NK_kNN"))
+```
+
+Smoothing (or imputation) has been designed for UCell scores, but it can be applied to any other metadata. For instance, we can perform knn-smoothing of gene expression scores by copying normalized counts for genes of interest into metadata columns:
+```{r}
+genes <- c("CD2","CSF1R")
+
+expr <- Seurat::GetAssayData(seurat.object, assay="RNA", slot="data")[genes,]
+expr <- t(as.matrix(expr))
+seurat.object <- AddMetaData(seurat.object, metadata=as.data.frame(expr))
+```
+
+```{r warning=FALSE, fig.width=9, fig.height=7, dpi=60}
+seurat.object <- SmoothKNN(seurat.object, signature.names=genes,
+                           reduction="pca", k=20, suffix = "_smooth")
+
+FeaturePlot(seurat.object, reduction = "umap",
+            features = c("CD2","CD2_smooth","CSF1R","CSF1R_smooth"))
 ```
 
 # Resources
