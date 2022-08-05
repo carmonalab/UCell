@@ -1,5 +1,8 @@
 # UCell: Robust and scalable single-cell gene signature scoring
 
+<p align="center">
+  <img height="80" src="docs/RSticker_UCELL.png">
+</p>
 
 `UCell` is an R package for scoring gene signatures in single-cell datasets. UCell scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands relatively less computing time and memory than other robust methods, enabling the processing of large datasets (>10^5 cells). UCell can be applied to any cell vs. gene data matrix, and includes functions to directly interact with Seurat and SingleCellExperiment objects. 
 
@@ -72,3 +75,7 @@ When no negative set of genes is present, U = U<sup>+</sup>, therefore the behav
 ### Citation
 
 UCell: robust and scalable single-cell gene signature scoring. Massimo Andreatta & Santiago J Carmona **(2021)** *CSBJ* https://doi.org/10.1016/j.csbj.2021.06.043
+
+<p align="center">
+  <img height="80" src="docs/RSticker_UCELL.png">
+</p>
