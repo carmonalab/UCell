@@ -469,7 +469,7 @@ SmoothKNN.SingleCellExperiment <- function(
   
   #Add new assay to altExp
   SummarizedExperiment::assay(exp, sce.newassay,
-                              withDimnames = F) <- t(m.smooth)
+                              withDimnames = FALSE) <- t(m.smooth)
   altExp(obj, sce.expname) <- exp
   
   return(obj)
