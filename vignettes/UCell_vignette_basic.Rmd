@@ -44,9 +44,7 @@ For this demo, we will download a single-cell dataset of lung cancer ([Zilionis 
 ```{r message=F, warning=F, results=F}
 library(scRNAseq)
 
-#For this demo, limit the analysis to 5000 immune cells
 lung <- ZilionisLungData()
-
 immune <- lung$Used & lung$used_in_NSCLC_immune
 lung <- lung[,immune]
 lung <- lung[,1:5000]
@@ -75,7 +73,7 @@ head(u.scores)
 ```
 
 Show the distribution of predicted scores
-```{r}
+```{r fig.small=TRUE, dpi=60}
 library(reshape2)
 library(ggplot2)
 melted <- reshape2::melt(u.scores)
@@ -97,7 +95,7 @@ ranks[1:5,1:5]
 ```
 
 Then, we can apply our signature set, or any other new signature to the pre-calculated ranks. The calculations will be considerably faster.
-```{r}
+```{r fig.small=TRUE, dpi=60}
 set.seed(123)
 u.scores.2 <- ScoreSignatures_UCell(features=signatures,
                                     precalc.ranks = ranks)
@@ -111,7 +109,7 @@ p <- ggplot(melted, aes(x=Signature, y=UCell_score)) +
 p
 ```
 
-```{r fig.small=TRUE}
+```{r fig.small=TRUE, dpi=60}
 new.signatures <- list(Mast.cell = c("TPSAB1","TPSB2","CPA3","MS4A2"),
                        Lymphoid = c("LCK"))
 

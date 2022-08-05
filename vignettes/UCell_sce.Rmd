@@ -26,10 +26,7 @@ For this demo, we will download a single-cell dataset of lung cancer ([Zilionis 
 
 ```{r message=F, warning=F, results=F}
 library(scRNAseq)
-
-#For this demo, limit the analysis to 5000 immune cells
 lung <- ZilionisLungData()
-
 immune <- lung$Used & lung$used_in_NSCLC_immune
 lung <- lung[,immune]
 lung <- lung[,1:5000]
@@ -75,7 +72,7 @@ sce <- runUMAP(sce, dimred="PCA")
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.wide=TRUE}
+```{r fig.wide=TRUE, dpi=60}
 pll <- lapply(names(signatures), function(x) {
     plotUMAP(sce, colour_by = x, by_exprs_values = "UCell") + theme(aspect.ratio = 1)
 })
@@ -90,7 +87,7 @@ Single-cell data are sparse. It can be useful to 'impute' scores by neighboring 
 sce <- SmoothKNN(sce, signature.names = names(signatures), reduction="PCA")
 ```
 
-```{r fig.wide=TRUE}
+```{r fig.wide=TRUE, dpi=60}
 a <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell") +
       ggtitle("UCell") + theme(aspect.ratio = 1)
 

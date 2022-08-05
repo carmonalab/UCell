@@ -29,9 +29,7 @@ For this demo, we will download a single-cell dataset of lung cancer ([Zilionis 
 ```{r message=F, warning=F, results=F}
 library(scRNAseq)
 
-#For this demo, limit the analysis to 5000 immune cells
 lung <- ZilionisLungData()
-
 immune <- lung$Used & lung$used_in_NSCLC_immune
 lung <- lung[,immune]
 lung <- lung[,1:5000]
@@ -77,7 +75,7 @@ seurat.object <- RunUMAP(seurat.object, reduction = "pca",
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.wide=TRUE}
+```{r fig.wide=TRUE, dpi=60}
 library(ggplot2)
 library(patchwork)
 
@@ -98,7 +96,7 @@ seurat.object <- SmoothKNN(seurat.object,
                            reduction="pca")
 ```
 
-```{r fig.wide=TRUE}
+```{r fig.wide=TRUE, dpi=60}
 FeaturePlot(seurat.object, reduction = "umap", features = c("NK","NK_kNN"))
 ```
 
