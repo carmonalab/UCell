@@ -1,6 +1,14 @@
 \name{NEWS}
 \title{News for package \pkg{UCell}}
 
+\section{New in version 2.1.2}{
+\itemize{
+    \item New function \code{SmoothKNN()} for k-nearest neighbor smoothing of UCell scores. It can be applied both on SingleCellExperiment and Seurat objects (S3 method).
+    \item Add two new vignettes: along with basic usage (vignette 1), there are now dedicated vignettes for running UCell with SingleCellExperiment objects (vignette 2) and Seurat objects (vignette 3). kNN smoothing is illustrated for both object types.
+    \item Fixing a bug that prevented storing of feature ranks.
+   
+}}
+
 \section{New in version 2.0.0}{
 \itemize{
     \item Update code to pass all BioC checks.
