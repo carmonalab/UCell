@@ -372,7 +372,9 @@ SmoothKNN.Seurat <- function(
     reduction="pca",
     k=10,
     BNPARAM=AnnoyParam(),
-    suffix="_kNN"
+    suffix="_kNN",
+    sce.expname=NULL,
+    sce.newassay=NULL
 ) {
   
   if (!requireNamespace("Seurat", quietly = TRUE)) {
@@ -424,8 +426,9 @@ SmoothKNN.SingleCellExperiment <- function(
     reduction="PCA",
     k=10,
     BNPARAM=AnnoyParam(),
+    suffix=NULL,
     sce.expname="UCell",
-    sce.expname.smoothed="UCell_kNN"
+    sce.newassay="UCell_kNN"
 ) {
   
   if (! reduction %in% reducedDimNames(obj)) {
@@ -462,12 +465,12 @@ SmoothKNN.SingleCellExperiment <- function(
   nn <- findKNN(space, k=k, BNPARAM=BNPARAM)
   
   # Do smoothing
-  smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
+  m.smooth <- knn_smooth_scores(matrix=m, nn=nn) 
   
-  l <- list(t(smooth.df))
-  names(l) <- sce.expname.smoothed
-  
-  altExp(obj, sce.expname.smoothed) <- SummarizedExperiment(assays = l)
+  #Add new assay to altExp
+  SummarizedExperiment::assay(exp, sce.newassay,
+                              withDimnames = F) <- t(m.smooth)
+  altExp(obj, sce.expname) <- exp
   
   return(obj)
 }

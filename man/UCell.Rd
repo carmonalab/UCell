@@ -32,6 +32,12 @@ signatures, it calculates the rankings of expression for all genes in
 each cell. It can then be applied to the function ScoreSignatures_UCell
 to evaluate gene signatures on the gene expression ranks of individual
 cells.
+\item \code{SmoothKNN} Perform signature score smoothing using a
+weighted average of the scores of the first k nearest neighbors (kNN).
+It can be useful to 'impute' scores by neighboring cells and partially
+correct data sparsity. While this function has been designed to smooth
+UCell scores, it can be applied to any numerical metadata contained in
+SingleCellExperiment or Seurat objects
 }
 }
 
@@ -46,13 +52,13 @@ markers$Tcell_CD4 <- c("CD4","CD40LG")
 markers$Tcell_CD8 <- c("CD8A","CD8B")
 markers$Tcell_Treg <- c("FOXP3","IL2RA")
 markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", 
-    "TRDV1+","TRAC-","TRBC1-","TRBC2-")
+                      "TRDV1+","TRAC-","TRBC1-","TRBC2-")
 markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+",
-    "FCGR3A+", "CD3E-","CD3G-")
+                      "FCGR3A+", "CD3E-","CD3G-")
 }\if{html}{\out{</div>}}
 
 If you don't specify +/- for genes, they are assumed to be all as a positive
-set. The UCell score is calculated as: \deqn{U = max(0, U^+ - w_neg * U^-)}
+set. The UCell score is calculated as: \deqn{U = max(0, U^+ - w_{neg} * U^-)}
 where \eqn{U^+} and \eqn{U^-} are respectively the UCell scores for the
 positive and negative set, and \eqn{w_neg} is a weight on the negative set.
 When no negative set of genes is present, \eqn{U = U^+}

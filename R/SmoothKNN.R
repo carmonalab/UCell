@@ -19,12 +19,12 @@
 #'     for the new knn-smoothed scores  
 #' @param sce.expname For sce objects only - which experiment stores the
 #'    signatures to be smoothed
-#' @param sce.expname.smoothed For sce objects only - which experiment will
-#'    store the smoothed signature
+#' @param sce.newassay For sce objects only - name of the new assay for storing
+#'    smoothed scores (in experiment \code{sce.expname})
 #' @return An augmented \code{obj} with the smoothed signatures. If \code{obj}
 #'    is a Seurat object, smoothed signatures are added to metadata; if 
 #'    \code{obj} is a SingleCellExperiment object, smoothed signatures are 
-#'    returned in a new altExp assay     
+#'    returned in a new assay. See the examples below.     
 #' @examples
 #' #### Using Seurat ####
 #' library(Seurat)
@@ -45,17 +45,21 @@
 #' library(scater)
 #' data(sample.matrix)
 #' sce <- SingleCellExperiment(list(counts=sample.matrix))
-#' gene.sets <- list( Tcell_signature = c("CD2","CD3E","CD3D"),
-#'                   Myeloid_signature = c("SPI1","FCER1G","CSF1R"))
-#' #Calculate UCell scores
+#' gene.sets <- list( Tcell = c("CD2","CD3E","CD3D"),
+#'                   Myeloid = c("SPI1","FCER1G","CSF1R"))
+#' # Calculate UCell scores
 #' sce <- ScoreSignatures_UCell(sce, features=gene.sets, name=NULL)
-#' altExp(sce, 'UCell')
 #' # Run PCA
 #' sce <- logNormCounts(sce)
 #' sce <- runPCA(sce, scale=TRUE, ncomponents=20)
 #' # Smooth signatures
 #' sce <- SmoothKNN(sce, reduction="PCA", signature.names=names(gene.sets))
-#' altExp(sce, 'UCell_kNN')
+#' # See results
+#' altExp(sce, 'UCell')
+#' assays(altExp(sce, 'UCell'))
+#' # Plot on UMAP
+#' sce <- runUMAP(sce, dimred="PCA")
+#' plotUMAP(sce, colour_by = "Tcell", by_exprs_values = "UCell_kNN")
 #' 
 #' @importFrom methods setMethod setGeneric is
 #' @import BiocNeighbors
@@ -68,7 +72,7 @@ SmoothKNN <- function(
     BNPARAM=AnnoyParam(),
     suffix="_kNN",
     sce.expname="UCell",
-    sce.expname.smoothed="UCell_kNN")
+    sce.newassay="UCell_kNN")
 {
     UseMethod("SmoothKNN")
 }
