@@ -1,0 +1,123 @@
+---
+title: "Using UCell with SingleCellExperiment"
+author:
+- name: Massimo Andreatta
+  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+- name: Santiago J. Carmona
+  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: UCell
+vignette: |
+  %\VignetteIndexEntry{2. Using UCell with SingleCellExperiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+[SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) is Bioconductor's data structure of choice for storing single-cell experiment data. The function `ScoreSignatures_UCell()` allows performing signature scoring with UCell directly on `sce` objects. UCell scores are returned in a altExp object: `altExp(sce, 'UCell')`
+
+# Get some testing data
+
+For this demo, we will download a single-cell dataset of lung cancer ([Zilionis et al. (2019) Immunity](https://pubmed.ncbi.nlm.nih.gov/30979687/)) through the [scRNA-seq](https://bioconductor.org/packages/3.15/data/experiment/html/scRNAseq.html) package. This dataset contains >170,000 single cells; for the sake of simplicity, in this demo will we focus on immune cells, according to the annotations by the authors, and downsample to 5000 cells.
+
+```{r message=F, warning=F, results=F}
+library(scRNAseq)
+
+#For this demo, limit the analysis to 5000 immune cells
+lung <- ZilionisLungData()
+
+immune <- lung$Used & lung$used_in_NSCLC_immune
+lung <- lung[,immune]
+lung <- lung[,1:5000]
+
+exp.mat <- Matrix::Matrix(counts(lung),sparse = TRUE)
+```
+
+# Define gene signatures
+
+Here we define some simple gene sets based on the "Human Cell Landscape" signatures [Han et al. (2020) Nature](https://www.nature.com/articles/s41586-020-2157-4). You may edit existing signatures, or add new one as elements in a list.
+```{r}
+signatures <- list(
+    Tcell = c("CD3D","CD3E","CD3G","CD2","TRAC"),
+    Myeloid = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
+    NK = c("KLRD1","NCAM1","NKG7","CD3D-","CD3E-"),
+    Plasma_cell = c("IGKC","IGHG3","IGHG1","IGHA1","CD19-")
+)
+```
+
+# Run UCell on sce object
+
+```{r message=F, warning=F}
+library(UCell)
+library(SingleCellExperiment)
+
+sce <- SingleCellExperiment(list(counts=exp.mat))
+sce <- ScoreSignatures_UCell(sce, features=signatures, 
+                                 assay = 'counts', name=NULL)
+altExp(sce, 'UCell')
+```
+
+Dimensionality reduction and visualization
+```{r message=F, warning=F}
+library(scater)
+library(patchwork)
+#PCA
+sce <- logNormCounts(sce)
+sce <- runPCA(sce, scale=TRUE, ncomponents=20)
+
+#UMAP
+set.seed(1234)
+sce <- runUMAP(sce, dimred="PCA")
+```
+
+Visualize UCell scores on low-dimensional representation (UMAP)
+```{r fig.wide=TRUE}
+pll <- lapply(names(signatures), function(x) {
+    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell") + theme(aspect.ratio = 1)
+})
+wrap_plots(pll)
+```
+
+# Signature smoothing
+
+Single-cell data are sparse. It can be useful to 'impute' scores by neighboring cells and partially correct this sparsity. The function `SmoothKNN` performs smoothing of single-cell scores by weighted average of the k-nearest neighbors in a given dimensionality reduction. It can be applied directly on SingleCellExperiment objects to smooth UCell scores:
+
+```{r}
+sce <- SmoothKNN(sce, signature.names = names(signatures), reduction="PCA")
+```
+
+```{r fig.wide=TRUE}
+a <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell") +
+      ggtitle("UCell") + theme(aspect.ratio = 1)
+
+b <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell_kNN") +
+      ggtitle("Smoothed UCell") + theme(aspect.ratio = 1)
+
+a | b
+```
+
+# Resources
+
+Please report any issues at the [UCell GitHub repository](https://github.com/carmonalab/UCell).
+
+More demos available on the [Bioc landing page](https://bioconductor.org/packages/release/bioc/html/UCell.html) and at the [UCell demo repository](https://github.com/carmonalab/UCell_demo).
+
+If you find UCell useful, you may also check out the [scGate package](https://github.com/carmonalab/scGate), which relies on UCell scores to automatically purify populations of interest based on gene signatures.
+
+See also [SignatuR](https://github.com/carmonalab/SignatuR) for easy storing and retrieval of gene signatures.
+
+# References
+
+* Andreatta, M., Carmona, S. J. (2021) *UCell: Robust and scalable single-cell gene signature scoring* Computational and Structural Biotechnology Journal
+* Zilionis, R., Engblom, C., ..., Klein, A. M. (2019) *Single-Cell Transcriptomics of Human and Mouse Lung Cancers Reveals Conserved Myeloid Populations across Individuals and Species* Immunity
+* Amezquita, Robert A., et al. (2020) *"Orchestrating single-cell analysis with Bioconductor."* Nature methods
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

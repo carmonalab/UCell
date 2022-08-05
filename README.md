@@ -12,14 +12,14 @@ Find the installation instructions for the package and usage vignettes below.
 ### Package Installation
 
 **[UCell is on Bioconductor!](https://bioconductor.org/packages/release/bioc/html/UCell.html)** To install the package from Bioc run:
-```
+```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 BiocManager::install("UCell")
 ```
 
 For previous releases of `UCell`, you may download a tagged version from GitHub:
-```
+```r
 library(remotes)
 remotes::install_github("carmonalab/UCell", ref="v1.3")
 ```
@@ -28,7 +28,7 @@ remotes::install_github("carmonalab/UCell", ref="v1.3")
 ### Test the package
 
 Load sample data and test your installation:
-```
+```r
 library(UCell)
 
 data(sample.matrix)
@@ -39,9 +39,11 @@ scores <- ScoreSignatures_UCell(sample.matrix, features=gene.sets)
 head(scores)
 ```
 
-### Examples and tutorials
+### Vignettes and examples
 
-Run UCell demos to learn about the functionalities of the package:
+Vignettes to run UCell on matrices, SingleCellExperiment or Seurat objects can be found at the [UCell Bioc page](https://bioconductor.org/packages/release/bioc/html/UCell.html).
+
+Extended tutorial are also available at:
 
 * [Single-cell gene signature scoring with UCell](https://carmonalab.github.io/UCell_demo/UCell_matrix_vignette.html)
 
@@ -49,25 +51,28 @@ Run UCell demos to learn about the functionalities of the package:
 
 * [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell_demo/UCell_vignette_TILstates.html)
 
-### New in version > 1.1.0
+### New in version >= 2.1.2
 
-You can now specify positive and negative (up- or down-regulated) genes in signatures. For example, build signatures as:
+Single-cell data are sparse. It can be useful to 'impute' scores by neighboring cells and partially correct this sparsity. The new function `SmoothKNN` performs smoothing of single-cell signature scores by weighted average of the k-nearest neighbors in a given dimensionality reduction. It can be applied directly on SingleCellExperiment or Seurat objects to smooth UCell scores:
 
+```r
+obj <- SmoothKNN(obj, signature.names = sigs, reduction="pca")
 ```
-markers <- list()
-markers$Tcell_gd <- c("TRDC+", "TRGC1+", "TRGC2+", "TRDV1+","TRAC-","TRBC1-","TRBC2-")
-markers$Tcell_NK <- c("FGFBP2+", "SPON2+", "KLRF1+", "FCGR3A+", "CD3E-","CD3G-")
-markers$Tcell_CD4 <- c("CD4","CD40LG")
-markers$Tcell_CD8 <- c("CD8A","CD8B")
-markers$Tcell_Treg <- c("FOXP3","IL2RA")
+
+### Interacting with signatures
+
+For easy retrieval and storing of signatures, check out [SignatuR](https://github.com/carmonalab/SignatuR):
+
+```r
+remotes::install_github("carmonalab/SignatuR")
+library(SignatuR)
+#e.g. get a cycling signature
+cycling.G1S <- SignatuR$Hs$Programs$cellCycle.G1S
 ```
-If you don't specify +/- for genes, they are assumed to be all as a positive set.
 
-The **UCell score** is calculated as:  U = max(0, U<sup>+</sup> - *w_neg* * U<sup>-</sup>)
- 
-where U<sup>+</sup> and U<sup>-</sup> are respectively the U scores for the positive and negative set, and *w_neg* is a weight on the negative set.
+### Get help
 
-When no negative set of genes is present, U = U<sup>+</sup>, therefore the behavior is identical to previous UCell versions.   
+See more information about UCell and its functions by typing `?UCell` within R. Please address your questions and bug reports at: [UCell issues](https://github.com/carmonalab/UCell/issues).
 
 ### Citation
 

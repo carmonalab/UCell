@@ -11,7 +11,7 @@ output:
   BiocStyle::pdf_document: default
 package: UCell
 vignette: |
-  %\VignetteIndexEntry{Gene signature scoring with UCell}
+  %\VignetteIndexEntry{1. Gene signature scoring with UCell}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -138,104 +138,17 @@ u.scores <- ScoreSignatures_UCell(exp.mat,features=signatures,
 
 # Interacting with SingleCellExperiment or Seurat
 
-[SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) and [Seurat](https://github.com/satijalab/seurat) are popular environments for single-cell analysis. The UCell package implements functions to interact directly with these pipelines, as described below.
-
-## UCell + SingleCellExperiment
-
-The function `ScoreSignatures_UCell()` allows operating directly on `sce` objects. UCell scores are returned in a altExp object (`altExp(sce, 'UCell'`))
-```{r message=F, warning=F}
-library(SingleCellExperiment)
-
-sce <- SingleCellExperiment(list(counts=exp.mat))
-sce <- ScoreSignatures_UCell(sce, features=signatures, 
-                                 assay = 'counts', name=NULL)
-altExp(sce, 'UCell')
-```
-
-Dimensionality reduction and visualization
-```{r message=F, warning=F}
-library(scater)
-library(patchwork)
-#PCA
-sce <- logNormCounts(sce)
-sce <- runPCA(sce, scale=TRUE, ncomponents=20)
-
-#UMAP
-set.seed(1234)
-sce <- runUMAP(sce, dimred="PCA")
-```
-
-Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.wide=TRUE}
-pll <- lapply(names(signatures), function(x) {
-    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell",
-             point_size=0.2)
-})
-wrap_plots(pll)
-```
-
-## UCell + Seurat
-
-The function `AddModuleScore_UCell()` allows operating directly on Seurat objects. UCell scores are returned as metadata columns in the Seurat object. To see how this function differs from Seurat's own `AddModuleScore()` (not based on per-cell ranks) see [this vignette](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
-```{r message=F, warning=F}
-library(Seurat)
-seurat.object <- CreateSeuratObject(counts = exp.mat, 
-                                    project = "Zilionis_immune")
-seurat.object <- AddModuleScore_UCell(seurat.object, 
-                                      features=signatures, name=NULL)
-head(seurat.object[[]])
-```
-
-Generate PCA and UMAP embeddings
-```{r message=F, warning=F}
-seurat.object <- NormalizeData(seurat.object)
-seurat.object <- FindVariableFeatures(seurat.object, 
-                     selection.method = "vst", nfeatures = 500)
-  
-seurat.object <- ScaleData(seurat.object)
-seurat.object <- RunPCA(seurat.object, npcs = 20, 
-                        features=VariableFeatures(seurat.object)) 
-seurat.object <- RunUMAP(seurat.object, reduction = "pca", 
-                         dims = 1:20, seed.use=123)
-```
-
-Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.wide=TRUE}
-FeaturePlot(seurat.object, reduction = "umap", 
-            features = names(signatures))
-```
-
-# Signature smoothing
-
-Single-cell data are sparse. It can be useful to 'impute' scores by neighboring cells and partially correct this sparsity. The function `SmoothKNN` performs smoothing of single-cell scores by weighted average of the k-nearest neighbors in a given dimensionality reduction. It can be applied both on SingleCellExperiment and Seurat objects to smooth UCell scores:
-```{r}
-seurat.object <- SmoothKNN(seurat.object, signature.names = names(signatures),
-                           reduction="pca")
-```
-
-```{r fig.wide=TRUE}
-FeaturePlot(seurat.object, reduction = "umap", features = c("NK","NK_kNN"))
-```
-
-```{r}
-sce <- SmoothKNN(sce, signature.names = names(signatures), reduction="PCA")
-```
-
-```{r fig.wide=TRUE}
-
-a <- plotUMAP(sce, colour_by = "NK", by_exprs_values = "UCell",
-             point_size=0.2) + ggtitle("UCell")
-
-b <- plotUMAP(sce, colour_by = "NK", by_exprs_values = "UCell_kNN",
-             point_size=0.2) + ggtitle("Smoothed UCell")
-
-
-a | b
-```
+[SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) and [Seurat](https://github.com/satijalab/seurat) are popular environments for single-cell analysis. The UCell package implements functions to interact directly with these pipelines, as described in dedicated demos available on the [Bioc landing page](https://bioconductor.org/packages/release/bioc/html/UCell.html).
 
 # Resources
 
-Please report any issues with UCell at its [GitHub repository](https://github.com/carmonalab/UCell). More demos available at [UCell demo repository](https://github.com/carmonalab/UCell_demo)
+Please report any issues at the [UCell GitHub repository](https://github.com/carmonalab/UCell).
+
+More demos available on the [Bioc landing page](https://bioconductor.org/packages/release/bioc/html/UCell.html) and at the [UCell demo repository](https://github.com/carmonalab/UCell_demo).
+
+If you find UCell useful, you may also check out the [scGate package](https://github.com/carmonalab/scGate), which relies on UCell scores to automatically purify populations of interest based on gene signatures.
+
+See also [SignatuR](https://github.com/carmonalab/SignatuR) for easy storing and retrieval of gene signatures.
 
 # References
 
