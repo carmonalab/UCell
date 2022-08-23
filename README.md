@@ -4,17 +4,13 @@
   <img height="80" src="docs/RSticker_UCELL.png">
 </p>
 
-`UCell` is an R package for scoring gene signatures in single-cell datasets. UCell scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands relatively less computing time and memory than other robust methods, enabling the processing of large datasets (>10^5 cells). UCell can be applied to any cell vs. gene data matrix, and includes functions to directly interact with Seurat and SingleCellExperiment objects. 
-
-
-![UCell_figure](https://github.com/carmonalab/UCell_demo/blob/master/docs/Figure1.png?raw=true)
-
+`UCell` is an R package for scoring gene signatures in single-cell datasets. UCell scores, based on the Mann-Whitney U statistic, are robust to dataset size and heterogeneity, and their calculation demands relatively less computing time and memory than other robust methods, enabling the processing of large datasets (>10^5 cells). UCell can be applied to any cell vs. gene data matrix, and includes functions to directly interact with Seurat and Bioconductor's SingleCellExperiment objects. 
 
 Find the installation instructions for the package and usage vignettes below.
 
 ### Package Installation
 
-**[UCell is on Bioconductor!](https://bioconductor.org/packages/release/bioc/html/UCell.html)** To install the package from Bioc run:
+**[UCell is on Bioconductor](https://bioconductor.org/packages/release/bioc/html/UCell.html)** To install the package from Bioc run:
 ```r
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
