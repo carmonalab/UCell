@@ -15,6 +15,8 @@
 #' @param k Number of neighbors for kNN smoothing
 #' @param BNPARAM A [BiocNeighborParam] object specifying the algorithm to use
 #'     for kNN calculation.
+#' @param BPPARAM A [BiocParallel::bpparam()] object for parallel computing,
+#'     e.g. [MulticoreParam] or [SnowParam]
 #' @param suffix For Seurat objects only - Suffix to append to metadata columns
 #'     for the new knn-smoothed scores  
 #' @param sce.expname For sce objects only - which experiment stores the
@@ -70,6 +72,7 @@ SmoothKNN <- function(
     reduction="pca",
     k=10,
     BNPARAM=AnnoyParam(),
+    BPPARAM=SerialParam(),
     suffix="_kNN",
     sce.expname="UCell",
     sce.newassay="UCell_kNN")

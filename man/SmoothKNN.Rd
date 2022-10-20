@@ -12,6 +12,7 @@
   reduction = "pca",
   k = 10,
   BNPARAM = AnnoyParam(),
+  BPPARAM = SerialParam(),
   suffix = "_kNN",
   sce.expname = NULL,
   sce.newassay = NULL
@@ -23,6 +24,7 @@
   reduction = "PCA",
   k = 10,
   BNPARAM = AnnoyParam(),
+  BPPARAM = SerialParam(),
   suffix = NULL,
   sce.expname = "UCell",
   sce.newassay = "UCell_kNN"
@@ -34,6 +36,7 @@ SmoothKNN(
   reduction = "pca",
   k = 10,
   BNPARAM = AnnoyParam(),
+  BPPARAM = SerialParam(),
   suffix = "_kNN",
   sce.expname = "UCell",
   sce.newassay = "UCell_kNN"
@@ -53,6 +56,9 @@ It must be already present in the input object.}
 
 \item{BNPARAM}{A \link{BiocNeighborParam} object specifying the algorithm to use
 for kNN calculation.}
+
+\item{BPPARAM}{A \code{\link[BiocParallel:register]{BiocParallel::bpparam()}} object for parallel computing,
+e.g. \link{MulticoreParam} or \link{SnowParam}}
 
 \item{suffix}{For Seurat objects only - Suffix to append to metadata columns
 for the new knn-smoothed scores}

@@ -372,6 +372,7 @@ SmoothKNN.Seurat <- function(
     reduction="pca",
     k=10,
     BNPARAM=AnnoyParam(),
+    BPPARAM=SerialParam(),
     suffix="_kNN",
     sce.expname=NULL,
     sce.newassay=NULL
@@ -405,7 +406,7 @@ SmoothKNN.Seurat <- function(
   
   # Find kNNs
   space <- Seurat::Embeddings(obj, reduction=reduction)
-  nn <- findKNN(space, k=k, BNPARAM=BNPARAM)
+  nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
   
   # Do smoothing
   smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
@@ -426,6 +427,7 @@ SmoothKNN.SingleCellExperiment <- function(
     reduction="PCA",
     k=10,
     BNPARAM=AnnoyParam(),
+    BPPARAM=SerialParam(),
     suffix=NULL,
     sce.expname="UCell",
     sce.newassay="UCell_kNN"
@@ -462,7 +464,7 @@ SmoothKNN.SingleCellExperiment <- function(
   
   # Find kNNs
   space <- reducedDim(obj, reduction)
-  nn <- findKNN(space, k=k, BNPARAM=BNPARAM)
+  nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
   
   # Do smoothing
   m.smooth <- knn_smooth_scores(matrix=m, nn=nn) 
