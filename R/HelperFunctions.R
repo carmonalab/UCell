@@ -70,6 +70,9 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
         diff[diff<0] <- 0
         return(diff)
     })
+    if (is.vector(u_matrix)) {  # Case of ncells=1
+      u_matrix <- t(as.matrix(u_matrix))
+    }
     
     rownames(u_matrix) <- colnames(ranks_matrix)[-1]
     return (u_matrix)
@@ -323,7 +326,7 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
         } else {
             max <- min(i*chunk.size, ncols)
         }
-        split.data[[i]] <- matrix[,min:max]
+        split.data[[i]] <- matrix[,min:max,drop=FALSE]
         min <- max+1    #for next chunk
     }
     return(split.data)
