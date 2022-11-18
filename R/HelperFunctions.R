@@ -382,11 +382,9 @@ SmoothKNN.Seurat <- function(
     stop("Function 'SmoothKNN_UCell' requires the Seurat package.
             Please install it.", call. = FALSE)
   } 
-  
   if (!reduction %in% Seurat::Reductions(obj)) {
     stop(sprintf("Could not find reduction %s in this object", reduction))
   }
-  
   if (is.null(signature.names)) {
     stop("Please provide the metadata column names that you want to smooth")
   }
@@ -403,16 +401,26 @@ SmoothKNN.Seurat <- function(
   }
   
   m <- obj[[found]]
+  ncells <- ncol(obj)
   
-  # Find kNNs
-  space <- Seurat::Embeddings(obj, reduction=reduction)
-  nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
+  if (ncells <= k) {
+    k <- ncells-1
+    warning("'k' capped at the number of observations minus 1")
+  }
   
-  # Do smoothing
-  smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
-  
+  if (ncells>1) {
+    # Find kNNs
+    space <- Seurat::Embeddings(obj, reduction=reduction)
+    nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
+    
+    # Do smoothing
+    smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
+  } else {
+    smooth.df <- m
+  }
   colnames(smooth.df) <- paste0(colnames(smooth.df), suffix)
   obj <- Seurat::AddMetaData(obj, metadata = smooth.df)
+  
   return(obj)
 }
 
@@ -433,7 +441,7 @@ SmoothKNN.SingleCellExperiment <- function(
     sce.newassay="UCell_kNN"
 ) {
   
-  if (! reduction %in% reducedDimNames(obj)) {
+  if (!reduction %in% reducedDimNames(obj)) {
     stop(sprintf("Could not find reduction %s in this object", reduction))
   }
   
@@ -462,13 +470,23 @@ SmoothKNN.SingleCellExperiment <- function(
   m <- as.data.frame(SummarizedExperiment::assay(exp))
   m <- t(m[found, ,drop=FALSE])
   
-  # Find kNNs
-  space <- reducedDim(obj, reduction)
-  nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
+  ncells <- nrow(m)
   
-  # Do smoothing
-  m.smooth <- knn_smooth_scores(matrix=m, nn=nn) 
+  if (ncells <= k) {
+    k <- ncells-1
+    warning("'k' capped at the number of observations minus 1")
+  }
   
+  if (ncells>1) {
+    # Find kNNs
+    space <- reducedDim(obj, reduction)
+    nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
+    
+    # Do smoothing
+    m.smooth <- knn_smooth_scores(matrix=m, nn=nn) 
+  } else {
+    m.smooth <- m
+  }
   #Add new assay to altExp
   SummarizedExperiment::assay(exp, sce.newassay,
                               withDimnames = FALSE) <- t(m.smooth)
