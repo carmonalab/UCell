@@ -64,7 +64,7 @@ library(scater)
 library(patchwork)
 #PCA
 sce <- logNormCounts(sce)
-sce <- runPCA(sce, scale=TRUE, ncomponents=20)
+sce <- runPCA(sce, scale=TRUE, ncomponents=10)
 
 #UMAP
 set.seed(1234)
@@ -72,9 +72,10 @@ sce <- runUMAP(sce, dimred="PCA")
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.width=9, fig.height=7, dpi=60}
+```{r fig.width=7, fig.height=5, dpi=60}
 pll <- lapply(names(signatures), function(x) {
-    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell") + theme(aspect.ratio = 1)
+    plotUMAP(sce, colour_by = x, by_exprs_values = "UCell",
+             point_size=0.2) + theme(aspect.ratio = 1)
 })
 wrap_plots(pll)
 ```
@@ -88,11 +89,11 @@ sce <- SmoothKNN(sce, signature.names = names(signatures), reduction="PCA")
 ```
 
 ```{r fig.wide=TRUE, dpi=60}
-a <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell") +
-      ggtitle("UCell") + theme(aspect.ratio = 1)
+a <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell",
+         point_size=0.2) + ggtitle("UCell") + theme(aspect.ratio = 1)
 
-b <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell_kNN") +
-      ggtitle("Smoothed UCell") + theme(aspect.ratio = 1)
+b <- plotUMAP(sce, colour_by="Myeloid_kNN", by_exprs_values="UCell_kNN",
+         point_size=0.2) + ggtitle("Smoothed UCell") + theme(aspect.ratio = 1)
 
 a | b
 ```

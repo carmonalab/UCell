@@ -96,21 +96,18 @@ seurat.object <- SmoothKNN(seurat.object,
 FeaturePlot(seurat.object, reduction = "umap", features = c("NK","NK_kNN"))
 ```
 
-Smoothing (or imputation) has been designed for UCell scores, but it can be applied to any other metadata. For instance, we can perform knn-smoothing of gene expression scores by copying normalized counts for genes of interest into metadata columns:
-```{r}
-genes <- c("CD2","CSF1R")
-
-expr <- Seurat::GetAssayData(seurat.object, assay="RNA", slot="data")[genes,]
-expr <- t(as.matrix(expr))
-seurat.object <- AddMetaData(seurat.object, metadata=as.data.frame(expr))
-```
+Smoothing (or imputation) has been designed for UCell scores, but it can be applied to any other data or metadata. For instance, we can perform knn-smoothing directly on gene expression measurements:
 
 ```{r warning=FALSE, fig.width=9, fig.height=7, dpi=60}
+genes <- c("CD2","CSF1R")
 seurat.object <- SmoothKNN(seurat.object, signature.names=genes,
-                           reduction="pca", k=20, suffix = "_smooth")
+                 assay="RNA", reduction="pca", k=20, suffix = "_smooth")
 
-FeaturePlot(seurat.object, reduction = "umap",
-            features = c("CD2","CD2_smooth","CSF1R","CSF1R_smooth"))
+DefaultAssay(seurat.object) <- "RNA"
+a <- FeaturePlot(seurat.object, reduction = "umap", features = genes)
+DefaultAssay(seurat.object) <- "RNA_smooth"
+b <- FeaturePlot(seurat.object, reduction = "umap", features = genes)
+a / b
 ```
 
 # Resources

@@ -14,8 +14,10 @@
   BNPARAM = AnnoyParam(),
   BPPARAM = SerialParam(),
   suffix = "_kNN",
+  assay = NULL,
+  slot = "data",
   sce.expname = NULL,
-  sce.newassay = NULL
+  sce.assay = NULL
 )
 
 \method{SmoothKNN}{SingleCellExperiment}(
@@ -25,9 +27,11 @@
   k = 10,
   BNPARAM = AnnoyParam(),
   BPPARAM = SerialParam(),
-  suffix = NULL,
-  sce.expname = "UCell",
-  sce.newassay = "UCell_kNN"
+  suffix = "_kNN",
+  assay = NULL,
+  slot = "data",
+  sce.expname = c("UCell", "main"),
+  sce.assay = NULL
 )
 
 SmoothKNN(
@@ -38,8 +42,10 @@ SmoothKNN(
   BNPARAM = AnnoyParam(),
   BPPARAM = SerialParam(),
   suffix = "_kNN",
-  sce.expname = "UCell",
-  sce.newassay = "UCell_kNN"
+  assay = NULL,
+  slot = "data",
+  sce.expname = c("UCell", "main"),
+  sce.assay = NULL
 )
 }
 \arguments{
@@ -60,20 +66,26 @@ for kNN calculation.}
 \item{BPPARAM}{A \code{\link[BiocParallel:register]{BiocParallel::bpparam()}} object for parallel computing,
 e.g. \link{MulticoreParam} or \link{SnowParam}}
 
-\item{suffix}{For Seurat objects only - Suffix to append to metadata columns
+\item{suffix}{Suffix to append to metadata columns
 for the new knn-smoothed scores}
 
-\item{sce.expname}{For sce objects only - which experiment stores the
-signatures to be smoothed}
+\item{assay}{For Seurat objects only - do smoothing on expression
+data from this assay. When NULL, only looks in metadata}
 
-\item{sce.newassay}{For sce objects only - name of the new assay for storing
-smoothed scores (in experiment \code{sce.expname})}
+\item{slot}{For Seurat objects only - do smoothing on expression
+data from this slot}
+
+\item{sce.expname}{For sce objects only - which experiment stores the
+signatures to be smoothed. Set to 'main' for smoothing gene expression
+stored in the main sce experiment.}
+
+\item{sce.assay}{For sce objects only - pull data from this assay}
 }
 \value{
 An augmented \code{obj} with the smoothed signatures. If \code{obj}
 is a Seurat object, smoothed signatures are added to metadata; if
 \code{obj} is a SingleCellExperiment object, smoothed signatures are
-returned in a new assay. See the examples below.
+returned in a new altExp. See the examples below.
 }
 \description{
 This function performs smoothing of single-cell scores by weighted
@@ -116,6 +128,6 @@ altExp(sce, 'UCell')
 assays(altExp(sce, 'UCell'))
 # Plot on UMAP
 sce <- runUMAP(sce, dimred="PCA")
-plotUMAP(sce, colour_by = "Tcell", by_exprs_values = "UCell_kNN")
+plotUMAP(sce, colour_by = "Tcell_kNN", by_exprs_values = "UCell_kNN")
 
 }

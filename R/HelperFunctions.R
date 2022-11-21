@@ -348,7 +348,7 @@ knn_smooth_scores <- function(
   w.df <- vapply(sig.cols, FUN.VALUE=numeric(nrow(matrix)), FUN=function(s) {
     
     ss.scores <- matrix[,s]
-    weighted.scores <- vapply(X = 1:nrow(nn$index),
+    weighted.scores <- vapply(X = seq_len(nrow(nn$index)),
                               FUN.VALUE = numeric(1),
                               FUN = function(x) {
                                 r <- nn$index[x,]
@@ -377,8 +377,10 @@ SmoothKNN.Seurat <- function(
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),
     suffix="_kNN",
+    assay=NULL,
+    slot="data",
     sce.expname=NULL,
-    sce.newassay=NULL
+    sce.assay=NULL
 ) {
   
   if (!requireNamespace("Seurat", quietly = TRUE)) {
@@ -391,19 +393,40 @@ SmoothKNN.Seurat <- function(
   if (is.null(signature.names)) {
     stop("Please provide the metadata column names that you want to smooth")
   }
-  found <- intersect(signature.names, colnames(obj[[]]))
-  notfound <- setdiff(signature.names, found)
   
-  if (length(found)==0) {
-    stop("Could not find any of the given signatures in this object")
+  if (is.null(assay)) {  # Work on metadata
+    found <- intersect(signature.names, colnames(obj[[]]))
+    notfound <- setdiff(signature.names, found)
+    
+    if (length(found)==0) {
+      stop("Could not find any of the given signatures in this object")
+    }
+    if (length(notfound)>0) {
+      nf <- paste(notfound, collapse=",")
+      mess <- sprintf("The following signature were found in metadata:\n* %s",nf)
+      warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
+    }
+    m <- obj[[found]]
+  } else {  # Work directly on features
+    
+    exp <- Seurat::GetAssayData(obj, assay=assay, slot=slot)
+    feats <- rownames(exp)
+    
+    found <- intersect(signature.names, feats)
+    notfound <- setdiff(signature.names, found)
+    
+    if (length(found)==0) {
+      stop("Could not find any of the given features in this object")
+    }
+    if (length(notfound)>0) {
+      nf <- paste(notfound, collapse=",")
+      mess <- sprintf("The following features were not found in assay %s:\n* %s",
+                      assay, nf)
+      warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
+    }
+    
+    m <- t(exp[found, , drop=FALSE])
   }
-  if (length(notfound)>0) {
-    nf <- paste(notfound, collapse=",")
-    mess <- sprintf("The following signature were found in metadata:\n* %s",nf)
-    warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
-  }
-  
-  m <- obj[[found]]
   ncells <- ncol(obj)
   
   if (ncells <= k) {
@@ -421,16 +444,22 @@ SmoothKNN.Seurat <- function(
   } else {
     smooth.df <- m
   }
-  colnames(smooth.df) <- paste0(colnames(smooth.df), suffix)
-  obj <- Seurat::AddMetaData(obj, metadata = smooth.df)
   
+  if (is.null(assay)) {  #metadata
+    colnames(smooth.df) <- paste0(colnames(smooth.df), suffix)
+    obj <- Seurat::AddMetaData(obj, metadata = smooth.df)
+  } else {  #new assay
+    nas <- paste0(assay, suffix)
+    obj[[nas]] <- Seurat::CreateAssayObject(data=t(smooth.df))
+  }
   return(obj)
 }
 
 #' @rdname SmoothKNN
 #' @method SmoothKNN SingleCellExperiment
+#' @importFrom stats setNames
 #' @import SingleCellExperiment
-#' @importFrom SummarizedExperiment assay assays SummarizedExperiment
+#' @importFrom SummarizedExperiment assay assays SummarizedExperiment assayNames
 #' @export
 SmoothKNN.SingleCellExperiment <- function(
     obj=NULL,
@@ -439,9 +468,11 @@ SmoothKNN.SingleCellExperiment <- function(
     k=10,
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),
-    suffix=NULL,
-    sce.expname="UCell",
-    sce.newassay="UCell_kNN"
+    suffix="_kNN",
+    assay=NULL,
+    slot="data",
+    sce.expname=c("UCell","main"),
+    sce.assay=NULL
 ) {
   
   if (!reduction %in% reducedDimNames(obj)) {
@@ -452,12 +483,16 @@ SmoothKNN.SingleCellExperiment <- function(
     stop("Please provide the metadata column names that you want to smooth")
   }
   
-  if (!sce.expname %in% altExpNames(obj)) {
+  sce.expname <- sce.expname[1]
+  if (!sce.expname %in% c(altExpNames(obj), "main")) {
     stop(sprintf("Cannot find summarized experiment name: %s", sce.expname))
   } 
-  
-  exp <- altExp(obj, sce.expname)
-  
+ 
+  if (sce.expname == "main") {
+     exp <- obj
+  } else {
+     exp <- altExp(obj, sce.expname)
+  }
   found <- intersect(signature.names, rownames(exp))
   notfound <- setdiff(signature.names, found)
   
@@ -466,11 +501,16 @@ SmoothKNN.SingleCellExperiment <- function(
   }
   if (length(notfound)>0) {
     nf <- paste(notfound, collapse=",")
-    mess <- sprintf("The following signature were found:\n* %s",nf)
+    mess <- sprintf("The following signatures were not found:\n* %s",nf)
     warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
   }
   
-  m <- as.data.frame(SummarizedExperiment::assay(exp))
+  if (is.null(sce.assay)) {
+    sce.assay <- 1
+  } else if (!sce.assay %in% assayNames(obj)) {
+    stop(sprintf("Cannot find assay: %s", sce.assay))
+  }
+  m <- SummarizedExperiment::assay(exp, sce.assay)
   m <- t(m[found, ,drop=FALSE])
   
   ncells <- nrow(m)
@@ -484,16 +524,19 @@ SmoothKNN.SingleCellExperiment <- function(
     # Find kNNs
     space <- reducedDim(obj, reduction)
     nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
-    
     # Do smoothing
     m.smooth <- knn_smooth_scores(matrix=m, nn=nn) 
   } else {
     m.smooth <- m
   }
-  #Add new assay to altExp
-  SummarizedExperiment::assay(exp, sce.newassay,
-                              withDimnames = FALSE) <- t(m.smooth)
-  altExp(obj, sce.expname) <- exp
   
+  #New experiment with smoothed scores
+  colnames(m.smooth) <- paste0(colnames(m.smooth), suffix)
+  sce.newexp <- paste0(sce.expname, suffix)
+  
+  l <- list("sce" = t(m.smooth))
+  SingleCellExperiment::altExp(obj, sce.newexp) <- 
+    SummarizedExperiment(assays = setNames(l, sce.newexp))
+
   return(obj)
 }
