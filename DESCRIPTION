@@ -21,6 +21,7 @@ Depends: R(>= 4.2.0)
 Imports: methods,
     data.table(>= 1.13.6),
     Matrix,
+    stats,
     BiocParallel,
     BiocNeighbors,
     SingleCellExperiment,
