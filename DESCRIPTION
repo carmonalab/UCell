@@ -1,7 +1,7 @@
 Package: UCell
 Type: Package
 Title: Rank-based signature enrichment analysis for single-cell data
-Version: 2.3.1
+Version: 2.4.0
 Authors@R: c(
   person('Massimo', 'Andreatta', 
      email = 'massimo.andreatta@unil.ch',
