@@ -345,7 +345,7 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
 knn_smooth_scores <- function(
     matrix=NULL,
     nn=NULL,
-    decay=0.2,   #decay must be bound between 0 and 1
+    decay=0.1,   #decay must be bound between 0 and 1
     up.only=FALSE #scores can only increase
 ) {
   
@@ -383,7 +383,7 @@ SmoothKNN.Seurat <- function(
     signature.names=NULL,
     reduction="pca",
     k=10,
-    decay=0.2,
+    decay=0.1,
     up.only=FALSE,
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),
@@ -487,7 +487,7 @@ SmoothKNN.SingleCellExperiment <- function(
     signature.names=NULL,
     reduction="PCA",
     k=10,
-    decay=0.2,
+    decay=0.1,
     up.only=FALSE,
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),

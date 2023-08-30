@@ -4,7 +4,7 @@
 \alias{knn_smooth_scores}
 \title{Smoothing scores by KNN}
 \usage{
-knn_smooth_scores(matrix = NULL, nn = NULL, decay = 0.2, up.only = FALSE)
+knn_smooth_scores(matrix = NULL, nn = NULL, decay = 0.1, up.only = FALSE)
 }
 \arguments{
 \item{matrix}{Input data matrix}
