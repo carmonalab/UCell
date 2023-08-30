@@ -334,37 +334,46 @@ split_data.matrix <- function(matrix, chunk.size=1000) {
 
 #' Smoothing scores by KNN
 #'
-#' @param   matrix  Input data matrix 
-#' @param   nn      A nearest neighbor object returned by
+#' @param   matrix Input data matrix 
+#' @param   nn    A nearest neighbor object returned by
 #'   [BiocNeighbors::findKNN]
+#' @param   decay Exponential decay for nearest neighbor weight: (1-decay)^n
+#' @param   up.only If set to TRUE, smoothed scores will only be
+#'     allowed to increase by smoothing
 #' 
 #' @return  A dataframe of knn-smoothed scores
 knn_smooth_scores <- function(
     matrix=NULL,
-    nn=NULL
+    nn=NULL,
+    decay=0.2,   #decay must be bound between 0 and 1
+    up.only=FALSE #scores can only increase
 ) {
   
   sig.cols <- colnames(matrix)
+  
   w.df <- vapply(sig.cols, FUN.VALUE=numeric(nrow(matrix)), FUN=function(s) {
-    
     ss.scores <- matrix[,s]
     weighted.scores <- vapply(X = seq_len(nrow(nn$index)),
                               FUN.VALUE = numeric(1),
                               FUN = function(x) {
                                 r <- nn$index[x,]
                                 r <- c(x,r)
-                                
-                                d <- nn$distance[x,]
-                                d <- c(d[1],d)
-                                
-                                w <- 1/(0.01+d)
-                                
+                                i <- seq(0, length(r)-1)
+                                w <- (1-decay)**i
                                 sum(w * ss.scores[r])/sum(w)
                               })
+    if (up.only) {
+      pmax(weighted.scores, ss.scores)
+    } else {
+      weighted.scores
+    }
   })
   rownames(w.df) <- rownames(matrix)
   as.data.frame(w.df)
 }  
+
+
+
 
 #' @rdname SmoothKNN
 #' @method SmoothKNN Seurat
@@ -374,6 +383,8 @@ SmoothKNN.Seurat <- function(
     signature.names=NULL,
     reduction="pca",
     k=10,
+    decay=0.2,
+    up.only=FALSE,
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),
     suffix="_kNN",
@@ -429,6 +440,15 @@ SmoothKNN.Seurat <- function(
   }
   ncells <- ncol(obj)
   
+  if (decay<0 | decay>1) {
+    stop("decay parameter must be a number between 0 and 1")
+  }
+    
+  if (k<=0) {  #this behavior disables kNN smoothing
+    k=1
+    decay=1
+  }
+  
   if (ncells <= k) {
     k <- ncells-1
     warning("'k' capped at the number of observations minus 1")
@@ -440,7 +460,8 @@ SmoothKNN.Seurat <- function(
     nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
     
     # Do smoothing
-    smooth.df <- knn_smooth_scores(matrix=m, nn=nn)  
+    smooth.df <- knn_smooth_scores(matrix=m, nn=nn,
+                                   decay=decay, up.only=up.only)  
   } else {
     smooth.df <- m
   }
@@ -466,6 +487,8 @@ SmoothKNN.SingleCellExperiment <- function(
     signature.names=NULL,
     reduction="PCA",
     k=10,
+    decay=0.2,
+    up.only=FALSE,
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),
     suffix="_kNN",
@@ -512,8 +535,16 @@ SmoothKNN.SingleCellExperiment <- function(
   }
   m <- SummarizedExperiment::assay(exp, sce.assay)
   m <- t(m[found, ,drop=FALSE])
-  
   ncells <- nrow(m)
+  
+  if (decay<0 | decay>1) {
+    stop("decay parameter must be a number between 0 and 1")
+  }
+  
+  if (k<=0) {  #this behavior disables kNN smoothing
+    k=1
+    decay=1
+  }
   
   if (ncells <= k) {
     k <- ncells-1
@@ -525,7 +556,8 @@ SmoothKNN.SingleCellExperiment <- function(
     space <- reducedDim(obj, reduction)
     nn <- findKNN(space, k=k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
     # Do smoothing
-    m.smooth <- knn_smooth_scores(matrix=m, nn=nn) 
+    m.smooth <- knn_smooth_scores(matrix=m, nn=nn,
+                                  decay=decay, up.only=up.only) 
   } else {
     m.smooth <- m
   }

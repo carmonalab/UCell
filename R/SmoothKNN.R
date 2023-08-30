@@ -13,6 +13,9 @@
 #' @param reduction Which dimensionality reduction to use for kNN smoothing.
 #'     It must be already present in the input object.
 #' @param k Number of neighbors for kNN smoothing
+#' @param decay Exponential decay for nearest neighbor weight: (1-decay)^n
+#' @param up.only If set to TRUE, smoothed scores will only be allowed
+#'     to increase by smoothing
 #' @param BNPARAM A [BiocNeighborParam] object specifying the algorithm to use
 #'     for kNN calculation.
 #' @param BPPARAM A [BiocParallel::bpparam()] object for parallel computing,
@@ -76,6 +79,8 @@ SmoothKNN <- function(
     signature.names=NULL,
     reduction="pca",
     k=10,
+    decay=0.1,
+    up.only=FALSE,
     BNPARAM=AnnoyParam(),
     BPPARAM=SerialParam(),
     suffix="_kNN",

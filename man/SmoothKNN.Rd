@@ -11,6 +11,8 @@
   signature.names = NULL,
   reduction = "pca",
   k = 10,
+  decay = 0.2,
+  up.only = FALSE,
   BNPARAM = AnnoyParam(),
   BPPARAM = SerialParam(),
   suffix = "_kNN",
@@ -25,6 +27,8 @@
   signature.names = NULL,
   reduction = "PCA",
   k = 10,
+  decay = 0.2,
+  up.only = FALSE,
   BNPARAM = AnnoyParam(),
   BPPARAM = SerialParam(),
   suffix = "_kNN",
@@ -39,6 +43,8 @@ SmoothKNN(
   signature.names = NULL,
   reduction = "pca",
   k = 10,
+  decay = 0.1,
+  up.only = FALSE,
   BNPARAM = AnnoyParam(),
   BPPARAM = SerialParam(),
   suffix = "_kNN",
@@ -59,6 +65,11 @@ column) for which to calculate kNN-smoothed scores}
 It must be already present in the input object.}
 
 \item{k}{Number of neighbors for kNN smoothing}
+
+\item{decay}{Exponential decay for nearest neighbor weight: (1-decay)^n}
+
+\item{up.only}{If set to TRUE, smoothed scores will only be allowed
+to increase by smoothing}
 
 \item{BNPARAM}{A \link{BiocNeighborParam} object specifying the algorithm to use
 for kNN calculation.}

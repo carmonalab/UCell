@@ -4,13 +4,18 @@
 \alias{knn_smooth_scores}
 \title{Smoothing scores by KNN}
 \usage{
-knn_smooth_scores(matrix = NULL, nn = NULL)
+knn_smooth_scores(matrix = NULL, nn = NULL, decay = 0.2, up.only = FALSE)
 }
 \arguments{
 \item{matrix}{Input data matrix}
 
 \item{nn}{A nearest neighbor object returned by
 \link[BiocNeighbors:findKNN-methods]{BiocNeighbors::findKNN}}
+
+\item{decay}{Exponential decay for nearest neighbor weight: (1-decay)^n}
+
+\item{up.only}{If set to TRUE, smoothed scores will only be
+allowed to increase by smoothing}
 }
 \value{
 A dataframe of knn-smoothed scores
