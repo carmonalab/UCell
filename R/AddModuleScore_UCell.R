@@ -27,7 +27,8 @@
 #'     importance to negative genes
 #' @param assay Pull out data from this assay of the Seurat object
 #'     (if NULL, use \code{DefaultAssay(obj)})
-#' @param slot Pull out data from this slot of the Seurat object
+#' @param slot Pull out data from this slot of the Seurat object (will
+#'     become "layer" in Seurat v5)
 #' @param chunk.size Number of cells to be processed simultaneously (lower
 #'     size requires slightly more computation but reduces memory demands)
 #' @param BPPARAM A [BiocParallel::bpparam()] object that tells UCell
@@ -67,7 +68,7 @@
 #' @export
 AddModuleScore_UCell <- function(obj, features, maxRank=1500,
         chunk.size=1000, BPPARAM=NULL, ncores=1, storeRanks=FALSE,
-        w_neg=1, assay=NULL, slot="data", ties.method="average",
+        w_neg=1, assay=NULL, slot="counts", ties.method="average",
         force.gc=FALSE, name="_UCell") {
     
     if (!requireNamespace("Seurat", quietly = TRUE)) {

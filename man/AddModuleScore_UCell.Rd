@@ -14,7 +14,7 @@ AddModuleScore_UCell(
   storeRanks = FALSE,
   w_neg = 1,
   assay = NULL,
-  slot = "data",
+  slot = "counts",
   ties.method = "average",
   force.gc = FALSE,
   name = "_UCell"
@@ -53,7 +53,8 @@ importance to negative genes}
 \item{assay}{Pull out data from this assay of the Seurat object
 (if NULL, use \code{DefaultAssay(obj)})}
 
-\item{slot}{Pull out data from this slot of the Seurat object}
+\item{slot}{Pull out data from this slot of the Seurat object (will
+become "layer" in Seurat v5)}
 
 \item{ties.method}{How ranking ties should be resolved -
 passed on to \link[data.table:frank]{data.table::frank}}
