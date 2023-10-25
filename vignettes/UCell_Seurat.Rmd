@@ -35,6 +35,7 @@ lung <- lung[,immune]
 lung <- lung[,1:5000]
 
 exp.mat <- Matrix::Matrix(counts(lung),sparse = TRUE)
+colnames(exp.mat) <- paste0(colnames(exp.mat), seq(1,ncol(exp.mat)))
 ```
 
 # Define gene signatures
@@ -44,8 +45,8 @@ Here we define some simple gene sets based on the "Human Cell Landscape" signatu
 signatures <- list(
     Tcell = c("CD3D","CD3E","CD3G","CD2","TRAC"),
     Myeloid = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
-    NK = c("KLRD1","NCAM1","NKG7","CD3D-","CD3E-"),
-    Plasma_cell = c("IGKC","IGHG3","IGHG1","IGHA1","CD19-")
+    NK = c("KLRD1","NCR1","NKG7","CD3D-","CD3E-"),
+    Plasma_cell = c("MZB1","DERL3","CD19-")
 )
 ```
 
