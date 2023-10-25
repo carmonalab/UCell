@@ -20,7 +20,7 @@ BiocManager::install("UCell")
 For previous releases of `UCell`, you may download a tagged version from GitHub:
 ```r
 library(remotes)
-remotes::install_github("carmonalab/UCell", ref="v1.3")
+remotes::install_github("carmonalab/UCell", ref="v2.2")
 ```
 
 
