@@ -44,7 +44,7 @@
 #' # Calculate UCell scores
 #' obj <- AddModuleScore_UCell(obj,features = gene.sets, name=NULL)
 #' # Run PCA
-#' obj <- FindVariableFeatures(obj) |> ScaleData() |> RunPCA()
+#' obj <- FindVariableFeatures(obj) |> NormalizeData() |> ScaleData() |> RunPCA()
 #' # Smooth signatures
 #' obj <- SmoothKNN(obj, reduction="pca", signature.names=names(gene.sets))
 #' head(obj[[]])
