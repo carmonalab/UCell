@@ -27,8 +27,7 @@
 #'     importance to negative genes
 #' @param assay Pull out data from this assay of the Seurat object
 #'     (if NULL, use \code{DefaultAssay(obj)})
-#' @param slot Pull out data from this slot of the Seurat object (will
-#'     become "layer" in Seurat v5)
+#' @param slot Pull out data from this slot (layer in v5) of the Seurat object
 #' @param chunk.size Number of cells to be processed simultaneously (lower
 #'     size requires slightly more computation but reduces memory demands)
 #' @param BPPARAM A [BiocParallel::bpparam()] object that tells UCell
@@ -70,52 +69,46 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
         chunk.size=1000, BPPARAM=NULL, ncores=1, storeRanks=FALSE,
         w_neg=1, assay=NULL, slot="counts", ties.method="average",
         force.gc=FALSE, name="_UCell") {
-    
     if (!requireNamespace("Seurat", quietly = TRUE)) {
         stop("Function 'AddModuleScore_UCell' requires the Seurat package.
             Please install it.", call. = FALSE)
     }  
-    
     features <- check_signature_names(features)
-    
     if (is.null(assay)) {
         assay <- Seurat::DefaultAssay(obj)
     }
-    
-    
     # If rank matrix was pre-computed, evaluate the new signatures
-    # from these ranks. Else, calculate new ranks to score signatures
-    # (optionally storing ranks, takes up more memory but become very
-    # fast to evaluate further signatures)
+    # from these ranks.
     if ("UCellRanks" %in% Seurat::Assays(obj)) {
         meta.list <- rankings2Uscore(
-            Seurat::GetAssayData(obj, "counts", assay="UCellRanks"),
+            Seurat::GetAssayData(obj, layer="counts", assay="UCellRanks"),
             features=features, chunk.size=chunk.size, w_neg=w_neg,
             ncores=ncores, BPPARAM=BPPARAM, force.gc=force.gc, name=name)
-        
     } else {
-        meta.list <- calculate_Uscore(
-            Seurat::GetAssayData(obj, slot, assay=assay),
+        layers <- SeuratObject::Layers(obj, assay=assay, search = slot)
+        if (is.null(layers)) {
+          stop(sprintf("Cannot find layer %s in assay %s", slot, assay))
+        }
+        meta.list <- lapply(layers, function(x) {
+          calculate_Uscore(
+            Seurat::GetAssayData(obj, layer=x, assay=assay),
             features=features, maxRank=maxRank,
             chunk.size=chunk.size, w_neg=w_neg,
             ncores=ncores, BPPARAM=BPPARAM, ties.method=ties.method,
             force.gc=force.gc, storeRanks=storeRanks, name=name)
-        
+        })
+        meta.list <- unlist(meta.list, recursive = FALSE)
         #store ranks matrix?
         if (storeRanks==TRUE){
             cells_rankings.merge <- lapply(meta.list,
                 function(x) rbind(x[["cells_rankings"]]))
             cells_rankings.merge <- Reduce(cbind, cells_rankings.merge)
-            
             obj[["UCellRanks"]] <- Seurat::CreateAssayObject(
                 cells_rankings.merge)
         }
     }
-    
     meta.merge <- lapply(meta.list,function(x) rbind(x[["cells_AUC"]]))
     meta.merge <- Reduce(rbind, meta.merge)
-    
     obj <- Seurat::AddMetaData(obj, as.data.frame(meta.merge))
-    
     return(obj)
 }

@@ -53,8 +53,7 @@ importance to negative genes}
 \item{assay}{Pull out data from this assay of the Seurat object
 (if NULL, use \code{DefaultAssay(obj)})}
 
-\item{slot}{Pull out data from this slot of the Seurat object (will
-become "layer" in Seurat v5)}
+\item{slot}{Pull out data from this slot (layer in v5) of the Seurat object}
 
 \item{ties.method}{How ranking ties should be resolved -
 passed on to \link[data.table:frank]{data.table::frank}}

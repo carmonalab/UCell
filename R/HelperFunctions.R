@@ -419,10 +419,8 @@ SmoothKNN.Seurat <- function(
     }
     m <- obj[[found]]
   } else {  # Work directly on features
-    
-    exp <- Seurat::GetAssayData(obj, assay=assay, slot=slot)
+    exp <- Seurat::GetAssayData(obj, layer=slot, assay=assay)
     feats <- rownames(exp)
-    
     found <- intersect(signature.names, feats)
     notfound <- setdiff(signature.names, found)
     
@@ -435,7 +433,6 @@ SmoothKNN.Seurat <- function(
                       assay, nf)
       warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
     }
-    
     m <- t(exp[found, , drop=FALSE])
   }
   ncells <- ncol(obj)

@@ -1,7 +1,7 @@
 Package: UCell
 Type: Package
 Title: Rank-based signature enrichment analysis for single-cell data
-Version: 2.7.2
+Version: 2.7.3
 Authors@R: c(
   person('Massimo', 'Andreatta', 
      email = 'massimo.andreatta@unil.ch',
@@ -17,7 +17,7 @@ Description: UCell is a package for evaluating gene signatures in single-cell da
     demands less computing time and memory than other available methods, enabling the processing of large datasets in a few minutes even
     on machines with limited computing power. UCell can be applied to any single-cell data matrix, and includes functions to directly
     interact with SingleCellExperiment and Seurat objects.
-Depends: R(>= 4.2.0)
+Depends: R(>= 4.3.0)
 Imports: methods,
     data.table(>= 1.13.6),
     Matrix,
@@ -26,7 +26,7 @@ Imports: methods,
     BiocNeighbors,
     SingleCellExperiment,
     SummarizedExperiment
-Suggests: Seurat,
+Suggests: Seurat(>= 5.0.0),
     scater,
     scRNAseq,
     reshape2,
