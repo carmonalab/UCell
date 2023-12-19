@@ -66,7 +66,7 @@ For easy retrieval and storing of signatures, check out [SignatuR](https://githu
 remotes::install_github("carmonalab/SignatuR")
 library(SignatuR)
 #e.g. get a cycling signature
-cycling.G1S <- SignatuR$Hs$Programs$cellCycle.G1S
+cycling.G1S <- GetSignature(SignatuR$Hs$Programs$cellCycle.G1S)
 ```
 
 ### Get help
