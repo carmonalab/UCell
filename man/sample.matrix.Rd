@@ -5,7 +5,7 @@
 \alias{sample.matrix}
 \title{Sample dataset to test UCell installation}
 \format{
-A sparse matrix of 600 cells and 20729 genes.
+A sparse matrix of 30 cells and 20729 genes.
 }
 \source{
 \url{https://doi.org/10.1016/j.cell.2021.04.048}
@@ -15,7 +15,7 @@ sample.matrix
 }
 \description{
 A sparse matrix (class "dgCMatrix") of single-cell transcriptomes
-(scRNA-seq) for 600 cells and 20729 genes.
+(scRNA-seq) for 30 cells and 20729 genes.
 Single-cell UMI counts were normalized using a standard log-normalization:
 counts for each cell were divided by the total counts for that cell and
 multiplied by 10,000, then natural-log transformed using \code{log1p}. \cr\cr

@@ -4,7 +4,7 @@
 \alias{split_data.matrix}
 \title{Split data matrix into smaller sub-matrices ('chunks')}
 \usage{
-split_data.matrix(matrix, chunk.size = 1000)
+split_data.matrix(matrix, chunk.size = 100)
 }
 \arguments{
 \item{matrix}{Input data matrix}

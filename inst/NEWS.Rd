@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for package \pkg{UCell}}
 
+\section{New in version 2.7.4}{
+\itemize{
+    \item Add support for Seurat v5 assay and datasets in multiple layers. Added dependency on Seurat >= 5.0.
+    \item Change default for \code{chunk.size} to 100. On parallelized jobs, this can improve up to 2-fold execution time.
+    \item Smaller test dataset (30 cells), to speed up package function checks.  
+}}
+
 \section{New in version 2.1.2}{
 \itemize{
     \item New function \code{SmoothKNN()} for k-nearest neighbor smoothing of UCell scores. It can be applied both on SingleCellExperiment and Seurat objects (S3 method).

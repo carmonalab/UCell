@@ -8,7 +8,7 @@ calculate_Uscore(
   matrix,
   features,
   maxRank = 1500,
-  chunk.size = 1000,
+  chunk.size = 100,
   BPPARAM = NULL,
   ncores = 1,
   w_neg = 1,
@@ -25,7 +25,7 @@ calculate_Uscore(
 
 \item{maxRank}{Rank cutoff (1500)}
 
-\item{chunk.size}{Cells per sub-matrix (1000)}
+\item{chunk.size}{Cells per sub-matrix (100)}
 
 \item{BPPARAM}{A BioParallel object to instruct UCell how to
 parallelize}

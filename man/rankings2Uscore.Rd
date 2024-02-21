@@ -7,7 +7,7 @@
 rankings2Uscore(
   ranks_matrix,
   features,
-  chunk.size = 1000,
+  chunk.size = 100,
   w_neg = 1,
   BPPARAM = NULL,
   ncores = 1,

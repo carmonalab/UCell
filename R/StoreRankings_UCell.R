@@ -43,7 +43,7 @@
 #' @importFrom SummarizedExperiment assay
 #' @import Matrix
 #' @export
-StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=1000,
+StoreRankings_UCell <- function(matrix, maxRank=1500, chunk.size=100,
         BPPARAM=NULL, ncores=1, assay='counts',
         ties.method="average", force.gc=FALSE) {
     

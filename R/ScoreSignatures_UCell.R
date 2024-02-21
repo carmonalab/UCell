@@ -65,7 +65,7 @@
 ScoreSignatures_UCell <- function(
         matrix=NULL,features, precalc.ranks=NULL,
         maxRank=1500, w_neg=1, name="_UCell",
-        assay="counts", chunk.size=1000,
+        assay="counts", chunk.size=100,
         BPPARAM=NULL, ncores=1,
         ties.method="average", force.gc=FALSE) {
     

@@ -8,7 +8,7 @@ AddModuleScore_UCell(
   obj,
   features,
   maxRank = 1500,
-  chunk.size = 1000,
+  chunk.size = 100,
   BPPARAM = NULL,
   ncores = 1,
   storeRanks = FALSE,

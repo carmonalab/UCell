@@ -66,7 +66,7 @@
 #'
 #' @export
 AddModuleScore_UCell <- function(obj, features, maxRank=1500,
-        chunk.size=1000, BPPARAM=NULL, ncores=1, storeRanks=FALSE,
+        chunk.size=100, BPPARAM=NULL, ncores=1, storeRanks=FALSE,
         w_neg=1, assay=NULL, slot="counts", ties.method="average",
         force.gc=FALSE, name="_UCell") {
     if (!requireNamespace("Seurat", quietly = TRUE)) {
@@ -89,6 +89,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
         if (is.null(layers)) {
           stop(sprintf("Cannot find layer %s in assay %s", slot, assay))
         }
+
         meta.list <- lapply(layers, function(x) {
           calculate_Uscore(
             Seurat::GetAssayData(obj, layer=x, assay=assay),
@@ -97,6 +98,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
             ncores=ncores, BPPARAM=BPPARAM, ties.method=ties.method,
             force.gc=force.gc, storeRanks=storeRanks, name=name)
         })
+        
         meta.list <- unlist(meta.list, recursive = FALSE)
         #store ranks matrix?
         if (storeRanks==TRUE){

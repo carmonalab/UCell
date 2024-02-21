@@ -12,7 +12,7 @@ ScoreSignatures_UCell(
   w_neg = 1,
   name = "_UCell",
   assay = "counts",
-  chunk.size = 1000,
+  chunk.size = 100,
   BPPARAM = NULL,
   ncores = 1,
   ties.method = "average",

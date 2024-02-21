@@ -83,7 +83,7 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 #' @param   matrix        Input data matrix 
 #' @param   features      List of signatures
 #' @param   maxRank       Rank cutoff (1500) 
-#' @param   chunk.size    Cells per sub-matrix (1000)
+#' @param   chunk.size    Cells per sub-matrix (100)
 #' @param   BPPARAM       A BioParallel object to instruct UCell how to
 #'    parallelize  
 #' @param   ncores        Number of cores to use for parallelization
@@ -99,7 +99,7 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 #' @import  Matrix
 #' @import  BiocParallel
 calculate_Uscore <- function(
-        matrix, features,  maxRank=1500, chunk.size=1000,
+        matrix, features,  maxRank=1500, chunk.size=100,
         BPPARAM = NULL, ncores=1, w_neg=1, ties.method="average",
         storeRanks=FALSE, force.gc=FALSE, name="_UCell"){
     
@@ -185,7 +185,7 @@ calculate_Uscore <- function(
 #' 
 #' @return                    A list of signature scores
 #' @import    data.table
-rankings2Uscore <- function(ranks_matrix, features, chunk.size=1000, w_neg=1,
+rankings2Uscore <- function(ranks_matrix, features, chunk.size=100, w_neg=1,
                             BPPARAM = NULL,ncores=1, force.gc=FALSE,
                             name="_UCell") {
     
@@ -313,7 +313,7 @@ data_to_ranks_data_table <- function(data, ties.method="average") {
 #' @param   chunk.size  How many cells to include in each sub-matrix
 #' 
 #' @return  A list of sub-matrices, each with size {n_features x chunk_size}
-split_data.matrix <- function(matrix, chunk.size=1000) {
+split_data.matrix <- function(matrix, chunk.size=100) {
     ncols <- dim(matrix)[2]
     nchunks <- (ncols-1) %/% chunk.size + 1
     
