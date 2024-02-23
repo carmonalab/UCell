@@ -44,7 +44,7 @@
 #' # Calculate UCell scores
 #' obj <- AddModuleScore_UCell(obj,features = gene.sets, name=NULL)
 #' # Run PCA
-#' obj <- FindVariableFeatures(obj) |> NormalizeData() |> ScaleData() |> RunPCA()
+#' obj <- FindVariableFeatures(obj) |> NormalizeData() |> ScaleData() |> RunPCA(npcs=5)
 #' # Smooth signatures
 #' obj <- SmoothKNN(obj, reduction="pca", signature.names=names(gene.sets))
 #' head(obj[[]])
@@ -60,7 +60,7 @@
 #' sce <- ScoreSignatures_UCell(sce, features=gene.sets, name=NULL)
 #' # Run PCA
 #' sce <- logNormCounts(sce)
-#' sce <- runPCA(sce, scale=TRUE, ncomponents=20)
+#' sce <- runPCA(sce, scale=TRUE, ncomponents=5)
 #' # Smooth signatures
 #' sce <- SmoothKNN(sce, reduction="PCA", signature.names=names(gene.sets))
 #' # See results

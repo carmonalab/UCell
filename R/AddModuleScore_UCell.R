@@ -54,7 +54,7 @@
 #' 
 #' obj <- AddModuleScore_UCell(obj,features = gene.sets)
 #' head(obj[[]])
-#' 
+#'
 #' ## Using positive and negative gene sets
 #' gene.sets <- list()
 #' gene.sets$Tcell_gd <- c("TRDC+","TRGC1+","TRGC2+","TRDV1+",

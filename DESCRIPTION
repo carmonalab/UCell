@@ -1,7 +1,7 @@
 Package: UCell
 Type: Package
 Title: Rank-based signature enrichment analysis for single-cell data
-Version: 2.7.4
+Version: 2.7.5
 Authors@R: c(
   person('Massimo', 'Andreatta', 
      email = 'massimo.andreatta@unil.ch',
@@ -26,13 +26,14 @@ Imports: methods,
     BiocNeighbors,
     SingleCellExperiment,
     SummarizedExperiment
-Suggests: Seurat(>= 5.0.0),
-    scater,
+Suggests: scater,
     scRNAseq,
     reshape2,
     patchwork,
     ggplot2,
     BiocStyle,
+    Seurat(>= 5.0.0),
+    SeuratObject(>= 5.0.0),
     knitr,
     rmarkdown
 biocViews: SingleCell,
