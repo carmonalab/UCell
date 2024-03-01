@@ -58,7 +58,6 @@
 #' @references UCell: robust and scalable single-cell gene signature scoring. 
 #'     Massimo Andreatta & Santiago J Carmona (2021) CSBJ
 #'     \url{https://doi.org/10.1016/j.csbj.2021.06.043}
-#' @docType package
 #' @name UCell
-NULL
+"_PACKAGE"
 #> NULL

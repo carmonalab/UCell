@@ -1,7 +1,7 @@
 #' Calculate Mann Whitney U from a vector of ranks
 #' 
-#' Maximum sum of ranks, rank_sum_max: len_sig*max_Rank
-#' Minimum sum of ranks, rank_sum_min: len_sig*(len_sig + 1)/2
+#' Maximum sum of ranks, rank_sum_max: len_sig * max_Rank
+#' Minimum sum of ranks, rank_sum_min: len_sig * (len_sig + 1)/2
 #' Maximum U statistic, Umax: Maximum sum of ranks - Minimum sum of ranks
 #' Minimum U statistic, Umin: 0
 #' Normalized U statistic (0 to 1), Unorm: (U - Umin)/(Umax- Umin) = U/Umax

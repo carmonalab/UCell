@@ -117,7 +117,7 @@ obj <- AddModuleScore_UCell(obj,features = gene.sets, name=NULL)
 # Run PCA
 obj <- FindVariableFeatures(obj) |> NormalizeData() |> ScaleData() |> RunPCA(npcs=5)
 # Smooth signatures
-obj <- SmoothKNN(obj, reduction="pca", signature.names=names(gene.sets))
+obj <- SmoothKNN(obj, k=3, signature.names=names(gene.sets))
 head(obj[[]])
 
 #### Using SingleCellExperiment ####
@@ -133,7 +133,7 @@ sce <- ScoreSignatures_UCell(sce, features=gene.sets, name=NULL)
 sce <- logNormCounts(sce)
 sce <- runPCA(sce, scale=TRUE, ncomponents=5)
 # Smooth signatures
-sce <- SmoothKNN(sce, reduction="PCA", signature.names=names(gene.sets))
+sce <- SmoothKNN(sce, k=3, signature.names=names(gene.sets))
 # See results
 altExp(sce, 'UCell')
 assays(altExp(sce, 'UCell'))
