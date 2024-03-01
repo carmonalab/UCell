@@ -2,6 +2,7 @@
 % Please edit documentation in R/UCell.R
 \docType{package}
 \name{UCell}
+\alias{UCell-package}
 \alias{UCell}
 \title{UCell: Robust and scalable single-cell gene signature scoring}
 \description{
@@ -68,4 +69,21 @@ When no negative set of genes is present, \eqn{U = U^+}
 UCell: robust and scalable single-cell gene signature scoring.
 Massimo Andreatta & Santiago J Carmona (2021) CSBJ
 \url{https://doi.org/10.1016/j.csbj.2021.06.043}
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/carmonalab/UCell}
+  \item Report bugs at \url{https://github.com/carmonalab/UCell/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Massimo Andreatta \email{massimo.andreatta@unil.ch} (\href{https://orcid.org/0000-0002-8036-2647}{ORCID})
+
+Authors:
+\itemize{
+  \item Santiago Carmona \email{santiago.carmona@unil.ch} (\href{https://orcid.org/0000-0002-2495-0671}{ORCID})
+}
+
 }

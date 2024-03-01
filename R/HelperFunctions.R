@@ -1,27 +1,34 @@
 #' Calculate Mann Whitney U from a vector of ranks
 #' 
+#' Maximum sum of ranks, rank_sum_max: len_sig*max_Rank
+#' Minimum sum of ranks, rank_sum_min: len_sig*(len_sig + 1)/2
+#' Maximum U statistic, Umax: Maximum sum of ranks - Minimum sum of ranks
+#' Minimum U statistic, Umin: 0
+#' Normalized U statistic (0 to 1), Unorm: (U - Umin)/(Umax- Umin) = U/Umax
+#' UCell score (0 to 1): 1 - Unorm
+#' 
+#' Any rank > maxRank is set to maxRank
+#' 
 #' @param rank_value A vector of ranks
 #' @param maxRank Max number of features to include in ranking
 #' @param sparse Whether the vector of ranks is in sparse format
 #' 
-#' @return Normalized AUC (as U statistic) for the vector
+#' @return Normalized U statistic for the vector of ranks
 u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
     
     if (sparse==TRUE){
         rank_value[rank_value==0] <- maxRank
     }
-    
-    insig <- rank_value > maxRank
+    insig <- rank_value >= maxRank
     if (all(insig)) {
         return(0L)
     } else {
         rank_value[insig] <- maxRank
         rank_sum <- sum(rank_value)
         len_sig <- length(rank_value)
-        lfac <- len_sig*(len_sig + 1)/2
-        u_value <- rank_sum - lfac
-        auc <- 1 - u_value/(len_sig*maxRank - lfac)
-        return(auc)
+        rank_sum_min <- len_sig*(len_sig + 1)/2
+        ucell_score <- 1 - (rank_sum-rank_sum_min)/(len_sig*maxRank - rank_sum_min)
+        return(ucell_score)
     }
 }
 
@@ -143,13 +150,13 @@ calculate_Uscore <- function(
         FUN = function(x) {
             cells_rankings <- data_to_ranks_data_table(x,
                 ties.method=ties.method)
-            cells_AUC <- u_stat_signature_list(features, cells_rankings, 
+            cells_U <- u_stat_signature_list(features, cells_rankings, 
                 maxRank=maxRank, sparse=FALSE,
                 w_neg=w_neg)
-            colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
+            colnames(cells_U) <- paste0(colnames(cells_U),name)
             if (storeRanks==TRUE){
                 gene.names <- as.character(as.matrix(cells_rankings[,1]))
-                #make sparse
+                #make sparse (rank=0 means rank>=maxRank)
                 cells_rankings[cells_rankings>=maxRank] <- 0
                 ranks.sparse <- Matrix::Matrix(as.matrix(
                     cells_rankings[,-1]),sparse = TRUE)
@@ -158,13 +165,13 @@ calculate_Uscore <- function(
                     cells_rankings <- NULL
                     gc()
                 }
-                return(list(cells_rankings=ranks.sparse, cells_AUC=cells_AUC))
+                return(list(cells_rankings=ranks.sparse, cells_U=cells_U))
             } else {
                 if (force.gc) {
                     cells_rankings <- NULL
                     gc()
                 }
-                return(list(cells_AUC=cells_AUC))
+                return(list(cells_U=cells_U))
             }
             
         })
@@ -214,16 +221,16 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=100, w_neg=1,
             dense <- as.data.table(dense, keep.rownames=TRUE)
             setkey(dense, "rn", physical=FALSE)
             
-            cells_AUC <- u_stat_signature_list(features, dense,
+            cells_U <- u_stat_signature_list(features, dense,
                 maxRank=maxRank, sparse=TRUE,
                 w_neg=w_neg)
-            colnames(cells_AUC) <- paste0(colnames(cells_AUC),name)
+            colnames(cells_U) <- paste0(colnames(cells_U),name)
             
             if (force.gc) {
                 dense <- NULL
                 gc()
             }
-            return(list(cells_AUC=cells_AUC))
+            return(list(cells_U=cells_U))
         }
     )
     return(meta.list)
