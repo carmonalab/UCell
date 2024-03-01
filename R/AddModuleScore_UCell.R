@@ -109,7 +109,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
                 cells_rankings.merge)
         }
     }
-    meta.merge <- lapply(meta.list,function(x) rbind(x[["cells_AUC"]]))
+    meta.merge <- lapply(meta.list,function(x) rbind(x[["cells_U"]]))
     meta.merge <- Reduce(rbind, meta.merge)
     obj <- Seurat::AddMetaData(obj, as.data.frame(meta.merge))
     return(obj)

@@ -101,7 +101,7 @@ ScoreSignatures_UCell <- function(
             ties.method=ties.method, ncores=ncores,
             BPPARAM=BPPARAM, force.gc=force.gc, name=name)
     }
-    u.merge <- lapply(u.list,function(x) rbind(x[["cells_AUC"]]))
+    u.merge <- lapply(u.list,function(x) rbind(x[["cells_U"]]))
     u.merge <- Reduce(rbind, u.merge)
     
     if (methods::is(matrix, "SingleCellExperiment")) {
