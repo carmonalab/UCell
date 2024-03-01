@@ -8,19 +8,19 @@
 u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
     
     if (sparse==TRUE){
-        rank_value[rank_value==0] <- maxRank+1
+        rank_value[rank_value==0] <- maxRank
     }
     
     insig <- rank_value > maxRank
     if (all(insig)) {
         return(0L)
     } else {
-        rank_value[insig] <- maxRank+1
+        rank_value[insig] <- maxRank
         rank_sum <- sum(rank_value)
         len_sig <- length(rank_value)
-        
-        u_value <- rank_sum - (len_sig * (len_sig + 1))/2
-        auc <- 1 - u_value/(len_sig * maxRank)
+        lfac <- len_sig*(len_sig + 1)/2
+        u_value <- rank_sum - lfac
+        auc <- 1 - u_value/(len_sig*maxRank - lfac)
         return(auc)
     }
 }
@@ -150,7 +150,7 @@ calculate_Uscore <- function(
             if (storeRanks==TRUE){
                 gene.names <- as.character(as.matrix(cells_rankings[,1]))
                 #make sparse
-                cells_rankings[cells_rankings>maxRank] <- 0
+                cells_rankings[cells_rankings>=maxRank] <- 0
                 ranks.sparse <- Matrix::Matrix(as.matrix(
                     cells_rankings[,-1]),sparse = TRUE)
                 dimnames(ranks.sparse)[[1]] <- gene.names
@@ -197,7 +197,7 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=100, w_neg=1,
     if (!is.numeric(w_neg) | w_neg<0) {
         stop("Weight on negative signatures (w_neg) must be >=0")}
     
-    maxRank <- max(ranks_matrix)
+    maxRank <- max(ranks_matrix)+1
     split.data <- split_data.matrix(matrix=ranks_matrix, chunk.size=chunk.size)
     rm(ranks_matrix)
     
