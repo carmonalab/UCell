@@ -50,6 +50,24 @@ Extended tutorial are also available at:
 
 * [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell_demo/UCell_vignette_TILstates.html)
 
+### New in version >= 2.7.6
+
+Calculation of UCell scores has been updated as follows:
+
+${UCell} = 1 - {U} / {U_{max}}$
+
+where
+
+$U = \sum_{i} r_{i} - s_{min}$
+
+$U_{max} = s_{max} - s_{min}$
+
+$s_{max} = n * {maxRank}$
+
+$s_{min} = n(n+1) / 2$
+
+$n$ is the number of genes in the signature, ${maxRank}$ is a parameter limiting the ranking to the top genes, and U is the Mann-Whitney U statistic (bounded by 0 and $U_{max}$). Earlier implementations used $U_{max} = s_{max}$ to normalize the U statistics. While for typical applications results should be similar between the two implementations, the new normalization provides more homogeneous UCell score distributions for large gene sets.
+
 ### New in version >= 2.1.2
 
 Single-cell data are sparse. It can be useful to 'impute' scores by neighboring cells and partially correct this sparsity. The new function `SmoothKNN` performs smoothing of single-cell signature scores by weighted average of the k-nearest neighbors in a given dimensionality reduction. It can be applied directly on SingleCellExperiment or Seurat objects to smooth UCell scores:
