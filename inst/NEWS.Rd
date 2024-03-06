@@ -2,7 +2,7 @@
 \title{News for package \pkg{UCell}}
 
 
-\section{New in version 2.7.6}
+\section{New in version 2.7.6}{
 \itemize{
     \item Changed factor for normalization of UCell scores, to account for minimal rank. For typical use cases the behaviour is similar to the previous implementation, but has an impact with very large signatures (UCell score distributions are now more homogeneous). See function \code{UCell:::u_stat()}) for details.
 }}
