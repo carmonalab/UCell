@@ -10,7 +10,7 @@ knn_smooth_scores(matrix = NULL, nn = NULL, decay = 0.1, up.only = FALSE)
 \item{matrix}{Input data matrix}
 
 \item{nn}{A nearest neighbor object returned by
-\link[BiocNeighbors:findKNN-methods]{BiocNeighbors::findKNN}}
+\link[BiocNeighbors]{findKNN}}
 
 \item{decay}{Exponential decay for nearest neighbor weight: (1-decay)^n}
 

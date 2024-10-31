@@ -17,8 +17,8 @@ u_stat(rank_value, maxRank = 1000, sparse = FALSE)
 Normalized U statistic for the vector of ranks
 }
 \description{
-Maximum sum of ranks, rank_sum_max: len_sig\emph{max_Rank
-Minimum sum of ranks, rank_sum_min: len_sig}(len_sig + 1)/2
+Maximum sum of ranks, rank_sum_max: len_sig * max_Rank
+Minimum sum of ranks, rank_sum_min: len_sig * (len_sig + 1)/2
 Maximum U statistic, Umax: Maximum sum of ranks - Minimum sum of ranks
 Minimum U statistic, Umin: 0
 Normalized U statistic (0 to 1), Unorm: (U - Umin)/(Umax- Umin) = U/Umax
