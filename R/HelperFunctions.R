@@ -319,7 +319,7 @@ data_to_ranks_data_table <- function(data, ties.method="average") {
 #' @param   matrix      Input data matrix 
 #' @param   chunk.size  How many cells to include in each sub-matrix
 #' 
-#' @return  A list of sub-matrices, each with size {n_features x chunk_size}
+#' @return  A list of sub-matrices, each with size (n_features x chunk_size)
 split_data.matrix <- function(matrix, chunk.size=100) {
     ncols <- dim(matrix)[2]
     nchunks <- (ncols-1) %/% chunk.size + 1
@@ -343,7 +343,7 @@ split_data.matrix <- function(matrix, chunk.size=100) {
 #'
 #' @param   matrix Input data matrix 
 #' @param   nn    A nearest neighbor object returned by
-#'   [BiocNeighbors::findKNN]
+#'   \link[BiocNeighbors]{findKNN}
 #' @param   decay Exponential decay for nearest neighbor weight: (1-decay)^n
 #' @param   up.only If set to TRUE, smoothed scores will only be
 #'     allowed to increase by smoothing

@@ -12,7 +12,7 @@ split_data.matrix(matrix, chunk.size = 100)
 \item{chunk.size}{How many cells to include in each sub-matrix}
 }
 \value{
-A list of sub-matrices, each with size {n_features x chunk_size}
+A list of sub-matrices, each with size (n_features x chunk_size)
 }
 \description{
 Split data matrix into smaller sub-matrices ('chunks')
