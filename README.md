@@ -91,6 +91,11 @@ library(SignatuR)
 cycling.G1S <- GetSignature(SignatuR$Hs$Programs$cellCycle.G1S)
 ```
 
+Note that UCell supports **positive and negative gene sets** within a signature. Simply append + or - signs to the genes to include them in positive and negative sets, respectively. For example:
+```r
+my_signature <- c("CD2+","CD8A+","CD4-")
+```
+
 ### Get help
 
 See more information about UCell and its functions by typing `?UCell` within R. Please address your questions and bug reports at: [UCell issues](https://github.com/carmonalab/UCell/issues).
