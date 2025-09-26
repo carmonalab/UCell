@@ -12,6 +12,8 @@
 
 Find the installation instructions for the package and usage vignettes below.
 
+See also [pyUCell](https://github.com/carmonalab/pyucell) for a Python implementation of UCell.
+
 ### Package Installation
 
 **[UCell is on Bioconductor](https://bioconductor.org/packages/release/bioc/html/UCell.html)** To install the package from Bioc run:
