@@ -1,8 +1,10 @@
 # UCell: Robust and scalable single-cell gene signature scoring
 
+[![](https://www.bioconductor.org/shields/build/release/bioc/UCell.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/UCell)
+[![BioC release](https://www.bioconductor.org/shields/availability/release/UCell.svg)](https://bioconductor.org/packages/release/bioc/html/UCell.html)
 [![](https://www.bioconductor.org/shields/years-in-bioc/UCell.svg)](https://bioconductor.org/packages/release/bioc/html/UCell.html)
 [![](https://www.bioconductor.org/shields/downloads/release/UCell.svg)](http://bioconductor.org/packages/stats/bioc/UCell)
-[![](https://www.bioconductor.org/shields/build/release/bioc/UCell.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/UCell)
+[![GitHub stars](https://img.shields.io/github/stars/carmonalab/UCell?style=social)](https://github.com/carmonalab/UCell/stargazers)
 
 <p align="center">
   <img height="80" src="docs/RSticker_UCELL.png">
