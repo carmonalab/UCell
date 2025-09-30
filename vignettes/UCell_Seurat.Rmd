@@ -38,6 +38,13 @@ exp.mat <- Matrix::Matrix(counts(lung),sparse = TRUE)
 colnames(exp.mat) <- paste0(colnames(exp.mat), seq(1,ncol(exp.mat)))
 ```
 
+Save it as a Seurat object
+```{r}
+library(Seurat)
+seurat.object <- CreateSeuratObject(counts = exp.mat, 
+                                    project = "Zilionis_immune")
+```
+
 # Define gene signatures
 
 Here we define some simple gene sets based on the "Human Cell Landscape" signatures [Han et al. (2020) Nature](https://www.nature.com/articles/s41586-020-2157-4). You may edit existing signatures, or add new one as elements in a list.
@@ -54,9 +61,6 @@ signatures <- list(
 
 ```{r message=F, warning=F}
 library(UCell)
-library(Seurat)
-seurat.object <- CreateSeuratObject(counts = exp.mat, 
-                                    project = "Zilionis_immune")
 seurat.object <- AddModuleScore_UCell(seurat.object, 
                                       features=signatures, name=NULL)
 head(seurat.object[[]])

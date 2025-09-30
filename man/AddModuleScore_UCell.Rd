@@ -16,6 +16,7 @@ AddModuleScore_UCell(
   assay = NULL,
   slot = "counts",
   ties.method = "average",
+  missing_genes = c("impute", "skip"),
   force.gc = FALSE,
   name = "_UCell"
 )
@@ -57,6 +58,10 @@ importance to negative genes}
 
 \item{ties.method}{How ranking ties should be resolved -
 passed on to \link[data.table:frank]{data.table::frank}}
+
+\item{missing_genes}{How to handle missing genes in matrix:
+"impute": impute expression to zero; "skip": remove missing
+genes from signature}
 
 \item{force.gc}{Explicitly call garbage collector to reduce memory footprint}
 

@@ -35,6 +35,9 @@
 #'     \code{BiocParallel::MulticoreParam(workers=ncores)}
 #' @param ties.method How ranking ties should be resolved - passed on to
 #'     [data.table::frank]
+#' @param missing_genes How to handle missing genes in matrix:
+#'     "impute": impute expression to zero; "skip": remove missing
+#'     genes from signature 
 #' @param name Name suffix appended to signature names
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
 #' @return Returns input SingleCellExperiment object with UCell scores
@@ -66,10 +69,12 @@ ScoreSignatures_UCell <- function(
         matrix=NULL,features, precalc.ranks=NULL,
         maxRank=1500, w_neg=1, name="_UCell",
         assay="counts", chunk.size=100,
+        missing_genes = c("impute","skip"),
         BPPARAM=NULL, ncores=1,
         ties.method="average", force.gc=FALSE) {
     
     features <- check_signature_names(features)
+    missing_genes <- match.arg(missing_genes)
     
     #Check type of input
     if (methods::is(matrix, "SingleCellExperiment")) { # sce object
@@ -94,11 +99,13 @@ ScoreSignatures_UCell <- function(
         u.list <- rankings2Uscore(precalc.ranks, features=features,
             chunk.size=chunk.size,w_neg=w_neg,
             ncores=ncores, BPPARAM=BPPARAM,
+            missing_genes=missing_genes,
             force.gc=force.gc, name=name)
     } else {
         u.list <- calculate_Uscore(m, features=features, maxRank=maxRank,
             chunk.size=chunk.size, w_neg=w_neg,
             ties.method=ties.method, ncores=ncores,
+            missing_genes=missing_genes,
             BPPARAM=BPPARAM, force.gc=force.gc, name=name)
     }
     u.merge <- lapply(u.list,function(x) rbind(x[["cells_U"]]))

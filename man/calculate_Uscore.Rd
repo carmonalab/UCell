@@ -13,6 +13,7 @@ calculate_Uscore(
   ncores = 1,
   w_neg = 1,
   ties.method = "average",
+  missing_genes = c("impute", "skip"),
   storeRanks = FALSE,
   force.gc = FALSE,
   name = "_UCell"
@@ -36,6 +37,10 @@ parallelize}
 
 \item{ties.method}{How to break ties, for data.table::frankv
 method ("average")}
+
+\item{missing_genes}{How to handle missing genes in matrix:
+"impute": impute expression to zero; "skip": remove missing
+genes from signature}
 
 \item{storeRanks}{Store ranks? (FALSE)}
 

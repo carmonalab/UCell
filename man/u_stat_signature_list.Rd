@@ -7,9 +7,10 @@
 u_stat_signature_list(
   sig_list,
   ranks_matrix,
-  maxRank = 1000,
+  maxRank = 1500,
   sparse = FALSE,
-  w_neg = 1
+  w_neg = 1,
+  missing_genes = "impute"
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ for u_stat function}
 \item{sparse}{Whether the vector of ranks is in sparse format}
 
 \item{w_neg}{Weight on negative signatures}
+
+\item{missing_genes}{How to handle missing genes in signatures}
 }
 \value{
 A matrix of U scores

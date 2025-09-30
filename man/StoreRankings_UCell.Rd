@@ -16,7 +16,7 @@ StoreRankings_UCell(
 )
 }
 \arguments{
-\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object
+\item{matrix}{Input matrix, either stored in a \link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment} object
 or as a raw matrix. \code{dgCMatrix} format supported.}
 
 \item{maxRank}{Maximum number of genes to rank per cell; above this rank, a

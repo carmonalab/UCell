@@ -4,10 +4,12 @@
 \alias{u_stat}
 \title{Calculate Mann Whitney U from a vector of ranks}
 \usage{
-u_stat(rank_value, maxRank = 1000, sparse = FALSE)
+u_stat(ranks_matrix, gene_idx, maxRank = 1500, sparse = FALSE)
 }
 \arguments{
-\item{rank_value}{A vector of ranks}
+\item{ranks_matrix}{A matrix of ranks}
+
+\item{gene_idx}{A list of gene indices}
 
 \item{maxRank}{Max number of features to include in ranking}
 

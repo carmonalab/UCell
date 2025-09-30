@@ -13,6 +13,7 @@ ScoreSignatures_UCell(
   name = "_UCell",
   assay = "counts",
   chunk.size = 100,
+  missing_genes = c("impute", "skip"),
   BPPARAM = NULL,
   ncores = 1,
   ties.method = "average",
@@ -20,7 +21,7 @@ ScoreSignatures_UCell(
 )
 }
 \arguments{
-\item{matrix}{Input matrix, either stored in a \link{SingleCellExperiment} object
+\item{matrix}{Input matrix, either stored in a \link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment} object
 or as a raw matrix. \code{dgCMatrix} format supported.}
 
 \item{features}{A list of signatures, for example:
@@ -47,6 +48,10 @@ importance to negative genes}
 
 \item{chunk.size}{Number of cells to be processed simultaneously (lower size
 requires slightly more computation but reduces memory demands)}
+
+\item{missing_genes}{How to handle missing genes in matrix:
+"impute": impute expression to zero; "skip": remove missing
+genes from signature}
 
 \item{BPPARAM}{A \code{\link[BiocParallel:register]{BiocParallel::bpparam()}} object that tells UCell
 how to parallelize. If provided, it overrides the \code{ncores} parameter.}

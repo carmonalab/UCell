@@ -55,7 +55,7 @@ SmoothKNN(
 )
 }
 \arguments{
-\item{obj}{Input object - either a \link{SingleCellExperiment} object
+\item{obj}{Input object - either a \link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment} object
 or a Seurat object.}
 
 \item{signature.names}{The names of the signatures (or any numeric metadata
@@ -71,11 +71,11 @@ It must be already present in the input object.}
 \item{up.only}{If set to TRUE, smoothed scores will only be allowed
 to increase by smoothing}
 
-\item{BNPARAM}{A \link{BiocNeighborParam} object specifying the algorithm to use
+\item{BNPARAM}{A \link[BiocNeighbors:BiocNeighborParam]{BiocNeighbors::BiocNeighborParam} object specifying the algorithm to use
 for kNN calculation.}
 
 \item{BPPARAM}{A \code{\link[BiocParallel:register]{BiocParallel::bpparam()}} object for parallel computing,
-e.g. \link{MulticoreParam} or \link{SnowParam}}
+e.g. \link[BiocParallel:MulticoreParam-class]{BiocParallel::MulticoreParam} or \link[BiocParallel:SnowParam-class]{BiocParallel::SnowParam}}
 
 \item{suffix}{Suffix to append to metadata columns
 for the new knn-smoothed scores}

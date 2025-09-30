@@ -79,11 +79,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Massimo Andreatta \email{massimo.andreatta@unil.ch} (\href{https://orcid.org/0000-0002-8036-2647}{ORCID})
+\strong{Maintainer}: Massimo Andreatta \email{massimo.andreatta@unige.ch} (\href{https://orcid.org/0000-0002-8036-2647}{ORCID})
 
 Authors:
 \itemize{
-  \item Santiago Carmona \email{santiago.carmona@unil.ch} (\href{https://orcid.org/0000-0002-2495-0671}{ORCID})
+  \item Santiago Carmona \email{santiago.carmona@unige.ch} (\href{https://orcid.org/0000-0002-2495-0671}{ORCID})
 }
 
 }

@@ -9,28 +9,43 @@
 #' 
 #' Any rank > maxRank is set to maxRank
 #' 
-#' @param rank_value A vector of ranks
+#' @param ranks_matrix A matrix of ranks
+#' @param gene_idx A list of gene indices
 #' @param maxRank Max number of features to include in ranking
 #' @param sparse Whether the vector of ranks is in sparse format
 #' 
 #' @return Normalized U statistic for the vector of ranks
-u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
+u_stat <- function(ranks_matrix, gene_idx, maxRank=1500, sparse=FALSE){
+  
+    len_sig <- length(gene_idx)
+    ncells <- ncol(ranks_matrix)-1 
     
-    if (sparse==TRUE){
-        rank_value[rank_value==0] <- maxRank
+    if (len_sig <= 0) {
+      return(rep(0, ncells))
     }
-    insig <- rank_value >= maxRank
-    if (all(insig)) {
-        return(0L)
-    } else {
-        rank_value[insig] <- maxRank
-        rank_sum <- sum(rank_value)
-        len_sig <- length(rank_value)
-        rank_sum_min <- len_sig*(len_sig + 1)/2
-        ucell_score <- 1 - (rank_sum-rank_sum_min)/(len_sig*maxRank - rank_sum_min)
-        return(ucell_score)
+    present_idx <- gene_idx[gene_idx>0]
+    missing_idx <- gene_idx[gene_idx<0]
+  
+    #Initialize rank_sum with missing genes
+    rank_sum <- rep(length(missing_idx) * maxRank, ncells)
+  
+    #Subset ranks_matrix by rows (genes) using numeric indices
+    if (length(present_idx) > 0) {
+      rank_sub <- ranks_matrix[present_idx, -1, drop = FALSE]
+      if (sparse==TRUE){
+        rank_sub[rank_sub==0] <- maxRank
+      }
+      insig <- rank_sub >= maxRank
+      rank_sub[insig] <- maxRank
+    
+      rank_sum = rank_sum + apply(rank_sub, 2, sum)
     }
+  
+    rank_sum_min <- len_sig*(len_sig + 1)/2
+    ucell_score <- 1 - (rank_sum-rank_sum_min)/(len_sig*maxRank - rank_sum_min)
+    return(ucell_score)
 }
+
 
 #' Calculate U scores for a list of signatures, given a rank matrix
 #' 
@@ -40,48 +55,45 @@ u_stat <- function(rank_value, maxRank=1000, sparse=FALSE){
 #'     for u_stat function
 #' @param   sparse        Whether the vector of ranks is in sparse format
 #' @param   w_neg         Weight on negative signatures
+#' @param   missing_genes How to handle missing genes in signatures
 #' 
 #' @return A matrix of U scores
 #' @import data.table
 #' 
-u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
-    sparse=FALSE, w_neg=1) {
+u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1500,
+    sparse=FALSE, w_neg=1, missing_genes="impute") {
     
-    dim <- ncol(ranks_matrix)-1
+    cell_names <- colnames(ranks_matrix)[-1]
+    dim <- length(cell_names)
+    all_genes <- ranks_matrix[["rn"]]
+    
     u_matrix <- vapply(sig_list, FUN.VALUE = numeric(dim), FUN=function(sig) {
         sig_neg <- grep('-$', unlist(sig), perl=TRUE, value=TRUE)
         sig_pos <- setdiff(unlist(sig), sig_neg)
         
-        if (length(sig_pos)>0) {
-            sig_pos <- gsub('\\+$','',sig_pos,perl=TRUE)
-            u_p <- as.numeric(ranks_matrix[
-                sig_pos,
-                lapply(.SD, function(x)
-                    u_stat(x,maxRank = maxRank,sparse=sparse)),
-                .SDcols=-1, on="rn"])
-        } else {
-            u_p <- rep(0, dim(ranks_matrix)[2]-1)
-        }
-        if (length(sig_neg)>0) {
-            sig_neg <- gsub('-$','',sig_neg,perl=TRUE)
-            u_n <- as.numeric(ranks_matrix[
-                sig_neg,
-                lapply(.SD, function(x)
-                    u_stat(x,maxRank = maxRank,sparse=sparse)),
-                .SDcols=-1, on="rn"])
-        } else {
-            u_n <- rep(0, dim(ranks_matrix)[2]-1)
-        }
+        #Positive gene set
+        sig_pos <- gsub('\\+$','',sig_pos,perl=TRUE)
+        pos_idx <- get_gene_idx(all_genes, sig_pos,
+                                 missing_genes = missing_genes)
         
+        u_p <- u_stat(ranks_matrix, pos_idx, maxRank, sparse=sparse)
+
+        #Negative gene set
+        sig_neg <- gsub('-$','',sig_neg,perl=TRUE)
+        neg_idx <- get_gene_idx(all_genes, sig_neg,
+                                 missing_genes = missing_genes)
+        
+        u_n <- u_stat(ranks_matrix, neg_idx, maxRank, sparse=sparse)
+
         diff <- u_p - w_neg*u_n   #Subtract negative sets, if any
-        diff[diff<0] <- 0
+        diff[diff<0] <- 0  #clip negative values
         return(diff)
     })
     if (is.vector(u_matrix)) {  # Case of ncells=1
       u_matrix <- t(as.matrix(u_matrix))
     }
     
-    rownames(u_matrix) <- colnames(ranks_matrix)[-1]
+    rownames(u_matrix) <- cell_names
     return (u_matrix)
 }
 
@@ -97,7 +109,10 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 #' @param   w_neg         Weight on negative signatures
 #' @param   ties.method   How to break ties, for data.table::frankv
 #'     method ("average")
-#' @param   storeRanks    Store ranks? (FALSE) 
+#' @param   storeRanks    Store ranks? (FALSE)
+#' @param   missing_genes How to handle missing genes in matrix:
+#'     "impute": impute expression to zero; "skip": remove missing
+#'     genes from signature       
 #' @param   force.gc      Force garbage collection? (FALSE) 
 #' @param   name          Suffix for metadata columns ("_UCell") 
 #' 
@@ -108,15 +123,14 @@ u_stat_signature_list <- function(sig_list, ranks_matrix, maxRank=1000,
 calculate_Uscore <- function(
         matrix, features,  maxRank=1500, chunk.size=100,
         BPPARAM = NULL, ncores=1, w_neg=1, ties.method="average",
+        missing_genes = c("impute","skip"),
         storeRanks=FALSE, force.gc=FALSE, name="_UCell"){
     
     #Make sure we have a sparse matrix
     if (!methods::is(matrix, "dgCMatrix")) {
         matrix <- Matrix::Matrix(as.matrix(matrix),sparse = TRUE)
     }
-    
-    #Check if all genes in signatures are present in the data matrix
-    matrix <- check_genes(matrix, features)
+    missing_genes <- match.arg(missing_genes)
     
     #Do not evaluate more genes than there are
     if (!is.numeric(maxRank)) {
@@ -151,7 +165,7 @@ calculate_Uscore <- function(
             cells_rankings <- data_to_ranks_data_table(x,
                 ties.method=ties.method)
             cells_U <- u_stat_signature_list(features, cells_rankings, 
-                maxRank=maxRank, sparse=FALSE,
+                maxRank=maxRank, sparse=FALSE, missing_genes=missing_genes,
                 w_neg=w_neg)
             colnames(cells_U) <- paste0(colnames(cells_U),name)
             if (storeRanks==TRUE){
@@ -189,15 +203,16 @@ calculate_Uscore <- function(
 #' @param ncores        How many cores to use for parallelization?
 #' @param force.gc      Force garbage collection to recover RAM? (FALSE)
 #' @param name          Name suffix for metadata columns ("_UCell")
+#' @param   missing_genes How to handle missing genes in matrix:
+#'     "impute": impute expression to zero; "skip": remove missing
+#'     genes from signature    
 #' 
 #' @return                    A list of signature scores
 #' @import    data.table
 rankings2Uscore <- function(ranks_matrix, features, chunk.size=100, w_neg=1,
                             BPPARAM = NULL,ncores=1, force.gc=FALSE,
+                            missing_genes = c("impute","skip"),
                             name="_UCell") {
-    
-    #Check if all genes in signatures are present in the stored signatures
-    ranks_matrix <- check_genes(ranks_matrix, features)
     
     #Weight on neg signatures must be >=0
     if (is.null(w_neg)) {w_neg <- 1}
@@ -222,8 +237,8 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=100, w_neg=1,
             setkey(dense, "rn", physical=FALSE)
             
             cells_U <- u_stat_signature_list(features, dense,
-                maxRank=maxRank, sparse=TRUE,
-                w_neg=w_neg)
+                maxRank=maxRank, sparse=TRUE, 
+                missing_genes = missing_genes, w_neg=w_neg)
             colnames(cells_U) <- paste0(colnames(cells_U),name)
             
             if (force.gc) {
@@ -236,45 +251,29 @@ rankings2Uscore <- function(ranks_matrix, features, chunk.size=100, w_neg=1,
     return(meta.list)
 }
 
-#' Check genes
+#' Get indices for genes in data matrix
 #'
-#' Check if all genes in signatures are found in data matrix - otherwise
-#' add zero counts in data-matrix to complete it
+#' Transform gene names into indices. Handle missing genes either by
+#' imputing or by skipping them.
 #' 
-#' @param matrix Input data matrix
-#' @param features List of genes that must be present
-#'     (otherwise they are added)
+#' @param all_genes Dictionary of all accepted gene names
+#' @param signature A gene signature
+#' @param missing_genes How to handle missing genes in dictionary:
+#'     "impute": impute expression to zero; "skip": remove missing
+#'     genes from signature      
 #' 
-#' @return Same input matrix, extended to comprise any missing genes
-check_genes <- function(matrix, features) {
-    features <- unlist(features)
-    features <- gsub("[-+]$","",features,perl=TRUE)
-    missing <- setdiff(features, rownames(matrix))
-    ll <- length(missing)
-    
-    if (ll/length(features) > 0.5) {
-        n <- round(100*ll/length(features))
-        mess <- sprintf("Over half of genes (%s%%)", n)
-        mess <- paste(mess, "in specified signatures are missing from data.",
-            "Check the integrity of your dataset.") 
-        warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
-    }
-    
-    if (ll>0) {
-        dim1 <- length(missing)
-        dim2 <- ncol(matrix)
-        add.mat <-  Matrix::Matrix(data=min(matrix),
-            nrow=dim1, ncol=dim2, sparse = TRUE)
-
-        rownames(add.mat) <- missing
-        matrix <- rbind(matrix, add.mat)
-        
-        missing.concatenate <- paste(missing, collapse=",")
-        mess <- sprintf("The following genes were not found and will be
-                        imputed to exp=0:\n* %s",missing.concatenate)
-        warning(mess, immediate.=TRUE, call.=FALSE, noBreaks.=TRUE)
-    }
-    return(matrix)
+#' @return List of indices for genes in signatures
+get_gene_idx <- function(all_genes, signature, missing_genes="impute") {
+  
+  idx <- match(signature, all_genes)  # get numeric indices
+  
+  if (missing_genes == "skip") {
+    idx <- idx[!is.na(idx)]
+  } else if (missing_genes == "impute") {
+    # Replace missing genes with -1; we'll handle them later in scoring
+    idx[is.na(idx)] <- -1
+  }
+  return(idx)
 }
 
 #' Check signature names and add standard names is missing

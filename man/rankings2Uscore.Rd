@@ -12,6 +12,7 @@ rankings2Uscore(
   BPPARAM = NULL,
   ncores = 1,
   force.gc = FALSE,
+  missing_genes = c("impute", "skip"),
   name = "_UCell"
 )
 }
@@ -30,6 +31,10 @@ parallelize}
 \item{ncores}{How many cores to use for parallelization?}
 
 \item{force.gc}{Force garbage collection to recover RAM? (FALSE)}
+
+\item{missing_genes}{How to handle missing genes in matrix:
+"impute": impute expression to zero; "skip": remove missing
+genes from signature}
 
 \item{name}{Name suffix for metadata columns ("_UCell")}
 }

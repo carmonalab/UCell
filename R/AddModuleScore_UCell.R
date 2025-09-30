@@ -37,6 +37,9 @@
 #'     \code{BiocParallel::MulticoreParam(workers=ncores)}
 #' @param ties.method How ranking ties should be resolved -
 #'      passed on to [data.table::frank]
+#' @param missing_genes How to handle missing genes in matrix:
+#'     "impute": impute expression to zero; "skip": remove missing
+#'     genes from signature       
 #' @param force.gc Explicitly call garbage collector to reduce memory footprint
 #' @param name Name tag that will be appended at the end of each signature
 #'    name, "_UCell" by default (e.g. signature score in meta data will be
@@ -68,12 +71,15 @@
 AddModuleScore_UCell <- function(obj, features, maxRank=1500,
         chunk.size=100, BPPARAM=NULL, ncores=1, storeRanks=FALSE,
         w_neg=1, assay=NULL, slot="counts", ties.method="average",
+        missing_genes = c("impute","skip"),
         force.gc=FALSE, name="_UCell") {
     if (!requireNamespace("Seurat", quietly = TRUE)) {
         stop("Function 'AddModuleScore_UCell' requires the Seurat package.
             Please install it.", call. = FALSE)
     }  
     features <- check_signature_names(features)
+    missing_genes <- match.arg(missing_genes)
+    
     if (is.null(assay)) {
         assay <- Seurat::DefaultAssay(obj)
     }
@@ -83,6 +89,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
         meta.list <- rankings2Uscore(
             Seurat::GetAssayData(obj, layer="counts", assay="UCellRanks"),
             features=features, chunk.size=chunk.size, w_neg=w_neg,
+            missing_genes=missing_genes,
             ncores=ncores, BPPARAM=BPPARAM, force.gc=force.gc, name=name)
     } else {
         layers <- SeuratObject::Layers(obj, assay=assay, search = slot)
@@ -96,6 +103,7 @@ AddModuleScore_UCell <- function(obj, features, maxRank=1500,
             features=features, maxRank=maxRank,
             chunk.size=chunk.size, w_neg=w_neg,
             ncores=ncores, BPPARAM=BPPARAM, ties.method=ties.method,
+            missing_genes=missing_genes,
             force.gc=force.gc, storeRanks=storeRanks, name=name)
         })
         
