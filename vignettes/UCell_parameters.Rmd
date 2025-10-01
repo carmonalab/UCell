@@ -1,0 +1,226 @@
+---
+title: "Some important parameters for UCell"
+author:
+- name: Massimo Andreatta
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
+- name: Santiago J. Carmona
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: UCell
+vignette: |
+  %\VignetteIndexEntry{4. Some important parameters for UCell}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This document describes some **important parameters** of the UCell algorithm, and how they can be adapted depending on your dataset. Here we will use single-cell data stored in a Seurat object, but the same considerations apply to [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_sce.html) or [matrix](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_vignette_basic.html) input formats.
+
+
+# Load example dataset
+
+For this demo, we will download a single-cell dataset of lung cancer ([Zilionis et al. (2019) Immunity](https://pubmed.ncbi.nlm.nih.gov/30979687/)) through the [scRNA-seq](https://bioconductor.org/packages/3.15/data/experiment/html/scRNAseq.html) package. This dataset contains >170,000 single cells; for the sake of simplicity, in this demo will we focus on immune cells, according to the annotations by the authors, and downsample to 5000 cells.
+
+```{r message=F, warning=F, results=F}
+library(scRNAseq)
+library(ggplot2)
+
+lung <- ZilionisLungData()
+immune <- lung$Used & lung$used_in_NSCLC_immune
+lung <- lung[,immune]
+lung <- lung[,1:5000]
+
+exp.mat <- Matrix::Matrix(counts(lung),sparse = TRUE)
+colnames(exp.mat) <- paste0(colnames(exp.mat), seq(1,ncol(exp.mat)))
+```
+
+Save it as a Seurat object
+```{r message=F, warning=F, results=F}
+library(Seurat)
+
+seurat.object <- CreateSeuratObject(counts = exp.mat, 
+                                    project = "Zilionis_immune")
+seurat.object <- NormalizeData(seurat.object)
+```
+
+**Note:** becase UCell scores are based on relative gene ranks, it can be applied both on raw counts or normalized data. As long as the normalization preserves the relative ranks between genes, the results will be equivalent.
+
+# Parameters
+## Positive and negative gene sets in signatures
+
+UCell supports positive and negative gene sets within a signature. Simply append + or - signs to the genes to include them in positive and negative sets, respectively. For example:
+
+```{r}
+signatures <- list(
+    CD8T = c("CD8A+","CD8B+","CD4-"),
+    CD4 = c("TRAC+","CD4+","CD40LG+","CD8A-","CD8B-"),
+    NK = c("KLRD1+","NCR1+","NKG7+","CD3D-","CD3E-")
+)
+```
+
+UCell evaluates the positive and negative gene sets separately, then subtracts the scores. The parameter `w_neg` controls the relative weight of the negative gene set compared to the positive set (`w_neg=1.0` means equal weight). Note that the combined score is clipped to zero, to preserve UCell scores in the [0, 1] range.
+
+```{r}
+library(UCell)
+
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures, 
+                                      w_neg = 1.0, name = NULL)
+
+scores <- seurat.object[[names(signatures)]]
+head(scores,15)
+```
+
+## The `maxRank` parameter
+
+Single-cell data are sparse. In other words, for any given cell only a few hundred/a few thousand genes (out of tens of thousands) are detected with at least one UMI count. Because UCell scores are based on ranking genes by their expression values, it is essential to account for data sparsity when calculating ranks. This is implemented by capping ranks to a `maxRank` parameter, in other words only the top `maxRank` genes are ranked, and the rest are assumed equivalent at the lowest ranking value.
+
+It is often useful to adjust the `maxRank` depending on the sparsity of your dataset. A good rule of thumb is to examine the median number of expressed genes per cell, and set `maxRank` in that order of magnitude. For example, for the test dataset:
+
+```{r message=F, warning=F, results=F}
+VlnPlot(seurat.object, features="nFeature_RNA", pt.size = 0, log = TRUE)
+```
+This dataset has relatively low depth, so it is advisable to choose a `maxRank` around 800-1000 (from the default 1500)
+```{r}
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures,
+                                      maxRank=1000)
+```
+
+This is even more important when applying UCell to technologies/modalities of much lower dimensionality, for example probe-based spatial transcriptomics data (e.g. Xenium, CosMx), or antibody tags (ADT) in CITE-seq experiments. Xenium panels contain a few hundred/a few thousand genes; CITE-seq can detect a few hundred proteins, as opposed to thousands of genes in scRNA-seq. The `maxRank` parameter should then also be adapted to reflect the new dimensionality, and set it at most to the number of probes in the panel.
+
+## Handling missing genes
+
+If a subset of the genes in your signature are absent from the count matrix, how should they be handled?
+
+UCell offers two alternative ways of handling missing genes:
+
+* `missing_genes="impute"` (default): it assumes that absence from the count matrix means zero expression. All values for this gene are imputed to zero. This can sometimes be the case for processed scRNA-seq datasets deposited in public repositories, where poorly detected genes are often dropped from the count matrix.
+* `missing_genes="skip"`: simply exclude all missing genes from the signatures; they won’t contribute to the scores.
+
+Here's an example with a missing gene:
+```{r}
+signatures <- list(
+    Myeloid = c("LYZ","CSF1R","not_a_gene")
+)
+
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures,
+                                      missing_genes="impute")
+scores1 <- seurat.object$Myeloid_UCell
+
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures,
+                                      missing_genes="skip")
+scores2 <- seurat.object$Myeloid_UCell
+
+scores <- cbind(scores1, scores2)
+head(scores)
+```
+## Chunk size
+
+UCell scores are calculated individually for each cell (though they may be later [smoothed](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_Seurat.html#5_Signature_smoothing) by nearest-neighbor similarity). This means that computation can be easily split into batches, reducing the computational footprint of gene ranking and enabling parallel processing (see below). The size of the batches is controlled by the `chunk.size` parameter. Large chunks take up more RAM, while small chunk sizes have large overhead from dataset splitting and merging. A sweet spot for `chunk.size` is usually in the order of 100-1000 cells per batch.
+```{r}
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures,
+                                      chunk.size=500)
+```
+
+## Parallelization
+
+If your machine has multi-core capabilities and enough RAM, running UCell in parallel can speed up considerably your analysis. The example below runs on a single core - you may modify this behavior by setting e.g. `workers=8` to parallelize to 8 processes:
+
+```{r}
+BPPARAM <- BiocParallel::MulticoreParam(workers=1)
+
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures,
+                                      BPPARAM=BPPARAM)
+```
+
+## Signature score smoothing
+
+To mitigate sparsity in single-cell data, it can be useful to 'impute' scores by neighboring cells. The function `SmoothKNN` performs smoothing of single-cell scores by weighted average of the k-nearest neighbors in a given dimensionality reduction. A crucial parameter is the number of neighbors `k` that are used for smoothing. A small `k` only borrows from very close neighbors, a large `k` takes weighted averages over large portions of transcriptional space:
+
+```{r message=F, warning=F}
+seurat.object <- NormalizeData(seurat.object)
+seurat.object <- FindVariableFeatures(seurat.object, 
+                     selection.method = "vst", nfeatures = 500)
+  
+seurat.object <- ScaleData(seurat.object)
+seurat.object <- RunPCA(seurat.object, npcs = 20, 
+                        features=VariableFeatures(seurat.object)) 
+seurat.object <- RunUMAP(seurat.object, reduction = "pca", 
+                         dims = 1:20, seed.use=123)
+```
+
+```{r}
+signatures <- list(
+    Tcell = c("CD3D","CD3E","CD3G","CD2","TRAC"),
+    Myeloid = c("CD14","LYZ","CSF1R","FCER1G","SPI1","LCK-"),
+    NK = c("KLRD1","NCR1","NKG7","CD3D-","CD3E-"),
+    Plasma_cell = c("MZB1","DERL3","CD19-")
+)
+
+seurat.object <- AddModuleScore_UCell(seurat.object, features=signatures,
+                                      name=NULL)
+```
+
+```{r}
+seurat.object <- SmoothKNN(seurat.object, reduction="pca",
+                           signature.names = names(signatures),
+                           k=3, suffix = "_kNN3")
+
+seurat.object <- SmoothKNN(seurat.object, reduction="pca",
+                           signature.names = names(signatures),
+                           k=100, suffix = "_kNN100")
+```
+
+```{r fig.wide=TRUE, dpi=60}
+FeaturePlot(seurat.object, reduction = "umap",
+            features = c("Tcell","Tcell_kNN3")) &
+  theme(aspect.ratio = 1)
+
+FeaturePlot(seurat.object, reduction = "umap",
+            features = c("Tcell","Tcell_kNN100")) &
+  theme(aspect.ratio = 1)
+```
+
+The `decay` parameter controls the relative influence of close vs distant neighbors. Lower the `decay` parameter to increase the weight for distant neighbors, increase `decay` to give higher weight to close neighbors
+
+```{r}
+seurat.object <- SmoothKNN(seurat.object, reduction="pca",
+                           signature.names = names(signatures),
+                           k=100, decay=0.001, suffix = "_decay0.001")
+
+seurat.object <- SmoothKNN(seurat.object, reduction="pca",
+                           signature.names = names(signatures),
+                           k=100, decay=0.5, suffix = "_decay0.5")
+```
+
+```{r fig.wide=TRUE, dpi=60}
+FeaturePlot(seurat.object, reduction = "umap",
+            features = c("Tcell_decay0.5","Tcell_decay0.001")) &
+  theme(aspect.ratio = 1)
+```
+
+# Resources
+
+
+Please report any issues at the [UCell GitHub repository](https://github.com/carmonalab/UCell).
+
+More demos available on the [Bioc landing page](https://bioconductor.org/packages/release/bioc/html/UCell.html) and at the [UCell demo repository](https://github.com/carmonalab/UCell_demo).
+
+If you find UCell useful, you may also check out the [scGate package](https://github.com/carmonalab/scGate), which relies on UCell scores to automatically purify populations of interest based on gene signatures.
+
+See also [SignatuR](https://github.com/carmonalab/SignatuR) for easy storing and retrieval of gene signatures.
+
+# References
+
+* Andreatta, M., Carmona, S. J. (2021) *UCell: Robust and scalable single-cell gene signature scoring* Computational and Structural Biotechnology Journal
+* Zilionis, R., Engblom, C., ..., Klein, A. M. (2019) *Single-Cell Transcriptomics of Human and Mouse Lung Cancers Reveals Conserved Myeloid Populations across Individuals and Species* Immunity
+* Hao, Yuhan, et al. (2021) *Integrated analysis of multimodal single-cell data* Cell
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

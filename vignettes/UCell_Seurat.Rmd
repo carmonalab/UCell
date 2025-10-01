@@ -2,9 +2,9 @@
 title: "Using UCell with Seurat"
 author:
 - name: Massimo Andreatta
-  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
 - name: Santiago J. Carmona
-  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -39,7 +39,7 @@ colnames(exp.mat) <- paste0(colnames(exp.mat), seq(1,ncol(exp.mat)))
 ```
 
 Save it as a Seurat object
-```{r}
+```{r message=F, warning=F, results=F}
 library(Seurat)
 seurat.object <- CreateSeuratObject(counts = exp.mat, 
                                     project = "Zilionis_immune")
@@ -80,11 +80,15 @@ seurat.object <- RunUMAP(seurat.object, reduction = "pca",
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.width=9, fig.height=7, dpi=60}
+```{r message=F, warning=F, fig.wide=TRUE, dpi=60}
 library(ggplot2)
 library(patchwork)
 
-FeaturePlot(seurat.object, reduction = "umap", features = names(signatures))
+FeaturePlot(seurat.object, reduction = "umap", features = names(signatures)[1:2]) &
+  theme(aspect.ratio = 1,
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank())
 ```
 
 # Signature smoothing
@@ -98,21 +102,27 @@ seurat.object <- SmoothKNN(seurat.object,
 ```
 
 ```{r fig.wide=TRUE, dpi=60}
-FeaturePlot(seurat.object, reduction = "umap", features = c("NK","NK_kNN"))
+FeaturePlot(seurat.object, reduction = "umap", features = c("NK","NK_kNN")) &
+    theme(aspect.ratio = 1,
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank())
 ```
 
 Smoothing (or imputation) has been designed for UCell scores, but it can be applied to any other data or metadata. For instance, we can perform knn-smoothing directly on gene expression measurements:
 
-```{r warning=FALSE, fig.width=9, fig.height=7, dpi=60}
+```{r warning=FALSE, fig.wide=TRUE, dpi=60}
 genes <- c("CD2","CSF1R")
 seurat.object <- SmoothKNN(seurat.object, signature.names=genes,
                  assay="RNA", reduction="pca", k=20, suffix = "_smooth")
 
 DefaultAssay(seurat.object) <- "RNA"
-a <- FeaturePlot(seurat.object, reduction = "umap", features = genes)
+FeaturePlot(seurat.object, reduction = "umap", features = genes) &
+  theme(aspect.ratio = 1)
+  
 DefaultAssay(seurat.object) <- "RNA_smooth"
-b <- FeaturePlot(seurat.object, reduction = "umap", features = genes)
-a / b
+FeaturePlot(seurat.object, reduction = "umap", features = genes) &
+  theme(aspect.ratio = 1)
 ```
 
 # Resources

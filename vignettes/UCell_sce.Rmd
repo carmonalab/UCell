@@ -2,9 +2,9 @@
 title: "Using UCell with SingleCellExperiment"
 author:
 - name: Massimo Andreatta
-  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
 - name: Santiago J. Carmona
-  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -73,12 +73,12 @@ sce <- runUMAP(sce, dimred="PCA")
 ```
 
 Visualize UCell scores on low-dimensional representation (UMAP)
-```{r fig.width=7, fig.height=5, dpi=60}
+```{r fig.wide=TRUE, dpi=60, message=F, warning=F, results=F}
 pll <- lapply(names(signatures), function(x) {
     plotUMAP(sce, colour_by = x, by_exprs_values = "UCell",
-             point_size=0.2) + theme(aspect.ratio = 1)
+             point_size=0.5) + theme(aspect.ratio = 1)
 })
-wrap_plots(pll)
+wrap_plots(pll[1:2])
 ```
 
 # Signature smoothing
@@ -89,12 +89,12 @@ Single-cell data are sparse. It can be useful to 'impute' scores by neighboring 
 sce <- SmoothKNN(sce, signature.names = names(signatures), reduction="PCA")
 ```
 
-```{r fig.wide=TRUE, dpi=60}
+```{r fig.wide=TRUE, dpi=60, message=F, warning=F, results=F}
 a <- plotUMAP(sce, colour_by="Myeloid", by_exprs_values="UCell",
-         point_size=0.2) + ggtitle("UCell") + theme(aspect.ratio = 1)
+         point_size=0.5) + ggtitle("UCell") + theme(aspect.ratio = 1)
 
 b <- plotUMAP(sce, colour_by="Myeloid_kNN", by_exprs_values="UCell_kNN",
-         point_size=0.2) + ggtitle("Smoothed UCell") + theme(aspect.ratio = 1)
+         point_size=0.5) + ggtitle("Smoothed UCell") + theme(aspect.ratio = 1)
 
 a | b
 ```

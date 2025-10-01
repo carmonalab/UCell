@@ -2,9 +2,9 @@
 title: "Gene signature scoring with UCell"
 author:
 - name: Massimo Andreatta
-  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
 - name: Santiago J. Carmona
-  affiliation: Ludwig Institute for Cancer Research, Lausanne Branch, and Department of Oncology, CHUV and University of Lausanne, Epalinges 1066, Switzerland; and Swiss Institute of Bioinformatics, Lausanne, Switzerland
+  affiliation: Department of Pathology and Immunology, Faculty of Medicine, University of Geneva, 1206, Geneva, Switzerland; Swiss Institute of Bioinformatics, 1015, Lausanne, Switzerland
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -52,6 +52,9 @@ lung <- lung[,1:5000]
 exp.mat <- Matrix::Matrix(counts(lung),sparse = TRUE)
 colnames(exp.mat) <- paste0(colnames(exp.mat), seq(1,ncol(exp.mat)))
 ```
+
+**Note:** becase UCell scores are based on relative gene ranks, it can be applied both on raw counts or normalized data. As long as the normalization preserves the relative ranks between genes, the results will be equivalent.
+
 
 # Define gene signatures
 
