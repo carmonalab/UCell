@@ -50,13 +50,15 @@ head(scores)
 
 Vignettes to run UCell on matrices, SingleCellExperiment or Seurat objects can be found at the [UCell Bioc page](https://bioconductor.org/packages/release/bioc/html/UCell.html).
 
-Extended tutorial are also available at:
+1. [Gene signature scoring with UCell](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_vignette_basic.html)
+2. [Using UCell with SingleCellExperiment](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_sce.html)
+3. [Using UCell with Seurat](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_Seurat.html)
+4. [Some important UCell parameters](https://bioconductor.org/packages/devel/bioc/vignettes/UCell/inst/doc/UCell_parameters.html)
 
-* [Single-cell gene signature scoring with UCell](https://carmonalab.github.io/UCell_demo/UCell_matrix_vignette.html)
+Additional tutorials are also available at:
 
-* [Using UCell with Seurat objects](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
-
-* [Using UCell and Seurat to identify different T cell subtypes/states in human tumors](https://carmonalab.github.io/UCell_demo/UCell_vignette_TILstates.html)
+* [UCell vs. AddModuleScore()](https://carmonalab.github.io/UCell_demo/UCell_Seurat_vignette.html)
+* [Using UCell and Seurat to identify different T cell subtypes in human tumors](https://carmonalab.github.io/UCell_demo/UCell_vignette_TILstates.html)
 
 ### New in version >= 2.7.6
 
