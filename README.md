@@ -53,7 +53,7 @@ Vignettes to run UCell on matrices, SingleCellExperiment or Seurat objects can b
 1. [Gene signature scoring with UCell](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_vignette_basic.html)
 2. [Using UCell with SingleCellExperiment](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_sce.html)
 3. [Using UCell with Seurat](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_Seurat.html)
-4. [Some important UCell parameters](https://bioconductor.org/packages/devel/bioc/vignettes/UCell/inst/doc/UCell_parameters.html)
+4. [Some important UCell parameters](https://bioconductor.org/packages/release/bioc/vignettes/UCell/inst/doc/UCell_parameters.html)
 
 Additional tutorials are also available at:
 
@@ -68,15 +68,13 @@ ${UCell} = 1 - {U} / {U_{max}}$
 
 where
 
-$U = \sum_{i} r_{i} - s_{min}$
+$U = \sum_{i=1}^{n} r_i - \frac{n(n+1)}{2}$
 
-$U_{max} = s_{max} - s_{min}$
+and the normalization factor $U_{max}$ is:
 
-$s_{max} = n * {maxRank}$
+$U_{max} = n \cdot {maxRank} - \frac{n(n+1)}{2}$
 
-$s_{min} = n(n+1) / 2$
-
-$n$ is the number of genes in the signature, ${maxRank}$ is a parameter limiting the ranking to the top genes, and U is the Mann-Whitney U statistic (bounded by 0 and $U_{max}$). Earlier implementations used $U_{max} = s_{max}$ to normalize the U statistics. While for typical applications results should be similar between the two implementations, the new normalization provides more homogeneous UCell score distributions for large gene sets.
+$n$ is the number of genes in the signature, $r_i$ are the cell-wise ranks for each of the $n$ genes, ${maxRank}$ is a parameter capping the ranking to the top genes (1500 by default), and $U$ is the Mann-Whitney U statistic (bounded by 0 and $U_{max}$). Earlier implementations used $U_{max} = n \cdot {maxRank}$ to normalize the U statistics. While for typical applications results should be similar between the two implementations, the new normalization provides more homogeneous UCell score distributions for large gene sets.
 
 ### New in version >= 2.1.2
 
