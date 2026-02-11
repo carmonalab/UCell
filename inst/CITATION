@@ -3,8 +3,19 @@ bibentry(
     author = c(
         person("Massimo", "Andreatta"),
         person(c("Santiago", "J."), "Carmona")),
+    title="UCell and pyUCell: single-cell gene signature scoring for R and Python",
+    journal="Bioinformatics",
+    year="2026",
+    pages="btag055",
+    doi = "10.1093/bioinformatics/btag055",
+)
+bibentry(
+    bibtype = "article",
+    author = c(
+        person("Massimo", "Andreatta"),
+        person(c("Santiago", "J."), "Carmona")),
     title="UCell: Robust and scalable single-cell gene signature scoring",
-    journal=" Comput Struct Biotechnol J.",
+    journal="Comput Struct Biotechnol J.",
     year="2021",
     volume="19",
     pages="3796-3798",
